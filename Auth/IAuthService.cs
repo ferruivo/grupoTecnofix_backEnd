@@ -4,8 +4,8 @@ namespace GrupoTecnofix_Api.Auth
 {
     public interface IAuthService
     {
-        Task<TokenResponse> LoginAsync(string login, string senha, HttpContext http);
-        Task<TokenResponse> RefreshAsync(string refreshToken, HttpContext http);
+        Task<TokenResponseDto> LoginAsync(string login, string senha, HttpContext http);
+        Task<TokenResponseDto> RefreshAsync(string refreshToken, HttpContext http);
         Task LogoutAsync(string refreshToken);
     }
 

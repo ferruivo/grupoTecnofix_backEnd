@@ -1,8 +1,8 @@
 ﻿using GrupoTecnofix_Api.Auth;
 using GrupoTecnofix_Api.Dtos.Auth;
 using Microsoft.AspNetCore.Mvc;
-using LoginRequest = GrupoTecnofix_Api.Dtos.Auth.LoginRequest;
-using RefreshRequest = GrupoTecnofix_Api.Dtos.Auth.RefreshRequest;
+using LoginRequestDto = GrupoTecnofix_Api.Dtos.Auth.LoginRequestDto;
+using RefreshRequestDto = GrupoTecnofix_Api.Dtos.Auth.RefreshRequestDto;
 
 namespace GrupoTecnofix_Api.Controllers
 {
@@ -14,15 +14,15 @@ namespace GrupoTecnofix_Api.Controllers
         public AuthController(IAuthService auth) => _auth = auth;
 
         [HttpPost("login")]
-        public async Task<ActionResult<TokenResponse>> Login([FromBody] LoginRequest req)
+        public async Task<ActionResult<TokenResponseDto>> Login([FromBody] LoginRequestDto req)
             => Ok(await _auth.LoginAsync(req.Login, req.Senha, HttpContext));
 
         [HttpPost("refresh")]
-        public async Task<ActionResult<TokenResponse>> Refresh([FromBody] RefreshRequest req)
+        public async Task<ActionResult<TokenResponseDto>> Refresh([FromBody] RefreshRequestDto req)
             => Ok(await _auth.RefreshAsync(req.RefreshToken, HttpContext));
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromBody] RefreshRequest req)
+        public async Task<IActionResult> Logout([FromBody] RefreshRequestDto req)
         {
             await _auth.LogoutAsync(req.RefreshToken);
             return NoContent();

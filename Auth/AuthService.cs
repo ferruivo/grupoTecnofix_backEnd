@@ -1,4 +1,5 @@
-﻿using GrupoTecnofix_Api.Data;
+﻿
+using GrupoTecnofix_Api.Data;
 using GrupoTecnofix_Api.Dtos.Auth;
 using GrupoTecnofix_Api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -23,23 +24,22 @@ namespace GrupoTecnofix_Api.Auth
             _cfg = cfg;
         }
 
-        public async Task<TokenResponse> LoginAsync(string login, string senha, HttpContext http)
+        public async Task<TokenResponseDto> LoginAsync(string login, string senha, HttpContext http)
         {
             var u = await _db.Usuarios.FirstOrDefaultAsync(x => x.Login == login && x.Ativo);
             if (u is null) throw new UnauthorizedAccessException("Login inválido");
 
-            // BCrypt recomendado
             if (!BCrypt.Net.BCrypt.Verify(senha, u.SenhaHash))
                 throw new UnauthorizedAccessException("Login inválido");
 
             return await IssueTokensAsync(u, http);
         }
 
-        public async Task<TokenResponse> RefreshAsync(string refreshToken, HttpContext http)
+        public async Task<TokenResponseDto> RefreshAsync(string refreshToken, HttpContext http)
         {
             var tokenHash = Sha256(refreshToken);
 
-            var rt = await _db.TokensAtualizacao
+            var rt = await _db.TokensAtualizacaos
                 .FirstOrDefaultAsync(x => x.TokenHash == tokenHash);
 
             if (rt is null || rt.DataRevogacao != null || rt.DataExpiracao <= DateTime.UtcNow)
@@ -58,7 +58,7 @@ namespace GrupoTecnofix_Api.Auth
         public async Task LogoutAsync(string refreshToken)
         {
             var tokenHash = Sha256(refreshToken);
-            var rt = await _db.TokensAtualizacao.FirstOrDefaultAsync(x => x.TokenHash == tokenHash);
+            var rt = await _db.TokensAtualizacaos.FirstOrDefaultAsync(x => x.TokenHash == tokenHash);
             if (rt != null && rt.DataRevogacao == null)
             {
                 rt.DataRevogacao = DateTime.UtcNow;
@@ -66,7 +66,7 @@ namespace GrupoTecnofix_Api.Auth
             }
         }
 
-        private async Task<TokenResponse> IssueTokensAsync(Usuario u, HttpContext http)
+        private async Task<TokenResponseDto> IssueTokensAsync(Usuario u, HttpContext http)
         {
             var jwtCfg = _cfg.GetSection("Jwt");
             var issuer = jwtCfg["Issuer"]!;
@@ -115,7 +115,7 @@ namespace GrupoTecnofix_Api.Auth
             var refreshToken = GenerateSecureToken(64);
             var refreshHash = Sha256(refreshToken);
 
-            var rt = new TokenAtualizacao
+            var rt = new TokensAtualizacao
             {
                 IdUsuario = u.IdUsuario,
                 TokenHash = refreshHash,
@@ -125,10 +125,10 @@ namespace GrupoTecnofix_Api.Auth
                 UserAgentCriacao = http.Request.Headers.UserAgent.ToString()
             };
 
-            _db.TokensAtualizacao.Add(rt);
+            _db.TokensAtualizacaos.Add(rt);
             await _db.SaveChangesAsync();
 
-            return new TokenResponse(accessToken, refreshToken, (int)TimeSpan.FromMinutes(accessMinutes).TotalSeconds);
+            return new TokenResponseDto(accessToken, refreshToken, (int)TimeSpan.FromMinutes(accessMinutes).TotalSeconds);
         }
 
         private static string GenerateSecureToken(int bytes)

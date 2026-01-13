@@ -1,0 +1,4 @@
+﻿Scaffold-DbContext "Server=177.93.111.112,6433;Database=GrupoTecnofix;User Id=fixadores;Password=Tecno2@@3;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Context AppDbContext -ContextDir Data -OutputDir Models -DataAnnotations -NoOnConfiguring -Force
+
+--Unitario
+Scaffold-DbContext "Server=177.93.111.112,6433;Database=GrupoTecnofix;User Id=fixadores;Password=Tecno2@@3;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Context AppDbContext -ContextDir OUT\Data -OutputDir OUT\Models -DataAnnotations -NoOnConfiguring -Force -Tables CLIENTES

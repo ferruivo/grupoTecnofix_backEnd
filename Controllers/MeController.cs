@@ -42,5 +42,4 @@ namespace GrupoTecnofix_Api.Controllers
             });
         }
     }
-
 }
