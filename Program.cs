@@ -72,6 +72,7 @@ builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationP
 builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionHandler>();
 
 // ===================== DI =====================
+
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
@@ -85,6 +86,13 @@ builder.Services.AddScoped<IMunicipiosRepository, MunicipiosRepository>();
 builder.Services.AddScoped<IMunicipiosService, MunicipiosService>();
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
+builder.Services.AddScoped<IPerfisRepository, PerfisRepository>();
+builder.Services.AddScoped<IUsuariosAclRepository, UsuariosAclRepository>();
+builder.Services.AddScoped<IPerfisService, PerfisService>();
+builder.Services.AddScoped<IUsuariosAclService, UsuariosAclService>();
+builder.Services.AddScoped<IPermissoesRepository, PermissoesRepository>();
+builder.Services.AddScoped<IPermissoesService, PermissoesService>();
+
 
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
@@ -93,6 +101,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<TransportadorasProfile>();
     cfg.AddProfile<VendedoresProfile>();
     cfg.AddProfile<EmpresaProfile>();
+    cfg.AddProfile<PerfisProfile>();
 });
 
 // ===================== Swagger =====================

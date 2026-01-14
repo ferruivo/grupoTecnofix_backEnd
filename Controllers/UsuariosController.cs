@@ -16,8 +16,13 @@ namespace GrupoTecnofix_Api.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly IUsuariosService _service;
+        private readonly IUsuariosAclService _usuariosAcl;
 
-        public UsuariosController(IUsuariosService service) => _service = service;
+        public UsuariosController(IUsuariosService service, IUsuariosAclService usuariosAcl)
+        {
+            _service = service;
+            _usuariosAcl = usuariosAcl;
+        }
 
         [Authorize(Policy = "usuarios.read")]
         [HttpGet]
@@ -50,6 +55,19 @@ namespace GrupoTecnofix_Api.Controllers
         public async Task<IActionResult> ResetSenha(int id, CancellationToken ct)
         {
             await _service.ResetSenhaAsync(id, ct);
+            return NoContent();
+        }
+
+        [Authorize(Policy = "acl.manage")]
+        [HttpGet("{id}/perfis")]
+        public async Task<IActionResult> GetPerfis(int id, CancellationToken ct)
+    => Ok(await _usuariosAcl.GetPerfisIdsAsync(id, ct));
+
+        [Authorize(Policy = "acl.manage")]
+        [HttpPut("{id}/perfis")]
+        public async Task<IActionResult> UpdatePerfis(int id, [FromBody] List<int> perfisIds, CancellationToken ct)
+        {
+            await _usuariosAcl.UpdatePerfisAsync(id, perfisIds, ct);
             return NoContent();
         }
     }

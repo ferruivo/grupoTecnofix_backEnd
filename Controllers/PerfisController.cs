@@ -1,5 +1,7 @@
 ﻿
+using GrupoTecnofix_Api.BLL.Interfaces;
 using GrupoTecnofix_Api.Data;
+using GrupoTecnofix_Api.Dtos.Perfil;
 using GrupoTecnofix_Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,81 +11,53 @@ namespace GrupoTecnofix_Api.Controllers
 {
     [ApiController]
     [Route("perfis")]
-    [Authorize(Policy = "acl.manage")]
+    [Authorize]
     public class PerfisController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        public PerfisController(AppDbContext db) => _db = db;
+        private readonly IPerfisService _service;
 
+        public PerfisController(IPerfisService service) => _service = service;
+
+        [Authorize(Policy = "acl.manage")]
         [HttpGet]
-        public async Task<IActionResult> Get()
-            => Ok(await _db.Perfis
-                .Select(p => new { p.IdPerfil, p.Nome })
-                .OrderBy(p => p.Nome)
-                .ToListAsync());
+        public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? search = null, CancellationToken ct = default)
+            => Ok(await _service.GetPagedAsync(page, pageSize, search, ct));
 
+        [Authorize(Policy = "acl.manage")]
+        [HttpGet("lookup")]
+        public async Task<IActionResult> Lookup([FromQuery] string? search = null, CancellationToken ct = default)
+            => Ok(await _service.GetLookupAsync(search, ct));
+
+        [Authorize(Policy = "acl.manage")]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Perfi dto)
+        public async Task<IActionResult> Create([FromBody] PerfilCreateDto dto, CancellationToken ct)
         {
-            _db.Perfis.Add(dto);
-            await _db.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { dto.IdPerfil }, dto);
+            var id = await _service.CreateAsync(dto, ct);
+            return Ok(new { id });
         }
 
+        [Authorize(Policy = "acl.manage")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Perfi dto)
+        public async Task<IActionResult> Update(int id, [FromBody] PerfilUpdateDto dto, CancellationToken ct)
         {
-            var perfil = await _db.Perfis.FindAsync(id);
-            if (perfil == null) return NotFound();
-
-            perfil.Nome = dto.Nome;
-            await _db.SaveChangesAsync();
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var perfil = await _db.Perfis.FindAsync(id);
-            if (perfil == null) return NotFound();
-
-            _db.Perfis.Remove(perfil);
-            await _db.SaveChangesAsync();
+            await _service.UpdateAsync(id, dto, ct);
             return NoContent();
         }
 
         // =========================
         // PERMISSÕES DO PERFIL
         // =========================
-
+        [Authorize(Policy = "acl.manage")]
         [HttpGet("{id}/permissoes")]
-        public async Task<IActionResult> GetPermissoes(int id)
-        {
-            var permissoes = await (from pp in _db.PerfisPermissoes
-                                    join p in _db.Permissoes on pp.IdPermissao equals p.IdPermissao
-                                    where pp.IdPerfil == id
-                                    select new { p.IdPermissao, p.Codigo }).ToListAsync();
+        public async Task<IActionResult> GetPermissoes(int id, CancellationToken ct)
+    => Ok(await _service.GetPermissoesAsync(id, ct));
 
-            return Ok(permissoes);
-        }
-
+        [Authorize(Policy = "acl.manage")]
         [HttpPut("{id}/permissoes")]
-        public async Task<IActionResult> UpdatePermissoes(int id, [FromBody] List<int> permissoes)
+        public async Task<IActionResult> UpdatePermissoes(int id, [FromBody] List<int> permissoesIds, CancellationToken ct)
         {
-            var atuais = _db.PerfisPermissoes.Where(x => x.IdPerfil == id);
-            _db.PerfisPermissoes.RemoveRange(atuais);
-
-            foreach (var pid in permissoes.Distinct())
-            {
-                _db.PerfisPermissoes.Add(new PerfisPermisso
-                {
-                    IdPerfil = id,
-                    IdPermissao = pid
-                });
-            }
-
-            await _db.SaveChangesAsync();
+            await _service.UpdatePermissoesAsync(id, permissoesIds, ct);
             return NoContent();
-            }
         }
+    }
 }
