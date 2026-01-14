@@ -6,7 +6,9 @@ using GrupoTecnofix_Api.Data;
 using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Data.Repositories;
 using GrupoTecnofix_Api.Mappings;
+using GrupoTecnofix_Api.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -20,8 +22,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IPermissionService, PermissionService>();
+
+builder.Services.AddHttpContextAccessor();
 
 // ===================== JWT =====================
 var jwt = builder.Configuration.GetSection("Jwt");
@@ -70,13 +72,27 @@ builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationP
 builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, PermissionHandler>();
 
 // ===================== DI =====================
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IUsuariosRepository, UsuariosRepository>();
 builder.Services.AddScoped<IUsuariosService, UsuariosService>();
+builder.Services.AddScoped<ITransportadorasRepository, TransportadorasRepository>();
+builder.Services.AddScoped<ITransportadorasService, TransportadorasService>();
+builder.Services.AddScoped<IVendedoresRepository, VendedoresRepository>();
+builder.Services.AddScoped<IVendedoresService, VendedoresService>();
+builder.Services.AddScoped<IMunicipiosRepository, MunicipiosRepository>();
+builder.Services.AddScoped<IMunicipiosService, MunicipiosService>();
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<UsuariosProfile>();
+    cfg.AddProfile<TransportadorasProfile>();
+    cfg.AddProfile<VendedoresProfile>();
+    cfg.AddProfile<EmpresaProfile>();
 });
 
 // ===================== Swagger =====================
@@ -134,6 +150,32 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "GrupoTecnofix API v1");
     });
 }
+
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        context.Response.ContentType = "application/json";
+
+        if (exception is ConflictException)
+        {
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                message = exception.Message
+            });
+            return;
+        }
+
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            message = "Erro interno."
+        });
+    });
+});
 
 app.UseHttpsRedirection();
 

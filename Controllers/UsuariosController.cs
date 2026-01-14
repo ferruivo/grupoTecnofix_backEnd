@@ -24,6 +24,10 @@ namespace GrupoTecnofix_Api.Controllers
         public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? search = null, CancellationToken ct = default)
         => Ok(await _service.GetPagedAsync(page, pageSize, search, ct));
 
+        [Authorize(Policy = "usuarios.read")]
+        [HttpGet("lookup")]
+        public async Task<IActionResult> Get([FromQuery] string? search = null, CancellationToken ct = default)
+        => Ok(await _service.GetListAsync(search, ct));
 
         [Authorize(Policy = "usuarios.create")]
         [HttpPost]
@@ -38,27 +42,6 @@ namespace GrupoTecnofix_Api.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UsuarioUpdateDto dto, CancellationToken ct)
         {
             await _service.UpdateAsync(id, dto, ct);
-            return NoContent();
-        }
-
-        [Authorize(Policy = "usuarios.delete")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id, CancellationToken ct)
-        {
-            await _service.DeleteAsync(id, ct);
-            return NoContent();
-        }
-
-        [Authorize(Policy = "acl.manage")]
-        [HttpGet("{id}/perfis")]
-        public async Task<IActionResult> GetPerfis(int id, CancellationToken ct)
-            => Ok(await _service.GetPerfisAsync(id, ct));
-
-        [Authorize(Policy = "acl.manage")]
-        [HttpPut("{id}/perfis")]
-        public async Task<IActionResult> UpdatePerfis(int id, [FromBody] List<int> perfis, CancellationToken ct)
-        {
-            await _service.UpdatePerfisAsync(id, perfis, ct);
             return NoContent();
         }
 

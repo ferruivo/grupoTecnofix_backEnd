@@ -1,8 +1,6 @@
-﻿
-using GrupoTecnofix_Api.Data;
+﻿using GrupoTecnofix_Api.BLL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GrupoTecnofix_Api.Controllers
 {
@@ -11,31 +9,13 @@ namespace GrupoTecnofix_Api.Controllers
     [Authorize]
     public class MunicipiosController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        public MunicipiosController(AppDbContext db) => _db = db;
+        private readonly IMunicipiosService _service;
+
+        public MunicipiosController(IMunicipiosService service) => _service = service;
 
         [Authorize(Policy = "municipios.read")]
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] string? uf, [FromQuery] string? search)
-        {
-            var q = _db.Municipios.AsNoTracking();
-
-            if (!string.IsNullOrWhiteSpace(uf))
-                q = q.Where(x => x.Uf == uf.Trim().ToUpper());
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                search = search.Trim();
-                q = q.Where(x => x.Nome.Contains(search));
-            }
-
-            var items = await q
-                .OrderBy(x => x.Nome)
-                .Take(50)
-                .Select(x => new { x.IdMunicipio, x.Nome, x.Uf })
-                .ToListAsync();
-
-            return Ok(items);
-        }
+        public async Task<IActionResult> Get([FromQuery] string? search = null, CancellationToken ct = default)
+        => Ok(await _service.GetListAsync(search, ct));
     }
 }

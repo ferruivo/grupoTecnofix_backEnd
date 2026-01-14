@@ -6,14 +6,10 @@ namespace GrupoTecnofix_Api.Data.Interface
 {
     public interface IUsuariosRepository
     {
-        
+        Task<PagedResult<UsuarioListDto>> GetListPagedAsync(int page, int pageSize, string? search, CancellationToken ct);
+        Task<List<UsuarioListDto>> GetListAsync(string? search, CancellationToken ct);
         Task<Usuario?> GetByIdAsync(int id, CancellationToken ct);
-        Task<PagedResult<UsuarioListDto>> GetListAsync(int page, int pageSize, string? search, CancellationToken ct);
-
         Task AddAsync(Usuario usuario, CancellationToken ct);
         Task SaveAsync(CancellationToken ct);
-
-        Task<List<int>> GetPerfisAsync(int idUsuario, CancellationToken ct);
-        Task ReplacePerfisAsync(int idUsuario, IEnumerable<int> perfis, CancellationToken ct);
     }
 }

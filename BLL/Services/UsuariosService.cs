@@ -24,7 +24,12 @@ namespace GrupoTecnofix_Api.BLL.Services
             if (pageSize < 1) pageSize = 20;
             if (pageSize > 200) pageSize = 200;
 
-            return await _repo.GetListAsync(page, pageSize, search, ct);
+            return await _repo.GetListPagedAsync(page, pageSize, search, ct);
+        }
+
+        public async Task<List<UsuarioListDto>> GetListAsync(string? search, CancellationToken ct)
+        {
+            return await _repo.GetListAsync(search, ct);
         }
 
         public async Task<int> CreateAsync(UsuarioCreateDto dto, CancellationToken ct)
@@ -47,29 +52,6 @@ namespace GrupoTecnofix_Api.BLL.Services
 
             _mapper.Map(dto, u);
 
-            await _repo.SaveAsync(ct);
-        }
-
-        public async Task DeleteAsync(int id, CancellationToken ct)
-        {
-            var u = await _repo.GetByIdAsync(id, ct);
-            if (u is null) throw new KeyNotFoundException("Usuário não encontrado.");
-
-            // regra: soft delete
-            u.Ativo = false;
-
-            await _repo.SaveAsync(ct);
-        }
-
-        public async Task<List<int>> GetPerfisAsync(int id, CancellationToken ct)
-            => await _repo.GetPerfisAsync(id, ct);
-
-        public async Task UpdatePerfisAsync(int id, List<int> perfis, CancellationToken ct)
-        {
-            var u = await _repo.GetByIdAsync(id, ct);
-            if (u is null) throw new KeyNotFoundException("Usuário não encontrado.");
-
-            await _repo.ReplacePerfisAsync(id, perfis, ct);
             await _repo.SaveAsync(ct);
         }
 
