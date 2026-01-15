@@ -1,6 +1,7 @@
 ﻿using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Municipios;
+using GrupoTecnofix_Api.Dtos.Perfis;
 using GrupoTecnofix_Api.Dtos.Transportadoras;
 using GrupoTecnofix_Api.Dtos.Usuario;
 using GrupoTecnofix_Api.Dtos.Vendedor;
@@ -15,7 +16,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         public VendedoresRepository(AppDbContext db) => _db = db;
 
-        public async Task<PagedResult<VendedorListDto>> GetListAsync(int page, int pageSize, string? search, CancellationToken ct)
+        public async Task<PagedResult<VendedorListDto>> GetListPagedAsync(int page, int pageSize, string? search, CancellationToken ct)
         {
             var query =
                 from v in _db.Vendedores.AsNoTracking()
@@ -61,6 +62,44 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 TotalItems = total,
                 Items = items
             };
+        }
+
+        public async Task<List<VendedorListDto>> GetListAsync(string? search, CancellationToken ct)
+        {
+            var query =
+                from v in _db.Vendedores.AsNoTracking()
+                join u in _db.Usuarios.AsNoTracking()
+                    on v.IdUsuario equals u.IdUsuario
+                select new { v, u };
+
+            // filtro (inclui nome do usuário)
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+
+                query = query.Where(x =>
+                    x.u.NomeCompleto.Contains(s) ||
+                    (x.v.Observacao != null && x.v.Observacao.Contains(s))
+                );
+            }
+
+            var total = await query.CountAsync(ct);
+
+            return await query
+                .OrderBy(x => x.v.IdVendedor)
+                .Select(x => new VendedorListDto
+                {
+                    IdVendedor = x.v.IdVendedor,
+                    Interno = x.v.Interno,
+                    Externo = x.v.Externo,
+                    Observacao = x.v.Observacao,
+
+                    Usuario = new UsuarioDto
+                    {
+                        NomeCompleto = x.u.NomeCompleto
+                    }
+                })
+                .ToListAsync(ct);
         }
 
         public Task<VendedorDto?> GetByIdAsync(int id, CancellationToken ct)

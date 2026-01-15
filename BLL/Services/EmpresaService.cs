@@ -35,26 +35,13 @@ namespace GrupoTecnofix_Api.BLL.Services
             var e = await _repo.GetByIdAsync(id, ct);
             if (e is null) throw new KeyNotFoundException("Empresa não encontrada.");
 
-            Municipio m = await _mun_Repo.GetByIdAsync(e.IdMunicipio, ct);
-            
-            return new EmpresaDto
-            {
-                IdEmpresa = e.IdEmpresa,
-                RazaoSocial = e.RazaoSocial,
-                NomeFantasia = e.NomeFantasia,
-                Cnpj = e.Cnpj,
-                InscricaoEstadual = e.InscricaoEstadual,
-                Cep = e.Cep,
-                Endereco = e.Endereco,
-                Bairro = e.Bairro,
-                Numero = e.Numero,
-                Complemento = e.Complemento,
-                IdMunicipio = e.IdMunicipio,
-                Municipio = new MunicipioDto { IdMunicipio = m.IdMunicipio, Nome = m.Nome, UF = m.Uf },
-                Telefone = e.Telefone,
-                Regime = e.Regime,
-                AliquotaRecIcms = e.AliquotaRecIcms
-            };
+            var dto = _mapper.Map<EmpresaDto>(e);
+
+            var m = await _mun_Repo.GetByIdAsync(e.IdMunicipio, ct);
+            if (m != null)
+                dto.Municipio = _mapper.Map<MunicipioDto>(m);
+
+            return dto;
         }
 
         public async Task UpdateAsync(int id, EmpresaUpdateDto dto, CancellationToken ct)

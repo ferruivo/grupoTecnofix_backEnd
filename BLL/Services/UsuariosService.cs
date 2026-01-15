@@ -3,6 +3,7 @@ using GrupoTecnofix_Api.BLL.Interfaces;
 using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Usuario;
+using GrupoTecnofix_Api.Dtos.Vendedor;
 using GrupoTecnofix_Api.Models;
 
 namespace GrupoTecnofix_Api.BLL.Services
@@ -30,6 +31,16 @@ namespace GrupoTecnofix_Api.BLL.Services
         public async Task<List<UsuarioListDto>> GetListAsync(string? search, CancellationToken ct)
         {
             return await _repo.GetListAsync(search, ct);
+        }
+
+        public async Task<UsuarioDto> GetByIdAsync(int id, CancellationToken ct)
+        {
+            var u = await _repo.GetByIdAsync(id, ct);
+            if (u is null) throw new KeyNotFoundException("Usuário não encontrado.");
+
+            var dto = _mapper.Map<UsuarioDto>(u);
+
+            return dto;
         }
 
         public async Task<int> CreateAsync(UsuarioCreateDto dto, CancellationToken ct)

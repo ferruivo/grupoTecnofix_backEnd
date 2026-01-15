@@ -17,6 +17,9 @@ namespace GrupoTecnofix_Api.Mappings
                 .ForMember(d => d.IdVendedor, opt => opt.Ignore())
                 // se IdUsuario é imutável no update, ignore:
                 .ForMember(d => d.IdUsuario, opt => opt.Ignore());
+            
+            // Entity -> List / Get
+            CreateMap<Vendedore, VendedorDto>();
         }
     }
 }

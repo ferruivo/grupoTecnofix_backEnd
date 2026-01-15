@@ -14,6 +14,10 @@ namespace GrupoTecnofix_Api.Mappings
             // Update -> Entity (ignorando campos que não podem ser alterados)
             CreateMap<TransportadoraUpdateDto, Transportadora>()
                 .ForMember(d => d.IdTransportadora, opt => opt.Ignore()); // ajuste nome do Id conforme sua model
+
+            // Entity -> List / Get
+            CreateMap<Transportadora, TransportadoraListDto>();
+            CreateMap<Transportadora, TransportadoraUpdateDto>();
         }
     }
 }

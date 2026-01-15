@@ -15,7 +15,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         public TransportadorasRepository(AppDbContext db) => _db = db;
 
-        public async Task<PagedResult<TransportadoraListDto>> GetListAsync(int page, int pageSize, string? search, CancellationToken ct)
+        public async Task<PagedResult<TransportadoraListDto>> GetListPagedAsync(int page, int pageSize, string? search, CancellationToken ct)
         {
             var query = _db.Transportadoras.AsNoTracking();
 
@@ -37,6 +37,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 .Select(t => new TransportadoraListDto
                 {
                     IdTransportadora = t.IdTransportadora,
+                    CNPJ = t.Cnpj,
                     Fantasia = t.Fantasia,
                     RazaoSocial = t.RazaoSocial,
                     Contato = t.Contato,
@@ -46,7 +47,8 @@ namespace GrupoTecnofix_Api.Data.Repositories
                         where m.IdMunicipio == t.IdMunicipio
                         select new MunicipioDto
                         {
-                            Nome = m.Nome
+                            Nome = m.Nome,
+                            UF = m.Uf
                         }
                     ).First()
                 })
@@ -59,6 +61,18 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 TotalItems = total,
                 Items = items
             };
+        }
+
+        public async Task<List<TransportadoraListDto>> GetListAsync(string? search, CancellationToken ct)
+        {
+            var query = from t in _db.Transportadoras.AsNoTracking()
+                        select new TransportadoraListDto
+                        {
+                            IdTransportadora = t.IdTransportadora,
+                            Fantasia = t.Fantasia,
+                        };
+
+            return await query.ToListAsync(ct);
         }
 
         public Task<Transportadora?> GetByIdAsync(int id, CancellationToken ct)

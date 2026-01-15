@@ -26,6 +26,11 @@ namespace GrupoTecnofix_Api.Controllers
         => Ok(await _service.GetPagedAsync(page, pageSize, search, ct));
 
         [Authorize(Policy = "vendedores.read")]
+        [HttpGet("lookup")]
+        public async Task<IActionResult> Get([FromQuery] string? search = null, CancellationToken ct = default)
+        => Ok(await _service.GetListAsync(search, ct));
+
+        [Authorize(Policy = "vendedores.read")]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id, CancellationToken ct)
         => Ok(await _service.GetByIdAsync(id, ct));

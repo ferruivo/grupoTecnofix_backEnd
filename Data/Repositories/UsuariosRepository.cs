@@ -102,6 +102,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         
         }
+
         public Task<Usuario?> GetByIdAsync(int id, CancellationToken ct)
             => _db.Usuarios.FirstOrDefaultAsync(x => x.IdUsuario == id, ct);
 

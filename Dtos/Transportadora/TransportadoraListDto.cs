@@ -6,6 +6,7 @@ namespace GrupoTecnofix_Api.Dtos.Transportadoras
     public class TransportadoraListDto
     {
         public int IdTransportadora { get; set; }
+        public string CNPJ { get; set; }
         public string Fantasia { get; set; } = "";
         public string RazaoSocial { get; set; } = "";
         public string Contato { get; set; } = "";

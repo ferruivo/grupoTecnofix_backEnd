@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GrupoTecnofix_Api.Dtos.Usuario;
+using GrupoTecnofix_Api.Dtos.Vendedor;
 using GrupoTecnofix_Api.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -14,6 +15,9 @@ namespace GrupoTecnofix_Api.Mappings
                 .ForMember(d => d.IdUsuario, opt => opt.Ignore())
                 .ForMember(d => d.Login, opt => opt.Ignore())
                 .ForMember(d => d.SenhaHash, opt => opt.Ignore());
+
+            // Entity -> List / Get
+            CreateMap<Usuario, UsuarioDto>();
         }
     }
 }

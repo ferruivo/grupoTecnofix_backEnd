@@ -34,6 +34,11 @@ namespace GrupoTecnofix_Api.Controllers
         public async Task<IActionResult> Get([FromQuery] string? search = null, CancellationToken ct = default)
         => Ok(await _service.GetListAsync(search, ct));
 
+        [Authorize(Policy = "usuarios.read")]
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id, CancellationToken ct)
+        => Ok(await _service.GetByIdAsync(id, ct));
+
         [Authorize(Policy = "usuarios.create")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] UsuarioCreateDto dto, CancellationToken ct)

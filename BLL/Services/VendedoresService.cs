@@ -3,6 +3,7 @@ using GrupoTecnofix_Api.BLL.Interfaces;
 using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Transportadoras;
+using GrupoTecnofix_Api.Dtos.Usuario;
 using GrupoTecnofix_Api.Dtos.Vendedor;
 using GrupoTecnofix_Api.Models;
 using GrupoTecnofix_Api.Utils;
@@ -15,7 +16,7 @@ namespace GrupoTecnofix_Api.BLL.Services
         private readonly IVendedoresRepository _repo;
         private readonly IMapper _mapper;
 
-        public VendedoresService(ICurrentUserService currentUser,IVendedoresRepository repo, IMapper mapper)
+        public VendedoresService(ICurrentUserService currentUser, IVendedoresRepository repo, IMapper mapper)
         {
             _currentUser = currentUser;
             _repo = repo;
@@ -28,7 +29,12 @@ namespace GrupoTecnofix_Api.BLL.Services
             if (pageSize < 1) pageSize = 20;
             if (pageSize > 200) pageSize = 200;
 
-            return await _repo.GetListAsync(page, pageSize, search, ct);
+            return await _repo.GetListPagedAsync(page, pageSize, search, ct);
+        }
+
+        public async Task<List<VendedorListDto>> GetListAsync(string? search, CancellationToken ct)
+        {
+            return await _repo.GetListAsync(search, ct);
         }
 
         public async Task<VendedorDto> GetByIdAsync(int id, CancellationToken ct)
@@ -36,15 +42,9 @@ namespace GrupoTecnofix_Api.BLL.Services
             var v = await _repo.GetByIdAsync(id, ct);
             if (v is null) throw new KeyNotFoundException("Vendedor não encontrado.");
 
-            return new VendedorDto
-            {
-                IdVendedor = v.IdVendedor,
-                IdUsuario = v.IdUsuario,
-                Usuario = v.Usuario,
-                Interno = v.Interno,
-                Externo = v.Externo,
-                Observacao = v.Observacao
-            };
+            var dto = _mapper.Map<VendedorDto>(v);
+
+            return dto;
         }
 
         public async Task<int> CreateAsync(VendedorCreateDto dto, CancellationToken ct)
@@ -70,7 +70,7 @@ namespace GrupoTecnofix_Api.BLL.Services
             if (vend is null) throw new KeyNotFoundException("Vendedor não encontrado.");
 
             _mapper.Map(dto, vend);
-            
+
             vend.DataAlteracao = DateTime.Now;
             vend.IdUsuarioAlteracao = _currentUser.GetUsuarioLogadoId();
 
