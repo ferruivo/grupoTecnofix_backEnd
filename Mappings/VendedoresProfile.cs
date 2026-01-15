@@ -11,6 +11,8 @@ namespace GrupoTecnofix_Api.Mappings
         {
             // DTO -> Entidade (para Create/Update)
             CreateMap<VendedorCreateDto, Vendedore>();
+            CreateMap<Vendedore, VendedorDto>();
+            CreateMap<VendedorDto, Vendedore>();
 
             CreateMap<VendedorUpdateDto, Vendedore>()
                 // id do vendedor vem da rota, não do body

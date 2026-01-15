@@ -48,9 +48,6 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 })
                 .FirstOrDefaultAsync(ct);
 
-          
-
-
         }
 
         public Task<Empresa?> GetByIdAsync(int id, CancellationToken ct)

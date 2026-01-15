@@ -94,6 +94,8 @@ builder.Services.AddScoped<IPermissoesRepository, PermissoesRepository>();
 builder.Services.AddScoped<IPermissoesService, PermissoesService>();
 builder.Services.AddScoped<ITipoDocumentoService, TipoDocumentoService>();
 builder.Services.AddScoped<ITipoDocumentoRepository, TipoDocumentoRepository>();
+builder.Services.AddScoped<IClientesService, ClientesService>();
+builder.Services.AddScoped<IClientesRepository, ClientesRepository>();
 
 
 // ===================== AutoMapper =====================
@@ -105,6 +107,8 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<EmpresaProfile>();
     cfg.AddProfile<PerfisProfile>();
     cfg.AddProfile<MunicipioProfile>();
+    cfg.AddProfile<ClienteProfile>();
+    cfg.AddProfile<TipoDocumentoProfile>();
 });
 
 // ===================== Swagger =====================
