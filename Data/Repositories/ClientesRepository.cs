@@ -109,6 +109,12 @@ namespace GrupoTecnofix_Api.Data.Repositories
                     IdVendedorinterno = c.IdVendedorinterno,
                     IdVendedorexterno = c.IdVendedorexterno,
                     IdTransportadora = c.IdTransportadora,
+                    IdOrigem = c.IdOrigem,
+                    IpiBc = c.IpiBc,
+                    Suframa = c.Suframa,
+                    Observacao = c.Observacao,
+                    ObservacaoNotaFiscal = c.ObservacaoNotaFiscal,
+                    ObservacaoOrdemExpedicao = c.ObservacaoOrdemExpedicao,
 
                     // =========================
                     // Subquery: Municipio
@@ -131,6 +137,18 @@ namespace GrupoTecnofix_Api.Data.Repositories
                         .Select(t => new TipoDocumentoDto
                         {
                             IdTipoDocumento = t.IdTipodocumento,
+                            Descricao = t.Descricao
+                        })
+                        .First(),
+
+                    // =========================
+                    // Subquery: Origem (obrigatório)
+                    // =========================
+                    OrigemCadastro = _db.OrigensCadastros
+                        .Where(t => t.IdOrigem == c.IdOrigem)
+                        .Select(t => new OrigemCadastroDto
+                        {
+                            IdOrigem = t.IdOrigem,
                             Descricao = t.Descricao
                         })
                         .First(),
@@ -211,5 +229,32 @@ namespace GrupoTecnofix_Api.Data.Repositories
             }
             
         }
+
+        public async Task<List<OrigemCadastroDto>> GetListOrigemAsync(string? search, CancellationToken ct)
+        {
+            var query = from t in _db.OrigensCadastros.AsNoTracking()
+                        select new OrigemCadastroDto
+                        {
+                            IdOrigem = t.IdOrigem,
+                            Descricao = t.Descricao,
+                        };
+
+            return await query.ToListAsync(ct);
+
+        }
+
+        public async Task<List<TipoDocumentoDto>> GetListTipoDocumentoAsync(string? search, CancellationToken ct)
+        {
+            var query = from t in _db.Tipodocumentos.AsNoTracking()
+                        select new TipoDocumentoDto
+                        {
+                            IdTipoDocumento = t.IdTipodocumento,
+                            Descricao = t.Descricao,
+                        };
+
+            return await query.ToListAsync(ct);
+
+        }
+
     }
 }

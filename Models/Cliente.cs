@@ -125,35 +125,28 @@ public partial class Cliente
     [Column("ID_USUARIO_ALTERACAO")]
     public int? IdUsuarioAlteracao { get; set; }
 
-    //[ForeignKey("IdMunicipioCobranca")]
-    //[InverseProperty("ClienteIdMunicipioCobrancaNavigations")]
-    //public virtual Municipio? IdMunicipioCobrancaNavigation { get; set; }
+    [Column("SUFRAMA")]
+    [StringLength(20)]
+    [Unicode(false)]
+    public string? Suframa { get; set; }
 
-    //[ForeignKey("IdMunicipio")]
-    //[InverseProperty("ClienteIdMunicipioNavigations")]
-    //public virtual Municipio IdMunicipioNavigation { get; set; } = null!;
+    [Column("IPI_BC")]
+    public bool IpiBc { get; set; }   
 
-    //[ForeignKey("IdTipodocumento")]
-    //[InverseProperty("Clientes")]
-    //public virtual Tipodocumento IdTipodocumentoNavigation { get; set; } = null!;
+    [Column("OBSERVACAO")]
+    [Unicode(false)]
+    public string? Observacao { get; set; }  
 
-    //[ForeignKey("IdTransportadora")]
-    //[InverseProperty("Clientes")]
-    //public virtual Transportadora IdTransportadoraNavigation { get; set; } = null!;
+    [Column("OBSERVACAO_ORDEM_EXPEDICAO")]
+    [Unicode(false)]
+    public string? ObservacaoOrdemExpedicao { get; set; } 
 
-    //[ForeignKey("IdUsuarioAlteracao")]
-    //[InverseProperty("ClienteIdUsuarioAlteracaoNavigations")]
-    //public virtual Usuario? IdUsuarioAlteracaoNavigation { get; set; }
+    [Column("OBSERVACAO_NOTA_FISCAL")]
+    [Unicode(false)]
+    public string? ObservacaoNotaFiscal { get; set; } 
 
-    //[ForeignKey("IdUsuarioCadastro")]
-    //[InverseProperty("ClienteIdUsuarioCadastroNavigations")]
-    //public virtual Usuario? IdUsuarioCadastroNavigation { get; set; }
+    [Column("ID_ORIGEM")]
+    public int IdOrigem { get; set; }
 
-    //[ForeignKey("IdVendedorexterno")]
-    //[InverseProperty("ClienteIdVendedorexternoNavigations")]
-    //public virtual Vendedore IdVendedorexternoNavigation { get; set; } = null!;
 
-    //[ForeignKey("IdVendedorinterno")]
-    //[InverseProperty("ClienteIdVendedorinternoNavigations")]
-    //public virtual Vendedore IdVendedorinternoNavigation { get; set; } = null!;
 }

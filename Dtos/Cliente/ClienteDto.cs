@@ -35,9 +35,18 @@ namespace GrupoTecnofix_Api.Dtos.Cliente
         public int IdVendedorexterno { get; set; }
         public int IdTransportadora { get; set; }
 
+        public string? Suframa { get; set; }
+        public bool IpiBc { get; set; }              // default false
+        public int IdOrigem { get; set; }            // FK obrigatório
+
+        public string? Observacao { get; set; }
+        public string? ObservacaoOrdemExpedicao { get; set; }
+        public string? ObservacaoNotaFiscal { get; set; }
+
         public MunicipioDto? Municipio { get; set; }
         public VendedorDto? VendedorInterno { get; set; }
         public VendedorDto? VendedorExterno { get; set; }
         public TipoDocumentoDto TipoDocumento { get; set; }
+        public OrigemCadastroDto? OrigemCadastro { get; set; }
     }
 }

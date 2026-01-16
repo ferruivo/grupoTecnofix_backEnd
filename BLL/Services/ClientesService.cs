@@ -9,24 +9,22 @@ using GrupoTecnofix_Api.Dtos.Transportadoras;
 using GrupoTecnofix_Api.Dtos.Vendedor;
 using GrupoTecnofix_Api.Models;
 using GrupoTecnofix_Api.Utils;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GrupoTecnofix_Api.BLL.Services
 {
     public class ClientesService : IClientesService
     {
         private readonly IClientesRepository _repo;
-        private readonly IMunicipiosRepository _mun_Repo;
-        private readonly IVendedoresRepository _vend_Repo;
-        private readonly ITipoDocumentoRepository _td_Repo;
+        
+       
         private readonly ICurrentUserService _currentUser;
         private readonly IMapper _mapper;
 
-        public ClientesService(IClientesRepository repo, IMunicipiosRepository mun_Repo, IVendedoresRepository vend_Repo, ITipoDocumentoRepository td_Repo, ICurrentUserService currentUser, IMapper mapper)
+        public ClientesService(IClientesRepository repo, ICurrentUserService currentUser, IMapper mapper)
         {
             _repo = repo;
-            _mun_Repo = mun_Repo;
-            _vend_Repo = vend_Repo;
-            _td_Repo = td_Repo;
             _currentUser = currentUser;
             _mapper = mapper;
         }
@@ -71,5 +69,16 @@ namespace GrupoTecnofix_Api.BLL.Services
 
             await _repo.SaveAsync(ct);
         }
+
+        public async Task<List<OrigemCadastroDto>> GetListOrigemAsync(string? search, CancellationToken ct)
+        {
+            return await _repo.GetListOrigemAsync(search, ct);
+        }
+
+        public async Task<List<TipoDocumentoDto>> GetListTipoDocumentoAsync(string? search, CancellationToken ct)
+        {
+            return await _repo.GetListTipoDocumentoAsync(search, ct);
+        }
+
     }
 }

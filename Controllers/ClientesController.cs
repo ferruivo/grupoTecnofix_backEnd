@@ -45,5 +45,15 @@ namespace GrupoTecnofix_Api.Controllers
             await _service.UpdateAsync(id, dto, ct);
             return NoContent();
         }
+
+        [Authorize(Policy = "clientes.read")]
+        [HttpGet("origemCadastro")]
+        public async Task<IActionResult> Get([FromQuery] string? search = null, CancellationToken ct = default)
+       => Ok(await _service.GetListOrigemAsync(search, ct));
+
+        [Authorize(Policy = "tipodocumento.read")]
+        [HttpGet("tipodocumento")]
+        public async Task<IActionResult> GetTiposDocumento([FromQuery] string? search = null, CancellationToken ct = default)
+        => Ok(await _service.GetListTipoDocumentoAsync(search, ct));
     }
 }

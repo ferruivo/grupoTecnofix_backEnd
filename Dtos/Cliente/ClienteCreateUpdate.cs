@@ -26,5 +26,12 @@
         public int IdVendedorInterno { get; set; }
         public int IdVendedorExterno { get; set; }
         public int IdTransportadora { get; set; }
+        public string? Suframa { get; set; }
+        public bool IpiBc { get; set; }              
+        public int IdOrigem { get; set; }           
+
+        public string? Observacao { get; set; }
+        public string? ObservacaoOrdemExpedicao { get; set; }
+        public string? ObservacaoNotaFiscal { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Cliente;
+using GrupoTecnofix_Api.Dtos.TipoDocumento;
 using GrupoTecnofix_Api.Models;
 
 namespace GrupoTecnofix_Api.Data.Interface
@@ -11,5 +12,8 @@ namespace GrupoTecnofix_Api.Data.Interface
         Task<Cliente?> GetByIdAsync(int id, CancellationToken ct);
         Task AddAsync(Cliente entity, CancellationToken ct);
         Task SaveAsync(CancellationToken ct);
+
+        Task<List<OrigemCadastroDto>> GetListOrigemAsync(string? search, CancellationToken ct);
+        Task<List<TipoDocumentoDto>> GetListTipoDocumentoAsync(string? search, CancellationToken ct);
     }
 }

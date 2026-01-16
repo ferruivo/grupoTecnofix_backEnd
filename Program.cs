@@ -92,10 +92,12 @@ builder.Services.AddScoped<IPerfisService, PerfisService>();
 builder.Services.AddScoped<IUsuariosAclService, UsuariosAclService>();
 builder.Services.AddScoped<IPermissoesRepository, PermissoesRepository>();
 builder.Services.AddScoped<IPermissoesService, PermissoesService>();
-builder.Services.AddScoped<ITipoDocumentoService, TipoDocumentoService>();
-builder.Services.AddScoped<ITipoDocumentoRepository, TipoDocumentoRepository>();
 builder.Services.AddScoped<IClientesService, ClientesService>();
 builder.Services.AddScoped<IClientesRepository, ClientesRepository>();
+builder.Services.AddScoped<ICondicoesPagamentoRepository, CondicoesPagamentoRepository>();
+builder.Services.AddScoped<ICondicoesPagamentoService, CondicoesPagamentoService>();
+builder.Services.AddScoped<IFornecedoresRepository, FornecedoresRepository>();
+builder.Services.AddScoped<IFornecedoresService, FornecedoresService>();
 
 
 // ===================== AutoMapper =====================
@@ -109,6 +111,11 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<MunicipioProfile>();
     cfg.AddProfile<ClienteProfile>();
     cfg.AddProfile<TipoDocumentoProfile>();
+    cfg.AddProfile<CondicaoPagamentoProfile>();
+    cfg.AddProfile<FornecedoresProfile>();
+    
+
+
 });
 
 // ===================== Swagger =====================
