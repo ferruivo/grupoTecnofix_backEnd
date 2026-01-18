@@ -35,6 +35,7 @@ namespace GrupoTecnofix_Api.Controllers
             {
                 idUsuario = u.IdUsuario,
                 nome = u.NomeCompleto,
+                nomeExibicao = u.NomeExibicao,
                 login = u.Login,
                 email = u.Email,
                 perfis,

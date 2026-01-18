@@ -27,7 +27,7 @@ namespace GrupoTecnofix_Api.Controllers
 
         [Authorize(Policy = "clientes.read")]
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id, CancellationToken ct)
+         public async Task<IActionResult> GetById(int id, CancellationToken ct)
         => Ok(await _service.GetByIdAsync(id, ct));
 
         [Authorize(Policy = "clientes.create")]

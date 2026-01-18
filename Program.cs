@@ -19,8 +19,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddDbContext<AppDbContext>(opt =>
+{
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("Default"),
+        sql =>
+        {
+            sql.CommandTimeout(120); // 120s
+            sql.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null);
+        });
+});
 
 
 builder.Services.AddHttpContextAccessor();
@@ -98,6 +111,8 @@ builder.Services.AddScoped<ICondicoesPagamentoRepository, CondicoesPagamentoRepo
 builder.Services.AddScoped<ICondicoesPagamentoService, CondicoesPagamentoService>();
 builder.Services.AddScoped<IFornecedoresRepository, FornecedoresRepository>();
 builder.Services.AddScoped<IFornecedoresService, FornecedoresService>();
+builder.Services.AddScoped<IProdutosRepository, ProdutosRepository>();
+builder.Services.AddScoped<IProdutosService, ProdutosService>();
 
 
 // ===================== AutoMapper =====================
@@ -113,9 +128,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<TipoDocumentoProfile>();
     cfg.AddProfile<CondicaoPagamentoProfile>();
     cfg.AddProfile<FornecedoresProfile>();
-    
-
-
+    cfg.AddProfile<ProdutosProfile>();
 });
 
 // ===================== Swagger =====================
@@ -165,14 +178,15 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ===================== Pipeline =====================
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "GrupoTecnofix API v1");
-    });
-}
+    c.SwaggerEndpoint("v1/swagger.json", "GrupoTecnofix API v1"); // <- sem barra no começo
+    c.RoutePrefix = "swagger";
+});
+//}
 
 app.UseExceptionHandler(appError =>
 {

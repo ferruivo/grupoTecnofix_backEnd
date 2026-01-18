@@ -5,6 +5,7 @@ using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Fornecedor;
 using GrupoTecnofix_Api.Dtos.Usuario;
 using GrupoTecnofix_Api.Models;
+using GrupoTecnofix_Api.Utils;
 
 namespace GrupoTecnofix_Api.BLL.Services
 {
@@ -12,11 +13,13 @@ namespace GrupoTecnofix_Api.BLL.Services
     {
         private readonly IFornecedoresRepository _repo;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUser;
 
-        public FornecedoresService(IFornecedoresRepository repo, IMapper mapper)
+        public FornecedoresService(IFornecedoresRepository repo, IMapper mapper, ICurrentUserService currentUser)
         {
             _repo = repo;
             _mapper = mapper;
+            _currentUser = currentUser;
         }
 
         public async Task<PagedResult<FornecedorListDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct)
@@ -47,6 +50,8 @@ namespace GrupoTecnofix_Api.BLL.Services
         {
             var forn = _mapper.Map<Fornecedore>(dto);
 
+            forn.EnsureCreationAudit(_currentUser);
+
             await _repo.AddAsync(forn, ct);
             await _repo.SaveAsync(ct);
 
@@ -59,6 +64,8 @@ namespace GrupoTecnofix_Api.BLL.Services
             if (f is null) throw new KeyNotFoundException("Fornecedor não encontrado.");
 
             _mapper.Map(dto, f);
+
+            f.EnsureUpdateAudit(_currentUser);
 
             await _repo.SaveAsync(ct);
         }

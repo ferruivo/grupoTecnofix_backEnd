@@ -4,6 +4,7 @@ using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Perfil;
 using Microsoft.EntityFrameworkCore;
+using GrupoTecnofix_Api.Utils;
 
 namespace GrupoTecnofix_Api.BLL.Services
 {
@@ -11,11 +12,13 @@ namespace GrupoTecnofix_Api.BLL.Services
     {
         private readonly IPerfisRepository _repo;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUser;
 
-        public PerfisService(IPerfisRepository repo, IMapper mapper)
+        public PerfisService(IPerfisRepository repo, IMapper mapper, ICurrentUserService currentUser)
         {
             _repo = repo;
             _mapper = mapper;
+            _currentUser = currentUser;
         }
 
         public async Task<PagedResult<PerfilListItemDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct)
@@ -75,6 +78,8 @@ namespace GrupoTecnofix_Api.BLL.Services
                 throw new InvalidOperationException("Já existe um perfil com este nome.");
 
             var entity = _mapper.Map<Models.Perfi>(dto);
+
+            entity.EnsureCreationAudit(_currentUser);
 
             await _repo.AddAsync(entity, ct);
             await _repo.SaveAsync(ct);

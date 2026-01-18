@@ -74,9 +74,10 @@ namespace GrupoTecnofix_Api.Data.Repositories
         public Task<Cliente?> GetByIdAsync(int id, CancellationToken ct)
             => _db.Clientes.FirstOrDefaultAsync(x => x.IdCliente == id, ct);
 
-        public Task<ClienteDto?> GetClienteDtoByIdAsync(int id, CancellationToken ct)
+        public async Task<ClienteDto?> GetClienteDtoByIdAsync(int id, CancellationToken ct)
         {
-            return _db.Clientes
+
+                return await _db.Clientes
                 .AsNoTracking()
                 .Where(c => c.IdCliente == id)
                 .Select(c => new ClienteDto
@@ -209,7 +210,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                         })
                         .FirstOrDefault()
                 })
-                .FirstOrDefaultAsync(ct);
+                .FirstOrDefaultAsync(CancellationToken.None);
         }
 
         public Task AddAsync(Cliente entity, CancellationToken ct)

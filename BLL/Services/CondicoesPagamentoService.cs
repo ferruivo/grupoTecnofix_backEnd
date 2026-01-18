@@ -6,6 +6,7 @@ using GrupoTecnofix_Api.Dtos.Condição_Pagamento;
 using GrupoTecnofix_Api.Dtos.Condições_Pagamento;
 using GrupoTecnofix_Api.Dtos.Usuario;
 using GrupoTecnofix_Api.Models;
+using GrupoTecnofix_Api.Utils;
 
 namespace GrupoTecnofix_Api.BLL.Services
 {
@@ -13,11 +14,13 @@ namespace GrupoTecnofix_Api.BLL.Services
     {
         private readonly ICondicoesPagamentoRepository _repo;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUser;
 
-        public CondicoesPagamentoService(ICondicoesPagamentoRepository repo, IMapper mapper)
+        public CondicoesPagamentoService(ICondicoesPagamentoRepository repo, IMapper mapper, ICurrentUserService currentUser)
         {
             _repo = repo;
             _mapper = mapper;
+            _currentUser = currentUser;
         }
 
         public async Task<PagedResult<CondicaoPagamentoListDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct)
@@ -48,6 +51,8 @@ namespace GrupoTecnofix_Api.BLL.Services
         {
             var cp = _mapper.Map<Condicoespagamento>(dto);
             
+            cp.EnsureCreationAudit(_currentUser);
+
             await _repo.AddAsync(cp, ct);
             await _repo.SaveAsync(ct);
 

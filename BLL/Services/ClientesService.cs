@@ -49,8 +49,7 @@ namespace GrupoTecnofix_Api.BLL.Services
         public async Task<int> CreateAsync(ClienteCreateUpdate dto, CancellationToken ct)
         {
             var cli = _mapper.Map<Cliente>(dto);
-            cli.DataCadastro = DateTime.Now;
-            cli.IdUsuarioCadastro = _currentUser.GetUsuarioLogadoId();
+            cli.EnsureCreationAudit(_currentUser);
 
             await _repo.AddAsync(cli, ct);
             await _repo.SaveAsync(ct);
@@ -64,8 +63,7 @@ namespace GrupoTecnofix_Api.BLL.Services
             if (c is null) throw new KeyNotFoundException("Cliente não encontrado.");
 
             _mapper.Map(dto, c);
-            c.DataAlteracao = DateTime.Now;
-            c.IdUsuarioAlteracao = _currentUser.GetUsuarioLogadoId();
+            c.EnsureUpdateAudit(_currentUser);
 
             await _repo.SaveAsync(ct);
         }

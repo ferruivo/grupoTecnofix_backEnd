@@ -5,6 +5,7 @@ using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Usuario;
 using GrupoTecnofix_Api.Dtos.Vendedor;
 using GrupoTecnofix_Api.Models;
+using GrupoTecnofix_Api.Utils;
 
 namespace GrupoTecnofix_Api.BLL.Services
 {
@@ -12,11 +13,13 @@ namespace GrupoTecnofix_Api.BLL.Services
     {
         private readonly IUsuariosRepository _repo;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUser;
 
-        public UsuariosService(IUsuariosRepository repo, IMapper mapper)
+        public UsuariosService(IUsuariosRepository repo, IMapper mapper, ICurrentUserService currentUser)
         {
             _repo = repo;
             _mapper = mapper;
+            _currentUser = currentUser;
         }
 
         public async Task<PagedResult<UsuarioListDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct)
@@ -49,6 +52,8 @@ namespace GrupoTecnofix_Api.BLL.Services
 
             // regra: senha inicial padrão
             usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword("123456");
+
+            usuario.EnsureCreationAudit(_currentUser);
 
             await _repo.AddAsync(usuario, ct);
             await _repo.SaveAsync(ct);
