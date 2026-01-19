@@ -2,6 +2,7 @@
 using GrupoTecnofix_Api.Dtos.Cliente;
 using GrupoTecnofix_Api.Dtos.Produto;
 using GrupoTecnofix_Api.Models;
+using GrupoTecnofix_Api.OUT.Models;
 
 namespace GrupoTecnofix_Api.Data.Interface
 {
@@ -16,5 +17,9 @@ namespace GrupoTecnofix_Api.Data.Interface
         Task<List<PrecoVendaDto>> GetListPrecoVendaAsync(int idCliente, CancellationToken ct);
         Task<Precovendum?> GetPrecoVendaByIdAsync(int id, CancellationToken ct);
         Task AddAsync(Precovendum entity, CancellationToken ct);
+
+        Task<List<PrecoCompraDto>> GetListPrecoCompraAsync(int idFornecedor, CancellationToken ct);
+        Task<Precocompra?> GetPrecoCompraByIdAsync(int id, CancellationToken ct);
+        Task AddAsync(Precocompra entity, CancellationToken ct);
     }
 }

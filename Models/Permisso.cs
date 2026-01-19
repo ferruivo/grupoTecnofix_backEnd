@@ -21,5 +21,5 @@ public partial class Permisso
 
     public int? IdUsuarioAlteracao { get; set; }
 
-    public virtual ICollection<PerfisPermisso> PerfisPermissos { get; set; } = new List<PerfisPermisso>();
+   
 }

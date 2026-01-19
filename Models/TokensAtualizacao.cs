@@ -21,5 +21,5 @@ public partial class TokensAtualizacao
 
     public DateTime DataCadastro { get; set; }
 
-    public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+    
 }

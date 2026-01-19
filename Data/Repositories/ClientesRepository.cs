@@ -29,7 +29,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 var s = search.Trim();
                 query = query.Where(c =>
                     c.Fantasia.Contains(s) ||
-                    c.Contato.Contains(s)||
+                    c.Contato.Contains(s) ||
                     c.Nome.Contains(s) ||
                     c.Cpf.Contains(s) ||
                     c.Cnpj.Contains(s));
@@ -49,7 +49,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                     Contato = c.Contato,
                     Cnpj = c.Cnpj,
                     Cpf = c.Cpf,
-                    
+
                     Municipio = (
                         from m in _db.Municipios
                         where m.IdMunicipio == c.IdMunicipio
@@ -71,146 +71,156 @@ namespace GrupoTecnofix_Api.Data.Repositories
             };
         }
 
-        public Task<Cliente?> GetByIdAsync(int id, CancellationToken ct)
-            => _db.Clientes.FirstOrDefaultAsync(x => x.IdCliente == id, ct);
+        public async Task<Cliente?> GetByIdAsync(int id, CancellationToken ct)
+        {
+            try
+            {
+                return await _db.Clientes.FirstOrDefaultAsync(x => x.IdCliente == id, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
 
         public async Task<ClienteDto?> GetClienteDtoByIdAsync(int id, CancellationToken ct)
         {
 
-                return await _db.Clientes
-                .AsNoTracking()
-                .Where(c => c.IdCliente == id)
-                .Select(c => new ClienteDto
-                {
-                    IdCliente = c.IdCliente,
-                    IdTipodocumento = c.IdTipodocumento,
-                    Cpf = c.Cpf,
-                    Cnpj = c.Cnpj,
-                    InscricaoEstadual = c.InscricaoEstadual,
+            return await _db.Clientes
+            .AsNoTracking()
+            .Where(c => c.IdCliente == id)
+            .Select(c => new ClienteDto
+            {
+                IdCliente = c.IdCliente,
+                IdTipodocumento = c.IdTipodocumento,
+                Cpf = c.Cpf,
+                Cnpj = c.Cnpj,
+                InscricaoEstadual = c.InscricaoEstadual,
 
-                    Nome = c.Nome,
-                    Fantasia = c.Fantasia,
-                    Contato = c.Contato,
-                    Email = c.Email,
+                Nome = c.Nome,
+                Fantasia = c.Fantasia,
+                Contato = c.Contato,
+                Email = c.Email,
 
-                    Cep = c.Cep,
-                    Endereco = c.Endereco,
-                    Bairro = c.Bairro,
-                    Numero = c.Numero,
-                    Complemento = c.Complemento,
-                    IdMunicipio = c.IdMunicipio,
+                Cep = c.Cep,
+                Endereco = c.Endereco,
+                Bairro = c.Bairro,
+                Numero = c.Numero,
+                Complemento = c.Complemento,
+                IdMunicipio = c.IdMunicipio,
 
-                    CepCobranca = c.CepCobranca,
-                    EnderecoCobranca = c.EnderecoCobranca,
-                    BairroCobranca = c.BairroCobranca,
-                    NumeroCobranca = c.NumeroCobranca,
-                    ComplementoCobranca = c.ComplementoCobranca,
-                    IdMunicipioCobranca = c.IdMunicipioCobranca,
+                CepCobranca = c.CepCobranca,
+                EnderecoCobranca = c.EnderecoCobranca,
+                BairroCobranca = c.BairroCobranca,
+                NumeroCobranca = c.NumeroCobranca,
+                ComplementoCobranca = c.ComplementoCobranca,
+                IdMunicipioCobranca = c.IdMunicipioCobranca,
 
-                    IdVendedorinterno = c.IdVendedorinterno,
-                    IdVendedorexterno = c.IdVendedorexterno,
-                    IdTransportadora = c.IdTransportadora,
-                    IdOrigem = c.IdOrigem,
-                    IpiBc = c.IpiBc,
-                    Suframa = c.Suframa,
-                    Observacao = c.Observacao,
-                    ObservacaoNotaFiscal = c.ObservacaoNotaFiscal,
-                    ObservacaoOrdemExpedicao = c.ObservacaoOrdemExpedicao,
+                IdVendedorinterno = c.IdVendedorinterno,
+                IdVendedorexterno = c.IdVendedorexterno,
+                IdTransportadora = c.IdTransportadora,
+                IdOrigem = c.IdOrigem,
+                IpiBc = c.IpiBc,
+                Suframa = c.Suframa,
+                Observacao = c.Observacao,
+                ObservacaoNotaFiscal = c.ObservacaoNotaFiscal,
+                ObservacaoOrdemExpedicao = c.ObservacaoOrdemExpedicao,
 
-                    // =========================
-                    // Subquery: Municipio
-                    // =========================
-                    Municipio = _db.Municipios
-                        .Where(m => m.IdMunicipio == c.IdMunicipio)
-                        .Select(m => new MunicipioDto
-                        {
-                            IdMunicipio = m.IdMunicipio,
-                            Nome = m.Nome,
-                            UF = m.Uf
-                        })
-                        .FirstOrDefault(),
+                // =========================
+                // Subquery: Municipio
+                // =========================
+                Municipio = _db.Municipios
+                    .Where(m => m.IdMunicipio == c.IdMunicipio)
+                    .Select(m => new MunicipioDto
+                    {
+                        IdMunicipio = m.IdMunicipio,
+                        Nome = m.Nome,
+                        UF = m.Uf
+                    })
+                    .FirstOrDefault(),
 
-                    // =========================
-                    // Subquery: Tipo Documento (obrigatório)
-                    // =========================
-                    TipoDocumento = _db.Tipodocumentos
-                        .Where(t => t.IdTipodocumento == c.IdTipodocumento)
-                        .Select(t => new TipoDocumentoDto
-                        {
-                            IdTipoDocumento = t.IdTipodocumento,
-                            Descricao = t.Descricao
-                        })
-                        .First(),
+                // =========================
+                // Subquery: Tipo Documento (obrigatório)
+                // =========================
+                TipoDocumento = _db.Tipodocumentos
+                    .Where(t => t.IdTipodocumento == c.IdTipodocumento)
+                    .Select(t => new TipoDocumentoDto
+                    {
+                        IdTipoDocumento = t.IdTipodocumento,
+                        Descricao = t.Descricao
+                    })
+                    .First(),
 
-                    // =========================
-                    // Subquery: Origem (obrigatório)
-                    // =========================
-                    OrigemCadastro = _db.OrigensCadastros
-                        .Where(t => t.IdOrigem == c.IdOrigem)
-                        .Select(t => new OrigemCadastroDto
-                        {
-                            IdOrigem = t.IdOrigem,
-                            Descricao = t.Descricao
-                        })
-                        .First(),
+                // =========================
+                // Subquery: Origem (obrigatório)
+                // =========================
+                OrigemCadastro = _db.OrigensCadastros
+                    .Where(t => t.IdOrigem == c.IdOrigem)
+                    .Select(t => new OrigemCadastroDto
+                    {
+                        IdOrigem = t.IdOrigem,
+                        Descricao = t.Descricao
+                    })
+                    .First(),
 
-                    // =========================
-                    // Subquery: Vendedor Interno + Usuario
-                    // =========================
-                    VendedorInterno = _db.Vendedores
-                        .Where(v => v.IdVendedor == c.IdVendedorinterno)
-                        .Select(v => new VendedorDto
-                        {
-                            IdVendedor = v.IdVendedor,
-                            IdUsuario = v.IdUsuario,
-                            Interno = v.Interno,
-                            Externo = v.Externo,
-                            Observacao = v.Observacao ?? "",
+                // =========================
+                // Subquery: Vendedor Interno + Usuario
+                // =========================
+                VendedorInterno = _db.Vendedores
+                    .Where(v => v.IdVendedor == c.IdVendedorinterno)
+                    .Select(v => new VendedorDto
+                    {
+                        IdVendedor = v.IdVendedor,
+                        IdUsuario = v.IdUsuario,
+                        Interno = v.Interno,
+                        Externo = v.Externo,
+                        Observacao = v.Observacao ?? "",
 
-                            Usuario = _db.Usuarios
-                                .Where(u => u.IdUsuario == v.IdUsuario)
-                                .Select(u => new UsuarioDto
-                                {
-                                    IdUsuario = u.IdUsuario,
-                                    NomeCompleto = u.NomeCompleto,
-                                    NomeExibicao = u.NomeExibicao,
-                                    Login = u.Login,
-                                    Email = u.Email,
-                                    Ativo = u.Ativo
-                                })
-                                .FirstOrDefault()!
-                        })
-                        .FirstOrDefault(),
+                        Usuario = _db.Usuarios
+                            .Where(u => u.IdUsuario == v.IdUsuario)
+                            .Select(u => new UsuarioDto
+                            {
+                                IdUsuario = u.IdUsuario,
+                                NomeCompleto = u.NomeCompleto,
+                                NomeExibicao = u.NomeExibicao,
+                                Login = u.Login,
+                                Email = u.Email,
+                                Ativo = u.Ativo
+                            })
+                            .FirstOrDefault()!
+                    })
+                    .FirstOrDefault(),
 
-                    // =========================
-                    // Subquery: Vendedor Externo + Usuario
-                    // =========================
-                    VendedorExterno = _db.Vendedores
-                        .Where(v => v.IdVendedor == c.IdVendedorexterno)
-                        .Select(v => new VendedorDto
-                        {
-                            IdVendedor = v.IdVendedor,
-                            IdUsuario = v.IdUsuario,
-                            Interno = v.Interno,
-                            Externo = v.Externo,
-                            Observacao = v.Observacao ?? "",
+                // =========================
+                // Subquery: Vendedor Externo + Usuario
+                // =========================
+                VendedorExterno = _db.Vendedores
+                    .Where(v => v.IdVendedor == c.IdVendedorexterno)
+                    .Select(v => new VendedorDto
+                    {
+                        IdVendedor = v.IdVendedor,
+                        IdUsuario = v.IdUsuario,
+                        Interno = v.Interno,
+                        Externo = v.Externo,
+                        Observacao = v.Observacao ?? "",
 
-                            Usuario = _db.Usuarios
-                                .Where(u => u.IdUsuario == v.IdUsuario)
-                                .Select(u => new UsuarioDto
-                                {
-                                    IdUsuario = u.IdUsuario,
-                                    NomeCompleto = u.NomeCompleto,
-                                    NomeExibicao = u.NomeExibicao,
-                                    Login = u.Login,
-                                    Email = u.Email,
-                                    Ativo = u.Ativo
-                                })
-                                .FirstOrDefault()!
-                        })
-                        .FirstOrDefault()
-                })
-                .FirstOrDefaultAsync(CancellationToken.None);
+                        Usuario = _db.Usuarios
+                            .Where(u => u.IdUsuario == v.IdUsuario)
+                            .Select(u => new UsuarioDto
+                            {
+                                IdUsuario = u.IdUsuario,
+                                NomeCompleto = u.NomeCompleto,
+                                NomeExibicao = u.NomeExibicao,
+                                Login = u.Login,
+                                Email = u.Email,
+                                Ativo = u.Ativo
+                            })
+                            .FirstOrDefault()!
+                    })
+                    .FirstOrDefault()
+            })
+            .FirstOrDefaultAsync(CancellationToken.None);
         }
 
         public Task AddAsync(Cliente entity, CancellationToken ct)
@@ -224,11 +234,11 @@ namespace GrupoTecnofix_Api.Data.Repositories
             {
                 return _db.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
-            
+
         }
 
         public async Task<List<OrigemCadastroDto>> GetListOrigemAsync(string? search, CancellationToken ct)

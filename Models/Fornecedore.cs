@@ -53,9 +53,5 @@ public partial class Fornecedore
 
     public DateTime? DataAlteracao { get; set; }
 
-    public virtual Municipio IdMunicipioNavigation { get; set; } = null!;
-
-    public virtual Condicoespagamento? IdPagamentoNavigation { get; set; }
-
-    public virtual Transportadora? IdTransportadoraNavigation { get; set; }
+   
 }

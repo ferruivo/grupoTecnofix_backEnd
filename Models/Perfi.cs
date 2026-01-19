@@ -21,7 +21,5 @@ public partial class Perfi
 
     public int? IdUsuarioAlteracao { get; set; }
 
-    public virtual ICollection<PerfisPermisso> PerfisPermissos { get; set; } = new List<PerfisPermisso>();
-
-    public virtual ICollection<UsuariosPerfi> UsuariosPerfis { get; set; } = new List<UsuariosPerfi>();
+   
 }

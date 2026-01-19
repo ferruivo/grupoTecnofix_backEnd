@@ -17,7 +17,5 @@ public partial class PerfisPermisso
 
     public int? IdUsuarioAlteracao { get; set; }
 
-    public virtual Perfi IdPerfilNavigation { get; set; } = null!;
-
-    public virtual Permisso IdPermissaoNavigation { get; set; } = null!;
+    
 }

@@ -20,6 +20,13 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
         Task<int> CreateAsync(PrecoVendaCreateUpdateDto dto, CancellationToken ct);
         Task UpdateAsync(int id, PrecoVendaCreateUpdateDto dto, CancellationToken ct);
         Task UpdatePrecoVendaGeral(PrecoVendaReajusteGeralDto dto, CancellationToken ct);
-        
+
+
+        Task<List<PrecoCompraDto>> GetListPrecoCompraAsync(int idFornecedor, CancellationToken ct);
+        Task<PrecoCompraDto> GetPrecoCompraByIdAsync(int id, CancellationToken ct);
+        Task<int> CreateAsync(PrecoCompraCreateUpdateDto dto, CancellationToken ct);
+        Task UpdateAsync(int id, PrecoCompraCreateUpdateDto dto, CancellationToken ct);
+        Task UpdatePrecoCompraGeral(PrecoCompraReajusteGeralDto dto, CancellationToken ct);
+
     }
 }

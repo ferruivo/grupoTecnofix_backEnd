@@ -39,13 +39,4 @@ public partial class Transportadora
 
     public int? IdUsuarioAlteracao { get; set; }
 
-    public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
-
-    public virtual ICollection<Fornecedore> Fornecedores { get; set; } = new List<Fornecedore>();
-
-    public virtual Municipio IdMunicipioNavigation { get; set; } = null!;
-
-    public virtual Usuario? IdUsuarioAlteracaoNavigation { get; set; }
-
-    public virtual Usuario? IdUsuarioCadastroNavigation { get; set; }
 }

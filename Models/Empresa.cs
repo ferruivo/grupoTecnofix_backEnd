@@ -33,5 +33,4 @@ public partial class Empresa
 
     public decimal? AliquotaRecIcms { get; set; }
 
-    public virtual Municipio IdMunicipioNavigation { get; set; } = null!;
 }

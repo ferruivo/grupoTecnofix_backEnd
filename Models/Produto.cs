@@ -39,9 +39,4 @@ public partial class Produto
 
     public int? IdUsuarioAlteracao { get; set; }
 
-    public virtual Usuario? IdUsuarioAlteracaoNavigation { get; set; }
-
-    public virtual Usuario? IdUsuarioCadastroNavigation { get; set; }
-
-    public virtual ICollection<Precovendum> Precovenda { get; set; } = new List<Precovendum>();
 }

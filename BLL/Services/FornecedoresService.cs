@@ -3,6 +3,7 @@ using GrupoTecnofix_Api.BLL.Interfaces;
 using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Fornecedor;
+using GrupoTecnofix_Api.Dtos.Municipios;
 using GrupoTecnofix_Api.Dtos.Usuario;
 using GrupoTecnofix_Api.Models;
 using GrupoTecnofix_Api.Utils;
@@ -12,12 +13,14 @@ namespace GrupoTecnofix_Api.BLL.Services
     public class FornecedoresService : IFornecedoresService
     {
         private readonly IFornecedoresRepository _repo;
+        private readonly IMunicipiosRepository _mun_repo;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUser;
 
-        public FornecedoresService(IFornecedoresRepository repo, IMapper mapper, ICurrentUserService currentUser)
+        public FornecedoresService(IFornecedoresRepository repo, IMunicipiosRepository mun_repo, IMapper mapper, ICurrentUserService currentUser)
         {
             _repo = repo;
+            _mun_repo = mun_repo;
             _mapper = mapper;
             _currentUser = currentUser;
         }
@@ -42,6 +45,8 @@ namespace GrupoTecnofix_Api.BLL.Services
             if (f is null) throw new KeyNotFoundException("Fornecedor não encontrado.");
 
             var dto = _mapper.Map<FornecedorDto>(f);
+
+            dto.Municipio = _mapper.Map<MunicipioDto>(await _mun_repo.GetByIdAsync(f.IdMunicipio, ct));
 
             return dto;
         }

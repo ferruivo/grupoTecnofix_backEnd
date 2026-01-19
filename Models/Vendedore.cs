@@ -23,13 +23,5 @@ public partial class Vendedore
 
     public int? IdUsuarioAlteracao { get; set; }
 
-    public virtual ICollection<Cliente> ClienteIdVendedorexternoNavigations { get; set; } = new List<Cliente>();
-
-    public virtual ICollection<Cliente> ClienteIdVendedorinternoNavigations { get; set; } = new List<Cliente>();
-
-    public virtual Usuario? IdUsuarioAlteracaoNavigation { get; set; }
-
-    public virtual Usuario? IdUsuarioCadastroNavigation { get; set; }
-
-    public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+   
 }

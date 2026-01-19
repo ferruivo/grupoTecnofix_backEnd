@@ -1,25 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GrupoTecnofix_Api.Models;
+namespace GrupoTecnofix_Api.OUT.Models;
 
-public partial class Precovendum
+public partial class Precocompra
 {
-    public int IdPrecovenda { get; set; }
+    public int IdPrecocompra { get; set; }
 
     public int IdProduto { get; set; }
 
-    public int IdCliente { get; set; }
+    public int IdFornecedor { get; set; }
 
     public decimal Preco { get; set; }
 
     public DateTime? Vigencia { get; set; }
-
-    public string? Revisao { get; set; }
-
-    public DateTime? Datarevisao { get; set; }
-
-    public string? Usurevisao { get; set; }
 
     public decimal? Precoantigo { get; set; }
 
@@ -32,6 +26,4 @@ public partial class Precovendum
     public int? IdUsuarioAlteracao { get; set; }
 
     public DateTime? DataAlteracao { get; set; }
-
-    
 }

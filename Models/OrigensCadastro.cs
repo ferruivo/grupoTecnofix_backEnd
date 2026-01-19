@@ -13,5 +13,5 @@ public partial class OrigensCadastro
 
     public DateTime DataCadastro { get; set; }
 
-    public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
+    
 }

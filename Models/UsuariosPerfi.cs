@@ -17,7 +17,5 @@ public partial class UsuariosPerfi
 
     public int? IdUsuarioAlteracao { get; set; }
 
-    public virtual Perfi IdPerfilNavigation { get; set; } = null!;
-
-    public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+ 
 }

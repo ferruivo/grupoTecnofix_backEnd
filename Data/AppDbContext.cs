@@ -1,4 +1,5 @@
 ﻿using GrupoTecnofix_Api.Models;
+using GrupoTecnofix_Api.OUT.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,38 +14,23 @@ public partial class AppDbContext : DbContext
     }
 
     public virtual DbSet<Cliente> Clientes { get; set; }
-
     public virtual DbSet<Condicoespagamento> Condicoespagamentos { get; set; }
-
     public virtual DbSet<Empresa> Empresas { get; set; }
-
     public virtual DbSet<Fornecedore> Fornecedores { get; set; }
-
     public virtual DbSet<Municipio> Municipios { get; set; }
-
     public virtual DbSet<OrigensCadastro> OrigensCadastros { get; set; }
-
     public virtual DbSet<Perfi> Perfis { get; set; }
-
     public virtual DbSet<PerfisPermisso> PerfisPermissoes { get; set; }
-
     public virtual DbSet<Permisso> Permissoes { get; set; }
-
     public virtual DbSet<Precovendum> Precovenda { get; set; }
-
     public virtual DbSet<Produto> Produtos { get; set; }
-
     public virtual DbSet<Tipodocumento> Tipodocumentos { get; set; }
-
     public virtual DbSet<TokensAtualizacao> TokensAtualizacaos { get; set; }
-
     public virtual DbSet<Transportadora> Transportadoras { get; set; }
-
     public virtual DbSet<Usuario> Usuarios { get; set; }
-
     public virtual DbSet<UsuariosPerfi> UsuariosPerfis { get; set; }
-
     public virtual DbSet<Vendedore> Vendedores { get; set; }
+    public virtual DbSet<Precocompra> Precocompras { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -161,7 +147,6 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("SUFRAMA");
 
-            
         });
 
         modelBuilder.Entity<Condicoespagamento>(entity =>
@@ -266,10 +251,7 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("TELEFONE");
 
-            entity.HasOne(d => d.IdMunicipioNavigation).WithMany(p => p.Empresas)
-                .HasForeignKey(d => d.IdMunicipio)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("EMPRESA_MUNICIPIOS_FK");
+            
         });
 
         modelBuilder.Entity<Fornecedore>(entity =>
@@ -362,19 +344,6 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("TELEFONE");
-
-            entity.HasOne(d => d.IdMunicipioNavigation).WithMany(p => p.Fornecedores)
-                .HasForeignKey(d => d.IdMunicipio)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FORNECEDORES_MUNICIPIOS_FK");
-
-            entity.HasOne(d => d.IdPagamentoNavigation).WithMany(p => p.Fornecedores)
-                .HasForeignKey(d => d.IdPagamento)
-                .HasConstraintName("FORNECEDORES_CONDICOESPAGAMENTO_FK");
-
-            entity.HasOne(d => d.IdTransportadoraNavigation).WithMany(p => p.Fornecedores)
-                .HasForeignKey(d => d.IdTransportadora)
-                .HasConstraintName("FORNECEDORES_TRANSPORTADORAS_FK");
         });
 
         modelBuilder.Entity<Municipio>(entity =>
@@ -468,15 +437,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
             entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
 
-            entity.HasOne(d => d.IdPerfilNavigation).WithMany(p => p.PerfisPermissos)
-                .HasForeignKey(d => d.IdPerfil)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("PERFIS_PERMISSOES_PERFIS_FK");
-
-            entity.HasOne(d => d.IdPermissaoNavigation).WithMany(p => p.PerfisPermissos)
-                .HasForeignKey(d => d.IdPermissao)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("PERFIS_PERMISSOES_PERMISSOES_FK");
+            
         });
 
         modelBuilder.Entity<Permisso>(entity =>
@@ -553,11 +514,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Vigencia)
                 .HasPrecision(0)
                 .HasColumnName("VIGENCIA");
-
-            entity.HasOne(d => d.IdProdutoNavigation).WithMany(p => p.Precovenda)
-                .HasForeignKey(d => d.IdProduto)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PrecoVenda_Produto");
         });
 
         modelBuilder.Entity<Produto>(entity =>
@@ -616,14 +572,6 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(2)
                 .IsUnicode(false)
                 .HasColumnName("UNIDADE");
-
-            entity.HasOne(d => d.IdUsuarioAlteracaoNavigation).WithMany(p => p.ProdutoIdUsuarioAlteracaoNavigations)
-                .HasForeignKey(d => d.IdUsuarioAlteracao)
-                .HasConstraintName("PRODUTOS_USUARIOS_FK_ALT");
-
-            entity.HasOne(d => d.IdUsuarioCadastroNavigation).WithMany(p => p.ProdutoIdUsuarioCadastroNavigations)
-                .HasForeignKey(d => d.IdUsuarioCadastro)
-                .HasConstraintName("PRODUTOS_USUARIOS_FK_CAD");
         });
 
         modelBuilder.Entity<Tipodocumento>(entity =>
@@ -668,11 +616,6 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(200)
                 .IsUnicode(false)
                 .HasColumnName("USER_AGENT_CRIACAO");
-
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.TokensAtualizacaos)
-                .HasForeignKey(d => d.IdUsuario)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("TOKENS_ATUALIZACAO_USUARIOS_FK");
         });
 
         modelBuilder.Entity<Transportadora>(entity =>
@@ -736,18 +679,7 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("TELEFONE");
 
-            entity.HasOne(d => d.IdMunicipioNavigation).WithMany(p => p.Transportadoras)
-                .HasForeignKey(d => d.IdMunicipio)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("TRANSPORTADORAS_MUNICIPIOS_FK");
-
-            entity.HasOne(d => d.IdUsuarioAlteracaoNavigation).WithMany(p => p.TransportadoraIdUsuarioAlteracaoNavigations)
-                .HasForeignKey(d => d.IdUsuarioAlteracao)
-                .HasConstraintName("TRANSPORTADORAS_USUARIOS_FK_ALT");
-
-            entity.HasOne(d => d.IdUsuarioCadastroNavigation).WithMany(p => p.TransportadoraIdUsuarioCadastroNavigations)
-                .HasForeignKey(d => d.IdUsuarioCadastro)
-                .HasConstraintName("TRANSPORTADORAS_USUARIOS_FK_CAD");
+           
         });
 
         modelBuilder.Entity<Usuario>(entity =>
@@ -794,13 +726,7 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("SENHA_HASH");
 
-            entity.HasOne(d => d.IdUsuarioAlteracaoNavigation).WithMany(p => p.InverseIdUsuarioAlteracaoNavigation)
-                .HasForeignKey(d => d.IdUsuarioAlteracao)
-                .HasConstraintName("USUARIOS_USUARIOS_FK_ALT");
-
-            entity.HasOne(d => d.IdUsuarioCadastroNavigation).WithMany(p => p.InverseIdUsuarioCadastroNavigation)
-                .HasForeignKey(d => d.IdUsuarioCadastro)
-                .HasConstraintName("USUARIOS_USUARIOS_FK_CAD");
+            
         });
 
         modelBuilder.Entity<UsuariosPerfi>(entity =>
@@ -819,15 +745,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
             entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
 
-            entity.HasOne(d => d.IdPerfilNavigation).WithMany(p => p.UsuariosPerfis)
-                .HasForeignKey(d => d.IdPerfil)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("USUARIOS_PERFIS_PERFIS_FK");
-
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.UsuariosPerfis)
-                .HasForeignKey(d => d.IdUsuario)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("USUARIOS_PERFIS_USUARIOS_FK");
+            
         });
 
         modelBuilder.Entity<Vendedore>(entity =>
@@ -855,19 +773,42 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("OBSERVACAO");
+        });
 
-            entity.HasOne(d => d.IdUsuarioNavigation).WithOne(p => p.VendedoreIdUsuarioNavigation)
-                .HasForeignKey<Vendedore>(d => d.IdUsuario)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("VENDEDORES_USUARIOS_FK");
+        modelBuilder.Entity<Precocompra>(entity =>
+        {
+            entity.HasKey(e => e.IdPrecocompra);
 
-            entity.HasOne(d => d.IdUsuarioAlteracaoNavigation).WithMany(p => p.VendedoreIdUsuarioAlteracaoNavigations)
-                .HasForeignKey(d => d.IdUsuarioAlteracao)
-                .HasConstraintName("VENDEDORES_USUARIOS_FK_ALT");
+            entity.ToTable("PRECOCOMPRA");
 
-            entity.HasOne(d => d.IdUsuarioCadastroNavigation).WithMany(p => p.VendedoreIdUsuarioCadastroNavigations)
-                .HasForeignKey(d => d.IdUsuarioCadastro)
-                .HasConstraintName("VENDEDORES_USUARIOS_FK_CAD");
+            entity.HasIndex(e => new { e.IdProduto, e.IdFornecedor }, "UQ_PRECOCOMPRA_ID_PRODUTO_ID_FORNECEDOR").IsUnique();
+
+            entity.Property(e => e.IdPrecocompra).HasColumnName("ID_PRECOCOMPRA");
+            entity.Property(e => e.DataAlteracao)
+                .HasPrecision(0)
+                .HasColumnName("DATA_ALTERACAO");
+            entity.Property(e => e.DataCadastro)
+                .HasPrecision(0)
+                .HasColumnName("DATA_CADASTRO");
+            entity.Property(e => e.IdFornecedor).HasColumnName("ID_FORNECEDOR");
+            entity.Property(e => e.IdProduto).HasColumnName("ID_PRODUTO");
+            entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
+            entity.Property(e => e.IdUsuarioCadastro)
+                .HasMaxLength(45)
+                .IsUnicode(false)
+                .HasColumnName("ID_USUARIO_CADASTRO");
+            entity.Property(e => e.Obs)
+                .IsUnicode(false)
+                .HasColumnName("OBS");
+            entity.Property(e => e.Preco)
+                .HasColumnType("decimal(16, 5)")
+                .HasColumnName("PRECO");
+            entity.Property(e => e.Precoantigo)
+                .HasColumnType("decimal(16, 5)")
+                .HasColumnName("PRECOANTIGO");
+            entity.Property(e => e.Vigencia)
+                .HasPrecision(0)
+                .HasColumnName("VIGENCIA");
         });
 
         OnModelCreatingPartial(modelBuilder);

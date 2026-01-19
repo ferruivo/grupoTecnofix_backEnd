@@ -13,6 +13,8 @@ namespace GrupoTecnofix_Api.Dtos.Produto
         public DateTime? Datarevisao { get; set; }
         public string? Usurevisao { get; set; }
         public decimal? Precoantigo { get; set; }
+        public DateTime? DataCadastro { get; set; }
+        public DateTime? DataAlteracao { get; set; }
         public string? Obs { get; set; }
         public ProdutoListDto? Produto { get; set; }
     }

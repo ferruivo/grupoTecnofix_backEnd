@@ -31,5 +31,5 @@ public partial class Condicoespagamento
 
     public int? IdUsuarioAlteracao { get; set; }
 
-    public virtual ICollection<Fornecedore> Fornecedores { get; set; } = new List<Fornecedore>();
+    
 }

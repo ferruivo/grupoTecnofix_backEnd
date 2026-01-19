@@ -129,6 +129,9 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<CondicaoPagamentoProfile>();
     cfg.AddProfile<FornecedoresProfile>();
     cfg.AddProfile<ProdutosProfile>();
+    cfg.AddProfile<PrecoVendaProfile>();
+    cfg.AddProfile<PrecoCompraProfile>();
+    
 });
 
 // ===================== Swagger =====================

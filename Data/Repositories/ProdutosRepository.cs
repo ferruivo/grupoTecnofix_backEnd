@@ -8,6 +8,7 @@ using GrupoTecnofix_Api.Dtos.TipoDocumento;
 using GrupoTecnofix_Api.Dtos.Usuario;
 using GrupoTecnofix_Api.Dtos.Vendedor;
 using GrupoTecnofix_Api.Models;
+using GrupoTecnofix_Api.OUT.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GrupoTecnofix_Api.Data.Repositories
@@ -120,6 +121,8 @@ namespace GrupoTecnofix_Api.Data.Repositories
                     Usurevisao = p.Usurevisao,
                     Precoantigo = p.Precoantigo,
                     Obs = p.Obs,
+                    DataCadastro = p.DataCadastro,
+                    DataAlteracao = p.DataAlteracao,
 
 
                     // =========================
@@ -130,6 +133,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                         .Select(pv => new ProdutoListDto
                         {
                             IdProduto = pv.IdProduto,
+                            Codigo = pv.Codigo,
                             Descricao = pv.Descricao,
                         })
                         .FirstOrDefault(),
@@ -146,6 +150,53 @@ namespace GrupoTecnofix_Api.Data.Repositories
         public Task AddAsync(Precovendum entity, CancellationToken ct)
         {
             return _db.Precovenda.AddAsync(entity).AsTask();
+        }
+
+        #endregion
+
+        #region Preço compra
+        public async Task<List<PrecoCompraDto>> GetListPrecoCompraAsync(int idFornecedor, CancellationToken ct)
+        {
+            var items = await _db.Precocompras
+                .AsNoTracking()
+                .Where(p => p.IdFornecedor == idFornecedor)
+                .Select(p => new PrecoCompraDto
+                {
+                    IdPrecocompra = p.IdPrecocompra,
+                    IdProduto = p.IdProduto,
+                    IdFornecedor = p.IdFornecedor,
+                    Preco = p.Preco,
+                    Vigencia = p.Vigencia,
+                    Precoantigo = p.Precoantigo,
+                    Obs = p.Obs,
+                    DataCadastro = p.DataCadastro,
+                    DataAlteracao = p.DataAlteracao,
+
+                    // =========================
+                    // Subquery: Produto
+                    // =========================
+                    Produto = _db.Produtos
+                        .Where(pv => pv.IdProduto == p.IdProduto)
+                        .Select(pv => new ProdutoListDto
+                        {
+                            IdProduto = pv.IdProduto,
+                            Codigo = pv.Codigo,
+                            Descricao = pv.Descricao,
+                        })
+                        .FirstOrDefault(),
+
+                })
+                .ToListAsync(ct);
+
+            return items;
+        }
+
+        public Task<Precocompra?> GetPrecoCompraByIdAsync(int id, CancellationToken ct)
+            => _db.Precocompras.FirstOrDefaultAsync(x => x.IdPrecocompra == id, ct);
+
+        public Task AddAsync(Precocompra entity, CancellationToken ct)
+        {
+            return _db.Precocompras.AddAsync(entity).AsTask();
         }
 
         #endregion

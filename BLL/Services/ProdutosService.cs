@@ -5,6 +5,7 @@ using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Fornecedor;
 using GrupoTecnofix_Api.Dtos.Produto;
 using GrupoTecnofix_Api.Models;
+using GrupoTecnofix_Api.OUT.Models;
 using GrupoTecnofix_Api.Utils;
 
 namespace GrupoTecnofix_Api.BLL.Services
@@ -77,7 +78,7 @@ namespace GrupoTecnofix_Api.BLL.Services
 
         public async Task<PrecoVendaDto> GetPrecoVendaByIdAsync(int id, CancellationToken ct)
         {
-            var p = await _repo.GetByIdAsync(id, ct);
+            var p = await _repo.GetPrecoVendaByIdAsync(id, ct);
             if (p is null) throw new KeyNotFoundException("Preço venda não encontrado.");
 
             var dto = _mapper.Map<PrecoVendaDto>(p);
@@ -128,9 +129,71 @@ namespace GrupoTecnofix_Api.BLL.Services
             }
 
         }
-        
+
         #endregion
 
+
+        #region PrecoCompra
+        public async Task<List<PrecoCompraDto>> GetListPrecoCompraAsync(int idFornecedor, CancellationToken ct)
+        {
+            return await _repo.GetListPrecoCompraAsync(idFornecedor, ct);
+        }
+
+        public async Task<PrecoCompraDto> GetPrecoCompraByIdAsync(int id, CancellationToken ct)
+        {
+            var p = await _repo.GetPrecoCompraByIdAsync(id, ct);
+            if (p is null) throw new KeyNotFoundException("Preço compra não encontrado.");
+
+            var dto = _mapper.Map<PrecoCompraDto>(p);
+
+            return dto;
+        }
+
+        public async Task<int> CreateAsync(PrecoCompraCreateUpdateDto dto, CancellationToken ct)
+        {
+            var p = _mapper.Map<Precocompra>(dto);
+
+            p.EnsureCreationAudit(_currentUser);
+
+            await _repo.AddAsync(p, ct);
+            await _repo.SaveAsync(ct);
+
+            return p.IdProduto;
+        }
+
+        public async Task UpdateAsync(int id, PrecoCompraCreateUpdateDto dto, CancellationToken ct)
+        {
+            var p = await _repo.GetPrecoCompraByIdAsync(id, ct);
+            if (p is null) throw new KeyNotFoundException("Preço compra não encontrado.");
+
+            _mapper.Map(dto, p);
+            p.EnsureUpdateAudit(_currentUser);
+
+            await _repo.SaveAsync(ct);
+        }
+
+        public async Task UpdatePrecoCompraGeral(PrecoCompraReajusteGeralDto dto, CancellationToken ct)
+        {
+            var p = await _repo.GetPrecoCompraByIdAsync(dto.Id_Fornecedor, ct);
+            if (p is null) throw new KeyNotFoundException("Preço compra não encontrado.");
+
+            var listPv = await _repo.GetListPrecoCompraAsync(p.IdFornecedor, ct);
+
+            foreach (var item in listPv)
+            {
+                _mapper.Map(item, p);
+
+                p.Precoantigo = item.Precoantigo;
+                p.Preco = item.Preco * dto.Porcentagem;
+                p.DataAlteracao = DateTime.Now;
+                p.EnsureUpdateAudit(_currentUser);
+
+                await _repo.SaveAsync(ct);
+            }
+
+        }
+
+        #endregion
 
     }
 }
