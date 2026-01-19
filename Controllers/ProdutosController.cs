@@ -93,7 +93,7 @@ namespace GrupoTecnofix_Api.Controllers
         }
         
         [Authorize(Policy = "precovenda.read")]
-        [HttpGet("preco-venda/export")]
+        [HttpPost("preco-venda/export")]
         public async Task<IActionResult> ExportPrecoVenda([FromQuery] int idCliente, CancellationToken ct = default)
         {
             var bytes = await _service.ExportPrecoVendaToExcelAsync(idCliente, ct);
@@ -113,7 +113,7 @@ namespace GrupoTecnofix_Api.Controllers
         => Ok(await _service.GetPrecoCompraByIdAsync(id, ct));
 
         [Authorize(Policy = "precocompra.read")]
-        [HttpGet("preco-compra/export")]
+        [HttpPost("preco-compra/export")]
         public async Task<IActionResult> ExportPrecoCompra([FromQuery] int idFornecedor, CancellationToken ct = default)
         {
             var bytes = await _service.ExportPrecoCompraToExcelAsync(idFornecedor, ct);
