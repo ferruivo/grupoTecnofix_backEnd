@@ -48,5 +48,13 @@ namespace GrupoTecnofix_Api.Controllers
             await _service.UpdateAsync(id, dto, ct);
             return NoContent();
         }
+
+        [Authorize(Policy = "fornecedores.read")]
+        [HttpPost("export")]
+        public async Task<IActionResult> Export([FromQuery] string? search = null, CancellationToken ct = default)
+        {
+            var bytes = await _service.ExportListToExcelAsync(search, ct);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "fornecedores.xlsx");
+        }
     }
 }

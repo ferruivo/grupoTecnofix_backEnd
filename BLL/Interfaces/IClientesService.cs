@@ -14,5 +14,8 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
 
         Task<List<OrigemCadastroDto>> GetListOrigemAsync(string? search, CancellationToken ct);
         Task<List<TipoDocumentoDto>> GetListTipoDocumentoAsync(string? search, CancellationToken ct);
+
+        // Export list of client DTOs to excel. Returns file bytes.
+        Task<byte[]> ExportListToExcelAsync(string? search, CancellationToken ct);
     }
 }

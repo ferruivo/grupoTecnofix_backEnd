@@ -74,5 +74,12 @@ namespace GrupoTecnofix_Api.BLL.Services
 
             await _repo.SaveAsync(ct);
         }
+
+        public async Task<byte[]> ExportListToExcelAsync(string? search, CancellationToken ct)
+        {
+            var list = await _repo.GetListPagedAsync(1, 1000, search, ct);
+            // use helper to export
+            return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(list.Items, "Fornecedores"), ct);
+        }
     }
 }

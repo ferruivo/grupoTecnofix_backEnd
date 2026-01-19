@@ -49,6 +49,14 @@ namespace GrupoTecnofix_Api.Controllers
             return NoContent();
         }
 
+        [Authorize(Policy = "produtos.read")]
+        [HttpPost("export")]
+        public async Task<IActionResult> Export([FromQuery] string? search = null, CancellationToken ct = default)
+        {
+            var bytes = await _service.ExportListToExcelAsync(search, ct);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "produtos.xlsx");
+        }
+
         #region Preço venda
         [Authorize(Policy = "precovenda.read")]
         [HttpGet("precoVenda")]
@@ -83,6 +91,14 @@ namespace GrupoTecnofix_Api.Controllers
             await _service.UpdateAsync(1,new ProdutoCreateUpdate { }, ct);
             return NoContent();
         }
+        
+        [Authorize(Policy = "precovenda.read")]
+        [HttpGet("preco-venda/export")]
+        public async Task<IActionResult> ExportPrecoVenda([FromQuery] int idCliente, CancellationToken ct = default)
+        {
+            var bytes = await _service.ExportPrecoVendaToExcelAsync(idCliente, ct);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "preco-venda.xlsx");
+        }
         #endregion
 
         #region Preço compra
@@ -95,6 +111,14 @@ namespace GrupoTecnofix_Api.Controllers
         [HttpGet("preco-compra/{id:int}")]
         public async Task<IActionResult> GetPrecoCompraById(int id, CancellationToken ct)
         => Ok(await _service.GetPrecoCompraByIdAsync(id, ct));
+
+        [Authorize(Policy = "precocompra.read")]
+        [HttpGet("preco-compra/export")]
+        public async Task<IActionResult> ExportPrecoCompra([FromQuery] int idFornecedor, CancellationToken ct = default)
+        {
+            var bytes = await _service.ExportPrecoCompraToExcelAsync(idFornecedor, ct);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "preco-compra.xlsx");
+        }
 
         [Authorize(Policy = "precocompra.create")]
         [HttpPost("precoCompra")]

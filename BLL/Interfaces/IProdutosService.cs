@@ -28,5 +28,13 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
         Task UpdateAsync(int id, PrecoCompraCreateUpdateDto dto, CancellationToken ct);
         Task UpdatePrecoCompraGeral(PrecoCompraReajusteGeralDto dto, CancellationToken ct);
 
+        // Export list of produtos to excel
+        Task<byte[]> ExportListToExcelAsync(IEnumerable<ProdutoListDto> list, CancellationToken ct);
+        Task<byte[]> ExportListToExcelAsync(string? search, CancellationToken ct);
+
+        // Export price lists
+        Task<byte[]> ExportPrecoVendaToExcelAsync(int idCliente, CancellationToken ct);
+        Task<byte[]> ExportPrecoCompraToExcelAsync(int idFornecedor, CancellationToken ct);
+
     }
 }

@@ -55,5 +55,13 @@ namespace GrupoTecnofix_Api.Controllers
         [HttpGet("tipodocumento")]
         public async Task<IActionResult> GetTiposDocumento([FromQuery] string? search = null, CancellationToken ct = default)
         => Ok(await _service.GetListTipoDocumentoAsync(search, ct));
+
+        [Authorize(Policy = "clientes.read")]
+        [HttpPost("export")]
+        public async Task<IActionResult> ExportToExcel([FromQuery] string? search = null, CancellationToken ct = default)
+        {
+            var bytes = await _service.ExportListToExcelAsync(search, ct);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "clientes.xlsx");
+        }
     }
 }

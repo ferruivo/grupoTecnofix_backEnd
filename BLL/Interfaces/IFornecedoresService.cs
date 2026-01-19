@@ -11,5 +11,6 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
         Task<FornecedorDto> GetByIdAsync(int id, CancellationToken ct);
         Task<int> CreateAsync(FornecedorCreateUpdateDto dto, CancellationToken ct);
         Task UpdateAsync(int id, FornecedorCreateUpdateDto dto, CancellationToken ct);
+        Task<byte[]> ExportListToExcelAsync(string? search, CancellationToken ct);
     }
 }

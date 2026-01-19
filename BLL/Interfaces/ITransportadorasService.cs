@@ -13,5 +13,6 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
         Task<TransportadoraUpdateDto> GetByIdAsync(int id, CancellationToken ct);
         Task<int> CreateAsync(TransportadoraCreateDto dto, CancellationToken ct);
         Task UpdateAsync(int id, TransportadoraUpdateDto dto, CancellationToken ct);
+        Task<byte[]> ExportListToExcelAsync(string? search, CancellationToken ct);
     }
 }

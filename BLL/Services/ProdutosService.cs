@@ -70,6 +70,18 @@ namespace GrupoTecnofix_Api.BLL.Services
             await _repo.SaveAsync(ct);
         }
 
+        public async Task<byte[]> ExportListToExcelAsync(IEnumerable<ProdutoListDto> list, CancellationToken ct)
+        {
+            return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(list, "Produtos"), ct);
+        }
+
+        public async Task<byte[]> ExportListToExcelAsync(string? search, CancellationToken ct)
+        {
+            var list = await _repo.GetListPagedAsync(1, 1000, search, ct);
+            // use helper to export
+            return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(list.Items, "produtos"), ct);
+        }
+
         #region PrecoVenda
         public async Task<List<PrecoVendaDto>> GetListPrecoVendaAsync(int idCliente, CancellationToken ct)
         {
@@ -128,6 +140,12 @@ namespace GrupoTecnofix_Api.BLL.Services
                 await _repo.SaveAsync(ct);
             }
 
+        }
+
+        public async Task<byte[]> ExportPrecoVendaToExcelAsync(int idCliente, CancellationToken ct)
+        {
+            var items = await _repo.GetListPrecoVendaAsync(idCliente, ct);
+            return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(items, "PrecoVenda"), ct);
         }
 
         #endregion
@@ -191,6 +209,12 @@ namespace GrupoTecnofix_Api.BLL.Services
                 await _repo.SaveAsync(ct);
             }
 
+        }
+
+        public async Task<byte[]> ExportPrecoCompraToExcelAsync(int idFornecedor, CancellationToken ct)
+        {
+            var items = await _repo.GetListPrecoCompraAsync(idFornecedor, ct);
+            return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(items, "PrecoCompra"), ct);
         }
 
         #endregion
