@@ -67,7 +67,7 @@ namespace GrupoTecnofix_Api.BLL.Services
             if (u is null) throw new KeyNotFoundException("Usuário não encontrado.");
 
             _mapper.Map(dto, u);
-
+          
             await _repo.SaveAsync(ct);
         }
 

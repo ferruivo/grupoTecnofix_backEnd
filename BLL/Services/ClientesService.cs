@@ -85,5 +85,33 @@ namespace GrupoTecnofix_Api.BLL.Services
             return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(list.Items, "Clientes"), ct);
         }
 
+        public async Task<List<ClienteFornecedor>> GetListRestricaoFornecedorAsync(int idCliente, CancellationToken ct)
+        {
+            return await _repo.GetListRestricaoFornecedorAsync(idCliente, ct);
+        }
+
+        public async Task<int> AddAsync(ClienteFornecedor cf, CancellationToken ct)
+        {
+
+            cf.EnsureCreationAudit(_currentUser);
+
+            await _repo.AddAsync(cf, ct);
+            await _repo.SaveAsync(ct);
+
+            return cf.IdCliente;
+        }
+
+       
+        public async Task DeleteRestricaoFornecedorAsync(int idCliente, int idFornecedor, CancellationToken ct)
+        {
+            var list = await _repo.GetListRestricaoFornecedorAsync(idCliente, ct);
+
+            ClienteFornecedor cf = list.Where(x => x.IdFornecedor == idFornecedor).FirstOrDefault();
+            if (cf == null)
+                throw new KeyNotFoundException("Restrição não encontrada.");
+
+            await _repo.DeleteRestricaoFornecedorAsync(cf, ct);
+
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using GrupoTecnofix_Api.Data.Interface;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Cliente;
 using GrupoTecnofix_Api.Dtos.Municipios;
@@ -82,7 +83,6 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 throw;
             }
         }
-
 
         public async Task<ClienteDto?> GetClienteDtoByIdAsync(int id, CancellationToken ct)
         {
@@ -265,6 +265,38 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
             return await query.ToListAsync(ct);
 
+        }
+
+        public async Task<List<ClienteFornecedor>> GetListRestricaoFornecedorAsync(int idCliente, CancellationToken ct)
+        {
+            var query = (from cf in _db.ClienteFornecedors.AsNoTracking()
+                        where cf.IdCliente == idCliente
+                        select new ClienteFornecedor
+                        {
+                            IdCliente = cf.IdCliente,
+                            IdFornecedor = cf.IdFornecedor,
+                            Tipo = cf.Tipo,
+                            Obs = cf.Obs,
+                            DataCadastro = cf.DataCadastro,
+                            IdUsuarioCadastro = cf.IdUsuarioCadastro,
+                            DataAlteracao = cf.DataAlteracao,
+                            IdUsuarioAlteracao = cf.IdUsuarioAlteracao,
+                            FornecedorNome = (from f in _db.Fornecedores
+                                              where f.IdFornecedor == cf.IdFornecedor
+                                              select f.Fantasia).FirstOrDefault() ?? ""
+                        });
+            return await query.ToListAsync(ct);
+        }
+
+        public Task AddAsync(ClienteFornecedor entity, CancellationToken ct)
+        {
+            return _db.ClienteFornecedors.AddAsync(entity).AsTask();
+        }
+
+        public async Task DeleteRestricaoFornecedorAsync(ClienteFornecedor cf,CancellationToken ct)
+        {
+            _db.Remove(cf);
+            await _db.SaveChangesAsync(ct);
         }
 
     }

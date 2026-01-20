@@ -1,5 +1,5 @@
 ﻿using GrupoTecnofix_Api.Models;
-using GrupoTecnofix_Api.OUT.Models;
+
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -31,6 +31,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<UsuariosPerfi> UsuariosPerfis { get; set; }
     public virtual DbSet<Vendedore> Vendedores { get; set; }
     public virtual DbSet<Precocompra> Precocompras { get; set; }
+    public virtual DbSet<ClienteFornecedor> ClienteFornecedors { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -809,6 +810,34 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Vigencia)
                 .HasPrecision(0)
                 .HasColumnName("VIGENCIA");
+        });
+
+        modelBuilder.Entity<ClienteFornecedor>(entity =>
+        {
+            entity.HasKey(e => new { e.IdCliente, e.IdFornecedor, e.Tipo });
+
+            entity.ToTable("CLIENTE_FORNECEDOR");
+
+            entity.HasIndex(e => new { e.IdCliente, e.Tipo }, "IX_CF_Cliente_Policy");
+
+            entity.HasIndex(e => new { e.IdFornecedor, e.Tipo }, "IX_CF_Fornecedor");
+
+            entity.Property(e => e.IdCliente).HasColumnName("ID_CLIENTE");
+            entity.Property(e => e.IdFornecedor).HasColumnName("ID_FORNECEDOR");
+            entity.Property(e => e.Tipo).HasColumnName("TIPO");
+            entity.Property(e => e.DataAlteracao)
+                .HasPrecision(0)
+                .HasDefaultValueSql("(sysdatetime())")
+                .HasColumnName("DATA_ALTERACAO");
+            entity.Property(e => e.DataCadastro)
+                .HasPrecision(0)
+                .HasDefaultValueSql("(sysdatetime())")
+                .HasColumnName("DATA_CADASTRO");
+            entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
+            entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
+            entity.Property(e => e.Obs)
+                .HasMaxLength(200)
+                .HasColumnName("OBS");
         });
 
         OnModelCreatingPartial(modelBuilder);

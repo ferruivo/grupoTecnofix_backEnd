@@ -13,11 +13,13 @@ namespace GrupoTecnofix_Api.Mappings
             CreateMap<UsuarioCreateDto, Usuario>();
             CreateMap<UsuarioUpdateDto, Usuario>()
                 .ForMember(d => d.IdUsuario, opt => opt.Ignore())
-                .ForMember(d => d.Login, opt => opt.Ignore())
-                .ForMember(d => d.SenhaHash, opt => opt.Ignore());
+                .ForMember(d => d.Login, opt => opt.Ignore());
 
             // Entity -> List / Get
             CreateMap<Usuario, UsuarioDto>();
+
+            CreateMap<UsuarioDto, UsuarioUpdateDto>();
+            CreateMap<UsuarioUpdateDto, UsuarioDto>();
         }
     }
 }

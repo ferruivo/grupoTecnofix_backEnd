@@ -5,7 +5,6 @@ using GrupoTecnofix_Api.Dtos;
 using GrupoTecnofix_Api.Dtos.Fornecedor;
 using GrupoTecnofix_Api.Dtos.Produto;
 using GrupoTecnofix_Api.Models;
-using GrupoTecnofix_Api.OUT.Models;
 using GrupoTecnofix_Api.Utils;
 
 namespace GrupoTecnofix_Api.BLL.Services

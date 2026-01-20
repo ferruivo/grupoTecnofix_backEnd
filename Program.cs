@@ -208,6 +208,15 @@ app.UseExceptionHandler(appError =>
             });
             return;
         }
+        if (exception is KeyNotFoundException)
+        {
+            context.Response.StatusCode = StatusCodes.Status204NoContent;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                message = exception.Message
+            });
+            return;
+        }
 
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         await context.Response.WriteAsJsonAsync(new

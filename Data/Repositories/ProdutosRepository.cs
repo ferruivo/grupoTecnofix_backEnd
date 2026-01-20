@@ -8,7 +8,6 @@ using GrupoTecnofix_Api.Dtos.TipoDocumento;
 using GrupoTecnofix_Api.Dtos.Usuario;
 using GrupoTecnofix_Api.Dtos.Vendedor;
 using GrupoTecnofix_Api.Models;
-using GrupoTecnofix_Api.OUT.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GrupoTecnofix_Api.Data.Repositories

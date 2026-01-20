@@ -52,7 +52,7 @@ namespace GrupoTecnofix_Api.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UsuarioUpdateDto dto, CancellationToken ct)
         {
             await _service.UpdateAsync(id, dto, ct);
-            return NoContent();
+            return Ok();
         }
 
         [Authorize(Policy = "usuarios.update")]

@@ -63,5 +63,30 @@ namespace GrupoTecnofix_Api.Controllers
             var bytes = await _service.ExportListToExcelAsync(search, ct);
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "clientes.xlsx");
         }
+
+        [Authorize(Policy = "clientes.read")]
+        [HttpGet("restricoes-fornecedores/{idCliente:int}")]
+        public async Task<ActionResult<List<ClienteFornecedor>>> GetList([FromRoute] int idCliente,CancellationToken ct)
+        {
+            var list = await _service.GetListRestricaoFornecedorAsync(idCliente, ct);
+            return Ok(list);
+        }
+
+        [Authorize(Policy = "clientes.update")]
+        [HttpPost("restricoes-fornecedores/{idCliente:int}")]
+        public async Task<IActionResult> AddRestricaoFornecedor([FromRoute] int idCliente,[FromBody] ClienteFornecedor dto,CancellationToken ct)
+        {
+            dto.IdCliente = idCliente;
+            await _service.AddAsync(dto, ct);
+            return NoContent();
+        }
+
+        [Authorize(Policy = "clientes.update")]
+        [HttpDelete("{idCliente:int}/restricoes-fornecedores/{idFornecedor:int}")]
+        public async Task<IActionResult> RemoveRestricaoFornecedor([FromRoute] int idCliente,[FromRoute] int idFornecedor,CancellationToken ct)
+        {
+            await _service.DeleteRestricaoFornecedorAsync(idCliente, idFornecedor, ct);
+            return NoContent();
+        }
     }
 }

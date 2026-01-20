@@ -2,6 +2,7 @@
 using GrupoTecnofix_Api.Dtos.Cliente;
 using GrupoTecnofix_Api.Dtos.TipoDocumento;
 using GrupoTecnofix_Api.Dtos.Transportadoras;
+using GrupoTecnofix_Api.Models;
 
 namespace GrupoTecnofix_Api.BLL.Interfaces
 {
@@ -17,5 +18,10 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
 
         // Export list of client DTOs to excel. Returns file bytes.
         Task<byte[]> ExportListToExcelAsync(string? search, CancellationToken ct);
+
+
+        Task<List<ClienteFornecedor>> GetListRestricaoFornecedorAsync(int idCliente, CancellationToken ct);
+        Task <int> AddAsync(ClienteFornecedor entity, CancellationToken ct);
+        Task DeleteRestricaoFornecedorAsync(int idCliente, int idFornecedor, CancellationToken ct);
     }
 }

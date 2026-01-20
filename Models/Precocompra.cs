@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GrupoTecnofix_Api.OUT.Models;
+namespace GrupoTecnofix_Api.Models;
 
 public partial class Precocompra
 {

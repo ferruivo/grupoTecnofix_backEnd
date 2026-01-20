@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using GrupoTecnofix_Api.Dtos.Produto;
 using GrupoTecnofix_Api.Models;
-using GrupoTecnofix_Api.OUT.Models;
 
 namespace GrupoTecnofix_Api.Mappings
 {
