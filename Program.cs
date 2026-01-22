@@ -118,7 +118,7 @@ builder.Services.AddScoped<IPrateleirasService, PrateleirasService>();
 builder.Services.AddScoped<IPrateleirasRepository, PrateleirasRepository>();
 builder.Services.AddScoped<IPedidoCompraRepository, PedidoCompraRepository>();
 builder.Services.AddScoped<IPedidoCompraService, PedidoCompraService>();
-
+builder.Services.AddScoped<IPdfService, PdfService>();
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
 {
