@@ -1,6 +1,8 @@
-﻿using GrupoTecnofix_Api.BLL.Interfaces;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using GrupoTecnofix_Api.BLL.Interfaces;
 using GrupoTecnofix_Api.Dtos.Fornecedor;
 using GrupoTecnofix_Api.Dtos.Produto;
+using GrupoTecnofix_Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -86,12 +88,12 @@ namespace GrupoTecnofix_Api.Controllers
 
         [Authorize(Policy = "precovenda.update")]
         [HttpPut("preco-venda")]
-        public async Task<IActionResult> UpdatePrecoVendaGeral([FromBody] PrecoVendaReajusteGeralDto dto, [FromQuery] decimal indiceReajuste,CancellationToken ct)
+        public async Task<IActionResult> UpdatePrecoVendaGeral([FromBody] PrecoVendaReajusteGeralDto dto, [FromQuery] decimal indiceReajuste, CancellationToken ct)
         {
-            await _service.UpdateAsync(1,new ProdutoCreateUpdate { }, ct);
+            await _service.UpdateAsync(1, new ProdutoCreateUpdate { }, ct);
             return NoContent();
         }
-        
+
         [Authorize(Policy = "precovenda.read")]
         [HttpPost("preco-venda/export")]
         public async Task<IActionResult> ExportPrecoVenda([FromQuery] int idCliente, CancellationToken ct = default)
@@ -111,6 +113,8 @@ namespace GrupoTecnofix_Api.Controllers
         [HttpGet("preco-compra/{id:int}")]
         public async Task<IActionResult> GetPrecoCompraById(int id, CancellationToken ct)
         => Ok(await _service.GetPrecoCompraByIdAsync(id, ct));
+
+        //GET /produtos/precoCompra/produto? idFornecedor = { id }&idProduto={id}
 
         [Authorize(Policy = "precocompra.read")]
         [HttpPost("preco-compra/export")]
@@ -145,6 +149,42 @@ namespace GrupoTecnofix_Api.Controllers
         }
         #endregion
 
+        #region Kit
+        [Authorize(Policy = "produtos.read")]
+        [HttpGet("{idProdutoKit:int}/kit")]
+        public async Task<IActionResult> GetListProdutoKit([FromRoute] int idProdutoKit, CancellationToken ct = default)
+    => Ok(await _service.GetListProdutoKitAsync(idProdutoKit, ct));
 
+        [Authorize(Policy = "produtos.read")]
+        [HttpGet("{idProdutoKit:int}/kit/{idProduto:int}")]
+        public async Task<IActionResult> GetProdutoKitById(int idProdutoKit, int idProduto, CancellationToken ct)
+        => Ok(await _service.GetProdutoKitByIdAsync(idProdutoKit, idProduto, ct));
+
+        [Authorize(Policy = "produtos.update")]
+        [HttpPost("{idProdutoKit:int}/kit")]
+        public async Task<IActionResult> CreateProdutoKit([FromRoute] int idProdutoKit, [FromBody] ProdutoKitCreateUpdateDto dto, CancellationToken ct)
+        {
+            dto.IdProdutoKit = idProdutoKit;
+            await _service.CreateAsync(dto, ct);
+            return NoContent();
+        }
+
+        [Authorize(Policy = "produtos.update")]
+        [HttpPut("{idProduto:int}/kit")]
+        public async Task<IActionResult> UpdateProdutoKit([FromRoute] int idProdutoKit, [FromBody] ProdutoKitCreateUpdateDto dto, CancellationToken ct)
+        {
+            
+            await _service.UpdateAsync(dto, ct);
+            return NoContent();
+        }
+
+        [Authorize(Policy = "produtos.update")]
+        [HttpDelete("{idProdutoKit:int}/kit/{idProduto:int}")]
+        public async Task<IActionResult> DeleteKitItem(int idProdutoKit, int idProduto, CancellationToken ct)
+        {
+            await _service.DeleteProdutoKitAsync(idProdutoKit, idProduto, ct);
+            return NoContent();
+        }
+        #endregion
     }
 }

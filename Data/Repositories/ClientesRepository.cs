@@ -72,6 +72,44 @@ namespace GrupoTecnofix_Api.Data.Repositories
             };
         }
 
+        public async Task<List<ClienteExcelDto>> GetListExcelAsync(string? search, CancellationToken ct)
+        {
+            var query = _db.Clientes.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                query = query.Where(c =>
+                    c.Fantasia.Contains(s) ||
+                    c.Contato.Contains(s) ||
+                    c.Nome.Contains(s) ||
+                    c.Cpf.Contains(s) ||
+                    c.Cnpj.Contains(s));
+            }
+
+            var total = await query.CountAsync(ct);
+
+            var items = await (from c in query
+                                join o in _db.OrigensCadastros on c.IdOrigem equals o.IdOrigem into oj
+                                from o in oj.DefaultIfEmpty()
+                                join m in _db.Municipios on c.IdMunicipio equals m.IdMunicipio
+                                orderby c.Fantasia
+                                select new ClienteExcelDto
+                                {
+                                    Nome = c.Nome,
+                                    Fantasia = c.Fantasia,
+                                    Contato = c.Contato,
+                                    Cnpj = c.Cnpj,
+                                    Cpf = c.Cpf,
+
+                                    OrigemCadastro = o != null ? o.Descricao : null,
+
+                                    Municipio = m.Nome,
+                                    UF = m.Uf
+                                }).ToListAsync(ct);
+            return items;
+        }
+
         public async Task<Cliente?> GetByIdAsync(int id, CancellationToken ct)
         {
             try
@@ -270,21 +308,21 @@ namespace GrupoTecnofix_Api.Data.Repositories
         public async Task<List<ClienteFornecedor>> GetListRestricaoFornecedorAsync(int idCliente, CancellationToken ct)
         {
             var query = (from cf in _db.ClienteFornecedors.AsNoTracking()
-                        where cf.IdCliente == idCliente
-                        select new ClienteFornecedor
-                        {
-                            IdCliente = cf.IdCliente,
-                            IdFornecedor = cf.IdFornecedor,
-                            Tipo = cf.Tipo,
-                            Obs = cf.Obs,
-                            DataCadastro = cf.DataCadastro,
-                            IdUsuarioCadastro = cf.IdUsuarioCadastro,
-                            DataAlteracao = cf.DataAlteracao,
-                            IdUsuarioAlteracao = cf.IdUsuarioAlteracao,
-                            FornecedorNome = (from f in _db.Fornecedores
-                                              where f.IdFornecedor == cf.IdFornecedor
-                                              select f.Fantasia).FirstOrDefault() ?? ""
-                        });
+                         where cf.IdCliente == idCliente
+                         select new ClienteFornecedor
+                         {
+                             IdCliente = cf.IdCliente,
+                             IdFornecedor = cf.IdFornecedor,
+                             Tipo = cf.Tipo,
+                             Obs = cf.Obs,
+                             DataCadastro = cf.DataCadastro,
+                             IdUsuarioCadastro = cf.IdUsuarioCadastro,
+                             DataAlteracao = cf.DataAlteracao,
+                             IdUsuarioAlteracao = cf.IdUsuarioAlteracao,
+                             FornecedorNome = (from f in _db.Fornecedores
+                                               where f.IdFornecedor == cf.IdFornecedor
+                                               select f.Fantasia).FirstOrDefault() ?? ""
+                         });
             return await query.ToListAsync(ct);
         }
 
@@ -293,7 +331,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
             return _db.ClienteFornecedors.AddAsync(entity).AsTask();
         }
 
-        public async Task DeleteRestricaoFornecedorAsync(ClienteFornecedor cf,CancellationToken ct)
+        public async Task DeleteRestricaoFornecedorAsync(ClienteFornecedor cf, CancellationToken ct)
         {
             _db.Remove(cf);
             await _db.SaveChangesAsync(ct);

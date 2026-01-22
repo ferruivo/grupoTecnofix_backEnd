@@ -20,5 +20,10 @@ namespace GrupoTecnofix_Api.Data.Interface
         Task<List<PrecoCompraDto>> GetListPrecoCompraAsync(int idFornecedor, CancellationToken ct);
         Task<Precocompra?> GetPrecoCompraByIdAsync(int id, CancellationToken ct);
         Task AddAsync(Precocompra entity, CancellationToken ct);
+
+        Task<List<ProdutoKitDto>> GetListProdutoKitAsync(int idProduto, CancellationToken ct);
+        Task<ProdutoKitIten?> GetProdutoKitByIdAsync(int id, int idProduto, CancellationToken ct);
+        Task AddAsync(ProdutoKitIten entity, CancellationToken ct);
+        Task DeleteProdutoKitAsync(ProdutoKitIten p, CancellationToken ct);
     }
 }

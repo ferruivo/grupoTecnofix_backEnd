@@ -113,6 +113,8 @@ builder.Services.AddScoped<IFornecedoresRepository, FornecedoresRepository>();
 builder.Services.AddScoped<IFornecedoresService, FornecedoresService>();
 builder.Services.AddScoped<IProdutosRepository, ProdutosRepository>();
 builder.Services.AddScoped<IProdutosService, ProdutosService>();
+builder.Services.AddScoped<IPrateleirasService, PrateleirasService>();
+builder.Services.AddScoped<IPrateleirasRepository, PrateleirasRepository>();
 
 
 // ===================== AutoMapper =====================
@@ -131,7 +133,8 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<ProdutosProfile>();
     cfg.AddProfile<PrecoVendaProfile>();
     cfg.AddProfile<PrecoCompraProfile>();
-    
+    cfg.AddProfile<ProdutoKitItenProfile>();
+
 });
 
 // ===================== Swagger =====================

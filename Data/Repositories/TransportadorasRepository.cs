@@ -1,7 +1,9 @@
 ﻿using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos;
+using GrupoTecnofix_Api.Dtos.Fornecedor;
 using GrupoTecnofix_Api.Dtos.Municipios;
 using GrupoTecnofix_Api.Dtos.Perfis;
+using GrupoTecnofix_Api.Dtos.Transportadora;
 using GrupoTecnofix_Api.Dtos.Transportadoras;
 using GrupoTecnofix_Api.Dtos.Usuario;
 using GrupoTecnofix_Api.Models;
@@ -73,6 +75,37 @@ namespace GrupoTecnofix_Api.Data.Repositories
                         };
 
             return await query.ToListAsync(ct);
+        }
+
+        public async Task<List<TransportadoraExcelDto>> GetListExcelAsync(string? search, CancellationToken ct)
+        {
+            var query = _db.Transportadoras.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                query = query.Where(t =>
+                    t.Fantasia.Contains(s) ||
+                    t.RazaoSocial.Contains(s) ||
+                    t.Contato.Contains(s) ||
+                    t.Cnpj.Contains(s));
+            }
+
+            var total = await query.CountAsync(ct);
+
+            var items = await (from t in query
+                               join m in _db.Municipios on t.IdMunicipio equals m.IdMunicipio
+                               orderby t.Fantasia
+                               select new TransportadoraExcelDto
+                               {
+                                   RazaoSocial = t.RazaoSocial,
+                                   Fantasia = t.Fantasia,
+                                   Contato = t.Contato,
+                                   CNPJ = t.Cnpj,
+                                   Muicipio= m.Nome,
+                                   UF = m.Uf
+                               }).ToListAsync(ct);
+            return items;
         }
 
         public Task<Transportadora?> GetByIdAsync(int id, CancellationToken ct)

@@ -32,6 +32,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Vendedore> Vendedores { get; set; }
     public virtual DbSet<Precocompra> Precocompras { get; set; }
     public virtual DbSet<ClienteFornecedor> ClienteFornecedors { get; set; }
+    public virtual DbSet<Prateleira> Prateleiras { get; set; }
+    public virtual DbSet<ProdutoKitIten> ProdutoKitItens { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -838,6 +840,55 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Obs)
                 .HasMaxLength(200)
                 .HasColumnName("OBS");
+        });
+
+        modelBuilder.Entity<Prateleira>(entity =>
+        {
+            entity.HasKey(e => e.IdPrateleira);
+
+            entity.ToTable("PRATELEIRAS");
+
+            entity.HasIndex(e => e.DescricaoNorm, "UX_PRATELEIRAS_DESCRICAO_NORM").IsUnique();
+
+            entity.Property(e => e.IdPrateleira).HasColumnName("ID_PRATELEIRA");
+            entity.Property(e => e.DataAlteracao)
+                .HasPrecision(0)
+                .HasDefaultValueSql("(sysdatetime())")
+                .HasColumnName("DATA_ALTERACAO");
+            entity.Property(e => e.DataCadastro)
+                .HasPrecision(0)
+                .HasDefaultValueSql("(sysdatetime())")
+                .HasColumnName("DATA_CADASTRO");
+            entity.Property(e => e.Descricao)
+                .HasMaxLength(120)
+                .HasColumnName("DESCRICAO");
+            entity.Property(e => e.DescricaoNorm)
+                .HasMaxLength(120)
+                .HasComputedColumnSql("(upper(ltrim(rtrim([DESCRICAO]))))", true)
+                .HasColumnName("DESCRICAO_NORM");
+            entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
+            entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
+        });
+
+        modelBuilder.Entity<ProdutoKitIten>(entity =>
+        {
+            entity.HasKey(e => new { e.IdProdutoKit, e.IdProduto });
+
+            entity.ToTable("PRODUTO_KIT_ITENS");
+
+            entity.HasIndex(e => e.IdProduto, "IX_PKI_COMPONENTE");
+
+            entity.Property(e => e.IdProdutoKit).HasColumnName("ID_PRODUTO_KIT");
+            entity.Property(e => e.IdProduto).HasColumnName("ID_PRODUTO");
+            entity.Property(e => e.DataAlteracao)
+                .HasPrecision(0)
+                .HasColumnName("DATA_ALTERACAO");
+            entity.Property(e => e.DataCadastro)
+                .HasPrecision(0)
+                .HasColumnName("DATA_CADASTRO");
+            entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
+            entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
+            entity.Property(e => e.Quantidade).HasColumnName("QUANTIDADE");
         });
 
         OnModelCreatingPartial(modelBuilder);

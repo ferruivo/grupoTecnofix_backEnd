@@ -80,9 +80,9 @@ namespace GrupoTecnofix_Api.BLL.Services
 
         public async Task<byte[]> ExportListToExcelAsync(string? search, CancellationToken ct)
         {
-            var list = await _repo.GetListPagedAsync(1,1000,search, ct);
+            var list = await _repo.GetListExcelAsync(search, ct);
             // use helper to export
-            return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(list.Items, "Clientes"), ct);
+            return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(list, "Clientes"), ct);
         }
 
         public async Task<List<ClienteFornecedor>> GetListRestricaoFornecedorAsync(int idCliente, CancellationToken ct)

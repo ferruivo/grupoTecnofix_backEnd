@@ -1,5 +1,6 @@
 ﻿using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos;
+using GrupoTecnofix_Api.Dtos.Cliente;
 using GrupoTecnofix_Api.Dtos.Condições_Pagamento;
 using GrupoTecnofix_Api.Dtos.Fornecedor;
 using GrupoTecnofix_Api.Dtos.Municipios;
@@ -85,6 +86,36 @@ namespace GrupoTecnofix_Api.Data.Repositories
             return items;
         }
 
+        public async Task<List<FornecedorExcelDto>> GetListExcelAsync(string? search, CancellationToken ct)
+        {
+            var query = _db.Fornecedores.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                query = query.Where(f =>
+                    f.Fantasia.Contains(s) ||
+                    f.Contato.Contains(s) ||
+                    f.Razaosocial.Contains(s) ||
+                    f.Cpfcnpj.Contains(s));
+            }
+
+            var total = await query.CountAsync(ct);
+
+            var items = await (from f in query
+                               join m in _db.Municipios on f.IdMunicipio equals m.IdMunicipio
+                               orderby f.Fantasia
+                               select new FornecedorExcelDto
+                               {
+                                   RazaoSocial = f.Razaosocial,
+                                   Fantasia = f.Fantasia,
+                                   Contato = f.Contato,
+                                   CpfCnpj = f.Cpfcnpj,
+                                   Municipio = m.Nome,
+                                   UF = m.Uf
+                               }).ToListAsync(ct);
+            return items;
+        }
         public Task<Fornecedore?> GetByIdAsync(int id, CancellationToken ct)
             => _db.Fornecedores.FirstOrDefaultAsync(x => x.IdFornecedor == id, ct);
 

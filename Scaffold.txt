@@ -1,7 +1,7 @@
 ﻿Scaffold-DbContext "Server=177.93.111.112,6433;Database=GrupoTecnofix;User Id=fixadores;Password=Tecno2@@3;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Context AppDbContext -ContextDir Data -OutputDir Models -DataAnnotations -NoOnConfiguring -Force
 
 --Unitario
-Scaffold-DbContext "Server=177.93.111.112,6433;Database=GrupoTecnofix;User Id=fixadores;Password=Tecno2@@3;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Context AppDbContext -ContextDir OUT\Data -OutputDir OUT\Models -NoOnConfiguring -Force -Tables PRECOCOMPRA
+Scaffold-DbContext "Server=177.93.111.112,6433;Database=GrupoTecnofix;User Id=fixadores;Password=Tecno2@@3;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Context AppDbContext -ContextDir OUT\Data -OutputDir OUT\Models -NoOnConfiguring -Force -Tables PRODUTO_KIT_ITENS
 
 --Deploy
 dotnet publish .\GrupoTecnofix_Api.csproj -c Release -o C:\Sites\GrupoTecnofixApi

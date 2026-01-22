@@ -8,6 +8,7 @@ namespace GrupoTecnofix_Api.Data.Interface
     {
         Task<PagedResult<FornecedorListDto>> GetListPagedAsync(int page, int pageSize, string? search, CancellationToken ct);
         Task<List<FornecedorListDto>> GetListAsync(string? search, CancellationToken ct);
+        Task<List<FornecedorExcelDto>> GetListExcelAsync(string? search, CancellationToken ct);
 
         Task<Fornecedore?> GetByIdAsync(int id, CancellationToken ct);
 

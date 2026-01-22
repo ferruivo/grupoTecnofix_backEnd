@@ -16,5 +16,6 @@ namespace GrupoTecnofix_Api.Dtos.Produto
         public string? Obs { get; set; }
         public string? ObsNf { get; set; }
         public string? ObsEntrada { get; set; }
+        public bool? IS_KIT { get; set; }
     }
 }

@@ -30,7 +30,8 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 var s = search.Trim();
                 query = query.Where(c =>
                     c.Descricao.Contains(s) ||
-                    c.Codigo.Contains(s));
+                    c.Codigo.Contains(s) ||
+                    c.Ncm.Contains(s));
             }
 
             var total = await query.CountAsync(ct);
@@ -42,8 +43,11 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 .Select(p => new ProdutoListDto
                 {
                     IdProduto = p.IdProduto,
+                    Codigo = p.Codigo,
                     Descricao = p.Descricao,
-                    Codigo = p.Codigo
+                    Ncm = p.Ncm,
+                    IS_KIT = p.IS_KIT
+                    
                 })
                 .ToListAsync(ct);
 
@@ -73,8 +77,10 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 .Select(p => new ProdutoListDto
                 {
                     IdProduto = p.IdProduto,
+                    Codigo = p.Codigo,
                     Descricao = p.Descricao,
-                    Codigo = p.Codigo
+                    Ncm = p.Ncm,
+                    IS_KIT = p.IS_KIT
                 })
                 .ToListAsync(ct);
 
@@ -200,6 +206,51 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         #endregion
 
+        #region Kit
+        public async Task<List<ProdutoKitDto>> GetListProdutoKitAsync(int idProdutoKit, CancellationToken ct)
+        {
+            var items = await _db.ProdutoKitItens
+                .AsNoTracking()
+                .Where(p => p.IdProdutoKit == idProdutoKit)
+                .Select(p => new ProdutoKitDto
+                {
+                    IdProdutoKit = p.IdProdutoKit,
+                    Quantidade = p.Quantidade,
+                    DataCadastro = p.DataCadastro,
+                    IdUsuarioCadastro = p.IdUsuarioCadastro,
+                    DataAlteracao = p.DataAlteracao,
+                    IdUsuarioAlteracao = p.IdUsuarioAlteracao,
+                    // =========================
+                    // Subquery: Produto Componente
+                    // =========================
+                    Produto = _db.Produtos
+                        .Where(pk => pk.IdProduto == p.IdProduto)
+                        .Select(pk => new ProdutoListDto
+                        {
+                            IdProduto = pk.IdProduto,
+                            Codigo = pk.Codigo,
+                            Descricao = pk.Descricao,
+                        })
+                        .FirstOrDefault(),
+                })
+                .ToListAsync(ct);
+            return items;
+        }
 
+        public Task<ProdutoKitIten?> GetProdutoKitByIdAsync(int idProdutoKit, int idProduto, CancellationToken ct)
+            => _db.ProdutoKitItens.FirstOrDefaultAsync(x => x.IdProdutoKit == idProdutoKit && x.IdProduto == idProduto, ct);
+
+        public Task AddAsync(ProdutoKitIten entity, CancellationToken ct)
+        {
+            return _db.ProdutoKitItens.AddAsync(entity).AsTask();
+        }
+
+        public async Task DeleteProdutoKitAsync(ProdutoKitIten p, CancellationToken ct)
+        {
+            _db.Remove(p);
+            await _db.SaveChangesAsync(ct);
+        }
+
+        #endregion
     }
 }

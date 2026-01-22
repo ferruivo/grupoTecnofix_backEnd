@@ -20,6 +20,7 @@ public partial class Produto
     public string CstIcms { get; set; } = null!;
 
     public int? Minimo { get; set; }
+    public bool? IS_KIT { get; set; }
 
     public string? Obs { get; set; }
 

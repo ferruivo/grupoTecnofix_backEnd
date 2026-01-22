@@ -149,7 +149,6 @@ namespace GrupoTecnofix_Api.BLL.Services
 
         #endregion
 
-
         #region PrecoCompra
         public async Task<List<PrecoCompraDto>> GetListPrecoCompraAsync(int idFornecedor, CancellationToken ct)
         {
@@ -218,5 +217,55 @@ namespace GrupoTecnofix_Api.BLL.Services
 
         #endregion
 
+        #region KitProduto
+        public async Task<List<ProdutoKitDto>> GetListProdutoKitAsync(int idProduto, CancellationToken ct)
+        {
+            return await _repo.GetListProdutoKitAsync(idProduto, ct);
+        }
+
+        public async Task<ProdutoKitDto> GetProdutoKitByIdAsync(int idProdutoKit, int idProduto, CancellationToken ct)
+        {
+            var p = await _repo.GetProdutoKitByIdAsync(idProdutoKit, idProduto, ct);
+            if (p is null) throw new KeyNotFoundException("Produto kit não encontrado.");
+
+            var dto = _mapper.Map<ProdutoKitDto>(p);
+
+            return dto;
+        }
+
+        public async Task<int> CreateAsync(ProdutoKitCreateUpdateDto dto, CancellationToken ct)
+        {
+            var p = _mapper.Map<ProdutoKitIten>(dto);
+
+            p.EnsureCreationAudit(_currentUser);
+
+            await _repo.AddAsync(p, ct);
+            await _repo.SaveAsync(ct);
+
+            return p.IdProduto;
+        }
+
+        public async Task UpdateAsync(ProdutoKitCreateUpdateDto dto, CancellationToken ct)
+        {
+            var p = await _repo.GetProdutoKitByIdAsync(dto.IdProdutoKit, dto.IdProduto, ct);
+            if (p is null) throw new KeyNotFoundException("Produto kit não encontrado.");
+
+            _mapper.Map(dto, p);
+            p.EnsureUpdateAudit(_currentUser);
+
+            await _repo.SaveAsync(ct);
+        }
+
+        public async Task DeleteProdutoKitAsync(int IdProdutoKit, int idProduto, CancellationToken ct)
+        {
+            var k = await _repo.GetProdutoKitByIdAsync(IdProdutoKit, idProduto, ct);
+
+            if (k == null)
+                throw new KeyNotFoundException("Item não encontrado.");
+
+            await _repo.DeleteProdutoKitAsync(k, ct);
+
+        }
+        #endregion
     }
 }
