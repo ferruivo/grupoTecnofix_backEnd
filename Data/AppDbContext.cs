@@ -993,6 +993,10 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ValorIpi)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("VALOR_IPI");
+
+            entity.Property(e => e.DataEntrega)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_ENTREGA");
         });
 
         OnModelCreatingPartial(modelBuilder);

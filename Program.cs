@@ -13,10 +13,15 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using QuestPDF;
+using QuestPDF.Infrastructure;
 using System.Text;
 using AuthService = GrupoTecnofix_Api.Auth.AuthService;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// QuestPDF license configuration to avoid runtime exception
+QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddControllers();
 
@@ -119,6 +124,7 @@ builder.Services.AddScoped<IPrateleirasRepository, PrateleirasRepository>();
 builder.Services.AddScoped<IPedidoCompraRepository, PedidoCompraRepository>();
 builder.Services.AddScoped<IPedidoCompraService, PedidoCompraService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
+
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
 {

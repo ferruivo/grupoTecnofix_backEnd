@@ -10,5 +10,6 @@
         public decimal TotalItem { get; set; }
         public decimal TotalIpi { get; set; }
         public decimal TotalIcms { get; set; }
+        public DateTime? DataEntrega { get; set; }
     }
 }

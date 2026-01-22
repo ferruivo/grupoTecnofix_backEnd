@@ -3,6 +3,9 @@ using GrupoTecnofix_Api.Dtos.PedidoCompra;
 using GrupoTecnofix_Api.Models;
 using GrupoTecnofix_Api.Dtos;
 using Microsoft.EntityFrameworkCore;
+using GrupoTecnofix_Api.Dtos.Fornecedor;
+using GrupoTecnofix_Api.Dtos.Municipios;
+using GrupoTecnofix_Api.Dtos.Condições_Pagamento;
 
 namespace GrupoTecnofix_Api.Data.Repositories
 {
@@ -58,8 +61,43 @@ namespace GrupoTecnofix_Api.Data.Repositories
                     DataPedido = p.DataEmissao.ToDateTime(new TimeOnly(0)),
                     IdFornecedor = p.IdFornecedor,
                     FornecedorNome = _db.Fornecedores.Where(f => f.IdFornecedor == p.IdFornecedor).Select(f => f.Fantasia).FirstOrDefault(),
+                    Fornecedor = _db.Fornecedores
+                        .Where(f => f.IdFornecedor == p.IdFornecedor)
+                        .Select(f => new FornecedorDto
+                        {
+                            IdFornecedor = f.IdFornecedor,
+                            CpfCnpj = f.Cpfcnpj,
+                            RazaoSocial = f.Razaosocial,
+                            Fantasia = f.Fantasia,
+                            Email = f.Email,
+                            Telefone = f.Telefone,
+                            Endereco = f.Endereco,
+                            Numero = f.Numero,
+                            Complemento = f.Complemento,
+                            Bairro = f.Bairro,
+                            Municipio = _db.Municipios
+                                .Where(m => m.IdMunicipio == f.IdMunicipio)
+                                .Select(m => new MunicipioDto
+                                {
+                                    IdMunicipio = m.IdMunicipio,
+                                    Nome = m.Nome,
+                                    UF = m.Uf,
+                                })
+                                .FirstOrDefault()!,
+                            Cep = f.Cep
+                        })
+                        .FirstOrDefault(),
                     IdCondicaoPagamento = p.IdCondPagamento ?? 0,
                     CondicaoPagamentoDescricao = _db.Condicoespagamentos.Where(c => c.IdCondicoespagamento == p.IdCondPagamento).Select(c => c.Descricao).FirstOrDefault(),
+                    CondicaoPagamento = _db.Condicoespagamentos
+                        .Where(c => c.IdCondicoespagamento == p.IdCondPagamento)
+                        .Select(c => new CondicaoPagamentoDto
+                        {
+                            IdCondicoespagamento = c.IdCondicoespagamento,
+                            Descricao = c.Descricao,
+           
+                        })
+                        .FirstOrDefault(),
                     IdTransportadora = p.IdTransportadora,
                     TransportadoraNome = _db.Transportadoras.Where(t => t.IdTransportadora == p.IdTransportadora).Select(t => t.Fantasia).FirstOrDefault(),
                     TipoFrete = p.TipoFrete,
@@ -81,13 +119,15 @@ namespace GrupoTecnofix_Api.Data.Repositories
                             IdProduto = i.IdProduto,
                             ProdutoCodigo = _db.Produtos.Where(pr => pr.IdProduto == i.IdProduto).Select(pr => pr.Codigo).FirstOrDefault(),
                             ProdutoDescricao = _db.Produtos.Where(pr => pr.IdProduto == i.IdProduto).Select(pr => pr.Descricao).FirstOrDefault(),
+                            //i.e
                             Quantidade = i.Quantidade,
                             PrecoUnitario = i.PrecoUnitario,
                             AliquotaIpi = i.AliquotaIpi,
                             AliquotaIcms = i.AliquotaIcms,
                             TotalItem = i.TotalItem,
                             TotalIpi = i.ValorIpi,
-                            TotalIcms = i.ValorIcms
+                            TotalIcms = i.ValorIcms,
+                            DataEntrega = i.DataEntrega
                         }).ToList()
                 })
                 .FirstOrDefaultAsync(ct);

@@ -1,4 +1,7 @@
-﻿namespace GrupoTecnofix_Api.Dtos.PedidoCompra
+﻿using GrupoTecnofix_Api.Dtos.Condições_Pagamento;
+using GrupoTecnofix_Api.Dtos.Fornecedor;
+
+namespace GrupoTecnofix_Api.Dtos.PedidoCompra
 {
     public class PedidoCompraDto
     {
@@ -22,5 +25,7 @@
         public DateTime? DataAtualizacao { get; set; }
 
         public List<PedidoCompraItemDto> Itens { get; set; } = new();
+        public FornecedorDto? Fornecedor { get; set; }
+        public CondicaoPagamentoDto? CondicaoPagamento { get; set; }
     }
 }

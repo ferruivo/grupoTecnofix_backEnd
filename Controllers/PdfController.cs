@@ -1,18 +1,30 @@
-using Microsoft.AspNetCore.Mvc;
 using GrupoTecnofix_Api.BLL.Interfaces;
 using GrupoTecnofix_Api.Dtos.PedidoCompra;
+using GrupoTecnofix_Api.Utils;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GrupoTecnofix_Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("pdf")]
+    [Authorize]
     public class PdfController : ControllerBase
     {
         private readonly IPdfService _pdfService;
+        private readonly IPedidoCompraService _pedidoCompraService;
+        private readonly IEmpresaService _empresaService;
+        private readonly IUsuariosService _usuariosService;
+        private readonly ICurrentUserService _currentUser;
 
-        public PdfController(IPdfService pdfService)
+
+        public PdfController(IPdfService pdfService, IPedidoCompraService pedidoCompras, IEmpresaService empresaService, IUsuariosService usuariosService, ICurrentUserService currentUser)
         {
             _pdfService = pdfService;
+            _pedidoCompraService = pedidoCompras;
+            _empresaService = empresaService;
+            _usuariosService = usuariosService;
+            _currentUser = currentUser;
         }
 
         [HttpPost("generate-base64")]
@@ -24,31 +36,17 @@ namespace GrupoTecnofix_Api.Controllers
             return Ok(new { base64 });
         }
 
-        [HttpPost("pedido-compra/generate-base64")]
-        public async Task<IActionResult> GeneratePedidoCompra([FromBody] PedidoCompraExportDto model)
+        [Authorize(Policy = "pedidoscompra.read")]
+        [HttpGet("pedidocompra/{id:int}")]
+        public async Task<IActionResult> GeneratePedidoCompra(int id, CancellationToken ct)
         {
-            if (model == null) return BadRequest("Modelo vazio.");
+            var p = await _pedidoCompraService.GetByIdAsync(id, ct);
+            if (p == null) return NotFound();
 
-            var base64 = await _pdfService.GeneratePurchaseOrderPdfBase64Async(new PedidoCompraDto
-            {
-                IdPedidoCompra = model.IdPedidoCompra,
-                DataPedido = model.DataPedido,
-                FornecedorNome = model.FornecedorNome,
-                ValorFrete = model.ValorFrete,
-                TotalProdutos = model.TotalProdutos,
-                TotalIpi = model.TotalIpi,
-                TotalIcms = model.TotalIcms,
-                TotalPedido = model.TotalPedido,
-                Observacao = model.Observacao,
-                Itens = model.Itens.Select(i => new PedidoCompraItemDto
-                {
-                    ProdutoCodigo = i.ProdutoCodigo,
-                    ProdutoDescricao = i.ProdutoDescricao,
-                    Quantidade = i.Quantidade,
-                    PrecoUnitario = i.PrecoUnitario,
-                    TotalItem = i.TotalItem
-                }).ToList()
-            });
+            var e = await _empresaService.GetAsync("",ct);
+            var u = await _usuariosService.GetByIdAsync(_currentUser.GetUsuarioLogadoId(), ct);
+
+            var base64 = await _pdfService.GeneratePurchaseOrderPdfBase64Async(e, u, p);
 
             return Ok(new { base64 });
         }
