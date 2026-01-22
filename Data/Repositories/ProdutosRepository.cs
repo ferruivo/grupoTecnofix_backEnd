@@ -157,6 +157,24 @@ namespace GrupoTecnofix_Api.Data.Repositories
             return _db.Precovenda.AddAsync(entity).AsTask();
         }
 
+        public async Task<PrecoVendaProdutoDto?> GetPrecoVendaProdutoAsync(int idCliente, int idProduto, CancellationToken ct)
+        {
+            var item = await _db.Precovenda
+                .AsNoTracking()
+                .Where(p => p.IdCliente == idCliente && p.IdProduto == idProduto)
+                .OrderByDescending(p => p.Vigencia ?? DateTime.MaxValue)
+                .Select(p => new PrecoVendaProdutoDto { Preco = p.Preco })
+                .FirstOrDefaultAsync(ct);
+
+            return item;
+        }
+
+        public async Task<bool> DeletePrecoVendaAsync(int id, CancellationToken ct)
+        {
+            var rows = await _db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM PRECOVENDA WHERE ID_PRECOVENDA = {id}", ct);
+            return rows > 0;
+        }
+
         #endregion
 
         #region Preço compra
@@ -202,6 +220,25 @@ namespace GrupoTecnofix_Api.Data.Repositories
         public Task AddAsync(Precocompra entity, CancellationToken ct)
         {
             return _db.Precocompras.AddAsync(entity).AsTask();
+        }
+
+        public async Task<PrecoCompraProdutoDto?> GetPrecoCompraProdutoAsync(int idFornecedor, int idProduto, CancellationToken ct)
+        {
+            var item = await _db.Precocompras
+                .AsNoTracking()
+                .Where(p => p.IdFornecedor == idFornecedor && p.IdProduto == idProduto)
+                .OrderByDescending(p => p.Vigencia ?? DateTime.MaxValue)
+                .Select(p => new PrecoCompraProdutoDto { Preco = p.Preco })
+                .FirstOrDefaultAsync(ct);
+
+            return item;
+        }
+
+        public async Task<bool> DeletePrecoCompraAsync(int id, CancellationToken ct)
+        {
+            // use SQL delete to avoid EF concurrency checks; return true if row deleted
+            var rows = await _db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM PRECOCOMPRA WHERE ID_PRECOCOMPRA = {id}", ct);
+            return rows > 0;
         }
 
         #endregion

@@ -75,9 +75,13 @@ namespace GrupoTecnofix_Api.BLL.Services
             await _repo.UpdateAsync(existingEntity, itens, ct);
         }
 
-        public async Task DeleteAsync(int id, CancellationToken ct)
+        public async Task<bool> DeleteAsync(int id, CancellationToken ct)
         {
+            var existingEntity = await _repo.GetEntityByIdAsync(id, ct);
+            if (existingEntity is null) return false;
+
             await _repo.DeleteAsync(id, ct);
+            return true;
         }
     }
 }

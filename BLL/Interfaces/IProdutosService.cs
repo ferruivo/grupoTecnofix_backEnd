@@ -20,6 +20,10 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
         Task<int> CreateAsync(PrecoVendaCreateUpdateDto dto, CancellationToken ct);
         Task UpdateAsync(int id, PrecoVendaCreateUpdateDto dto, CancellationToken ct);
         Task UpdatePrecoVendaGeral(PrecoVendaReajusteGeralDto dto, CancellationToken ct);
+        Task<bool> DeletePrecoVendaAsync(int id, CancellationToken ct);
+
+        // Lookup preco venda by cliente and produto
+        Task<PrecoVendaProdutoDto?> GetPrecoVendaProdutoAsync(int idCliente, int idProduto, CancellationToken ct);
 
 
         Task<List<PrecoCompraDto>> GetListPrecoCompraAsync(int idFornecedor, CancellationToken ct);
@@ -27,6 +31,10 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
         Task<int> CreateAsync(PrecoCompraCreateUpdateDto dto, CancellationToken ct);
         Task UpdateAsync(int id, PrecoCompraCreateUpdateDto dto, CancellationToken ct);
         Task UpdatePrecoCompraGeral(PrecoCompraReajusteGeralDto dto, CancellationToken ct);
+
+        // Lookup preco compra by fornecedor and produto
+        Task<PrecoCompraProdutoDto?> GetPrecoCompraProdutoAsync(int idFornecedor, int idProduto, CancellationToken ct);
+        Task<bool> DeletePrecoCompraAsync(int id, CancellationToken ct);
 
         // Export list of produtos to excel
         Task<byte[]> ExportListToExcelAsync(IEnumerable<ProdutoListDto> list, CancellationToken ct);

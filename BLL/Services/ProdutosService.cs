@@ -147,6 +147,17 @@ namespace GrupoTecnofix_Api.BLL.Services
             return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(items, "PrecoVenda"), ct);
         }
 
+        public async Task<PrecoVendaProdutoDto?> GetPrecoVendaProdutoAsync(int idCliente, int idProduto, CancellationToken ct)
+        {
+            return await _repo.GetPrecoVendaProdutoAsync(idCliente, idProduto, ct);
+        }
+
+        public async Task<bool> DeletePrecoVendaAsync(int id, CancellationToken ct)
+        {
+            var deleted = await _repo.DeletePrecoVendaAsync(id, ct);
+            return deleted;
+        }
+
         #endregion
 
         #region PrecoCompra
@@ -213,6 +224,17 @@ namespace GrupoTecnofix_Api.BLL.Services
         {
             var items = await _repo.GetListPrecoCompraAsync(idFornecedor, ct);
             return await Task.Run(() => Helpers.ExcelExporter.ExportToExcel(items, "PrecoCompra"), ct);
+        }
+
+        public async Task<PrecoCompraProdutoDto?> GetPrecoCompraProdutoAsync(int idFornecedor, int idProduto, CancellationToken ct)
+        {
+            return await _repo.GetPrecoCompraProdutoAsync(idFornecedor, idProduto, ct);
+        }
+
+        public async Task<bool> DeletePrecoCompraAsync(int id, CancellationToken ct)
+        {
+            var deleted = await _repo.DeletePrecoCompraAsync(id, ct);
+            return deleted;
         }
 
         #endregion

@@ -142,14 +142,16 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         public async Task DeleteAsync(int id, CancellationToken ct)
         {
-            var p = await _db.PedidosCompras.FirstOrDefaultAsync(x => x.IdPedidoCompra == id, ct);
-            if (p != null)
-            {
-                var itens = _db.PedidosCompraItens.Where(i => i.IdPedidoCompra == id);
-                _db.PedidosCompraItens.RemoveRange(itens);
-                _db.PedidosCompras.Remove(p);
-                await _db.SaveChangesAsync(ct);
-            }
+            // Use raw SQL deletes inside a transaction to avoid optimistic concurrency issues
+            await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+
+            // Delete items first
+            await _db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM PEDIDOS_COMPRA_ITENS WHERE ID_PEDIDO_COMPRA = {id}", ct);
+
+            // Delete the pedido
+            await _db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM PEDIDOS_COMPRA WHERE ID_PEDIDO_COMPRA = {id}", ct);
+
+            await transaction.CommitAsync(ct);
         }
     }
 }

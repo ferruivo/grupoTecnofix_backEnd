@@ -94,12 +94,31 @@ namespace GrupoTecnofix_Api.Controllers
             return NoContent();
         }
 
+        //GET /produtos/precoVenda/produto? idCliente = { id }&idProduto={id}
+        [Authorize(Policy = "precovenda.read")]
+        [HttpGet("precoVenda/produto")]
+        public async Task<IActionResult> GetPrecoVendaProduto([FromQuery] int idCliente, [FromQuery] int idProduto, CancellationToken ct = default)
+        {
+            var item = await _service.GetPrecoVendaProdutoAsync(idCliente, idProduto, ct);
+            if (item is null) return NotFound();
+            return Ok(item);
+        }
+
         [Authorize(Policy = "precovenda.read")]
         [HttpPost("preco-venda/export")]
         public async Task<IActionResult> ExportPrecoVenda([FromQuery] int idCliente, CancellationToken ct = default)
         {
             var bytes = await _service.ExportPrecoVendaToExcelAsync(idCliente, ct);
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "preco-venda.xlsx");
+        }
+
+        [Authorize(Policy = "precovenda.delete")]
+        [HttpDelete("preco-venda/{id:int}")]
+        public async Task<IActionResult> DeletePrecoVenda(int id, CancellationToken ct = default)
+        {
+            var deleted = await _service.DeletePrecoVendaAsync(id, ct);
+            if (!deleted) return NotFound();
+            return NoContent();
         }
         #endregion
 
@@ -115,6 +134,14 @@ namespace GrupoTecnofix_Api.Controllers
         => Ok(await _service.GetPrecoCompraByIdAsync(id, ct));
 
         //GET /produtos/precoCompra/produto? idFornecedor = { id }&idProduto={id}
+        [Authorize(Policy = "precocompra.read")]
+        [HttpGet("precoCompra/produto")]
+        public async Task<IActionResult> GetPrecoCompraProduto([FromQuery] int idFornecedor, [FromQuery] int idProduto, CancellationToken ct = default)
+        {
+            var item = await _service.GetPrecoCompraProdutoAsync(idFornecedor, idProduto, ct);
+            if (item is null) return NotFound();
+            return Ok(item);
+        }
 
         [Authorize(Policy = "precocompra.read")]
         [HttpPost("preco-compra/export")]
@@ -147,6 +174,16 @@ namespace GrupoTecnofix_Api.Controllers
             await _service.UpdateAsync(1, new ProdutoCreateUpdate { }, ct);
             return NoContent();
         }
+
+        [Authorize(Policy = "precocompra.delete")]
+        [HttpDelete("preco-compra/{id:int}")]
+        public async Task<IActionResult> DeletePrecoCompra(int id, CancellationToken ct = default)
+        {
+            var deleted = await _service.DeletePrecoCompraAsync(id, ct);
+            if (!deleted) return NotFound();
+            return NoContent();
+        }
+
         #endregion
 
         #region Kit

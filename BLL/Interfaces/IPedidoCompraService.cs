@@ -9,6 +9,6 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
         Task<PedidoCompraDto?> GetByIdAsync(int id, CancellationToken ct);
         Task<int> CreateAsync(PedidoCompraCreateUpdateDto dto, CancellationToken ct);
         Task UpdateAsync(int id, PedidoCompraCreateUpdateDto dto, CancellationToken ct);
-        Task DeleteAsync(int id, CancellationToken ct);
+        Task<bool> DeleteAsync(int id, CancellationToken ct);
     }
 }

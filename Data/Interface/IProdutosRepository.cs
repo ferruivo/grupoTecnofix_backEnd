@@ -16,14 +16,22 @@ namespace GrupoTecnofix_Api.Data.Interface
         Task<List<PrecoVendaDto>> GetListPrecoVendaAsync(int idCliente, CancellationToken ct);
         Task<Precovendum?> GetPrecoVendaByIdAsync(int id, CancellationToken ct);
         Task AddAsync(Precovendum entity, CancellationToken ct);
+        Task<bool> DeletePrecoVendaAsync(int id, CancellationToken ct);
 
         Task<List<PrecoCompraDto>> GetListPrecoCompraAsync(int idFornecedor, CancellationToken ct);
         Task<Precocompra?> GetPrecoCompraByIdAsync(int id, CancellationToken ct);
         Task AddAsync(Precocompra entity, CancellationToken ct);
+        Task<bool> DeletePrecoCompraAsync(int id, CancellationToken ct);
 
         Task<List<ProdutoKitDto>> GetListProdutoKitAsync(int idProduto, CancellationToken ct);
         Task<ProdutoKitIten?> GetProdutoKitByIdAsync(int id, int idProduto, CancellationToken ct);
         Task AddAsync(ProdutoKitIten entity, CancellationToken ct);
         Task DeleteProdutoKitAsync(ProdutoKitIten p, CancellationToken ct);
+
+        // Lookup preco compra by fornecedor and produto
+        Task<PrecoCompraProdutoDto?> GetPrecoCompraProdutoAsync(int idFornecedor, int idProduto, CancellationToken ct);
+
+        // Lookup preco venda by cliente and produto
+        Task<PrecoVendaProdutoDto?> GetPrecoVendaProdutoAsync(int idCliente, int idProduto, CancellationToken ct);
     }
 }
