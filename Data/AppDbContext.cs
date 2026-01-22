@@ -1,5 +1,4 @@
 ﻿using GrupoTecnofix_Api.Models;
-
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -34,6 +33,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<ClienteFornecedor> ClienteFornecedors { get; set; }
     public virtual DbSet<Prateleira> Prateleiras { get; set; }
     public virtual DbSet<ProdutoKitIten> ProdutoKitItens { get; set; }
+    public virtual DbSet<PedidosCompra> PedidosCompras { get; set; }
+    public virtual DbSet<PedidosCompraIten> PedidosCompraItens { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -889,6 +890,109 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
             entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
             entity.Property(e => e.Quantidade).HasColumnName("QUANTIDADE");
+        });
+
+        modelBuilder.Entity<PedidosCompra>(entity =>
+        {
+            entity.HasKey(e => e.IdPedidoCompra).HasName("PK__PEDIDOS___4F883DB79D65D162");
+
+            entity.ToTable("PEDIDOS_COMPRA");
+
+            entity.HasIndex(e => e.DataEmissao, "IX_PEDCOMP_DATA");
+
+            entity.HasIndex(e => e.IdFornecedor, "IX_PEDCOMP_FORNECEDOR");
+
+            entity.Property(e => e.IdPedidoCompra).HasColumnName("ID_PEDIDO_COMPRA");
+            entity.Property(e => e.DataAlteracao)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_ALTERACAO");
+            entity.Property(e => e.DataCadastro)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_CADASTRO");
+            entity.Property(e => e.DataEmissao)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("DATA_EMISSAO");
+            entity.Property(e => e.IdCondPagamento).HasColumnName("ID_COND_PAGAMENTO");
+            entity.Property(e => e.IdFornecedor).HasColumnName("ID_FORNECEDOR");
+            entity.Property(e => e.IdTransportadora).HasColumnName("ID_TRANSPORTADORA");
+            entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
+            entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
+            entity.Property(e => e.Observacao)
+                .IsUnicode(false)
+                .HasColumnName("OBSERVACAO");
+            entity.Property(e => e.ObservacaoCompl)
+                .IsUnicode(false)
+                .HasColumnName("OBSERVACAO_COMPL");
+            entity.Property(e => e.TipoFrete)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasDefaultValue("CIF")
+                .IsFixedLength()
+                .HasColumnName("TIPO_FRETE");
+            entity.Property(e => e.TotalIcms)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_ICMS");
+            entity.Property(e => e.TotalIpi)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_IPI");
+            entity.Property(e => e.TotalPedido)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_PEDIDO");
+            entity.Property(e => e.TotalProdutos)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_PRODUTOS");
+            entity.Property(e => e.ValorFrete)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("VALOR_FRETE");
+        });
+
+        modelBuilder.Entity<PedidosCompraIten>(entity =>
+        {
+            entity.HasKey(e => e.IdPedidoCompraItem).HasName("PK__PEDIDOS___A91091E63D0118C9");
+
+            entity.ToTable("PEDIDOS_COMPRA_ITENS");
+
+            entity.HasIndex(e => e.IdPedidoCompra, "IX_PEDCOMPITEM_PEDIDO");
+
+            entity.HasIndex(e => e.IdProduto, "IX_PEDCOMPITEM_PRODUTO");
+
+            entity.HasIndex(e => new { e.IdPedidoCompra, e.IdProduto }, "UQ_PEDCOMPITEM_PEDIDO_PRODUTO").IsUnique();
+
+            entity.Property(e => e.IdPedidoCompraItem).HasColumnName("ID_PEDIDO_COMPRA_ITEM");
+            entity.Property(e => e.AliquotaIcms)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("ALIQUOTA_ICMS");
+            entity.Property(e => e.AliquotaIpi)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("ALIQUOTA_IPI");
+            entity.Property(e => e.DataAlteracao)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_ALTERACAO");
+            entity.Property(e => e.DataCadastro)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_CADASTRO");
+            entity.Property(e => e.IdPedidoCompra).HasColumnName("ID_PEDIDO_COMPRA");
+            entity.Property(e => e.IdProduto).HasColumnName("ID_PRODUTO");
+            entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
+            entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
+            entity.Property(e => e.PrecoUnitario)
+                .HasColumnType("decimal(18, 4)")
+                .HasColumnName("PRECO_UNITARIO");
+            entity.Property(e => e.Quantidade)
+                .HasDefaultValue(1m)
+                .HasColumnType("decimal(18, 4)")
+                .HasColumnName("QUANTIDADE");
+            entity.Property(e => e.TotalItem)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_ITEM");
+            entity.Property(e => e.ValorIcms)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("VALOR_ICMS");
+            entity.Property(e => e.ValorIpi)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("VALOR_IPI");
         });
 
         OnModelCreatingPartial(modelBuilder);

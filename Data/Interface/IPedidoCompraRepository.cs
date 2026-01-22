@@ -6,11 +6,11 @@ namespace GrupoTecnofix_Api.Data.Interface
 {
     public interface IPedidoCompraRepository
     {
-        //Task<PagedResult<PedidoCompraListItemDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct);
-        //Task<PedidoCompraDto?> GetByIdAsync(int id, CancellationToken ct);
-        //Task<PedidoCompra?> GetEntityByIdAsync(int id, CancellationToken ct);
-        //Task<int> AddAsync(PedidoCompra entity, CancellationToken ct);
-        //Task UpdateAsync(PedidoCompra entity, CancellationToken ct);
-        //Task DeleteAsync(int id, CancellationToken ct);
+        Task<PagedResult<PedidoCompraListItemDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct);
+        Task<PedidoCompraDto?> GetByIdAsync(int id, CancellationToken ct);
+        Task<PedidosCompra?> GetEntityByIdAsync(int id, CancellationToken ct);
+        Task<int> AddAsync(PedidosCompra entity, List<PedidosCompraIten> itens, CancellationToken ct);
+        Task UpdateAsync(PedidosCompra entity, List<PedidosCompraIten> itens, CancellationToken ct);
+        Task DeleteAsync(int id, CancellationToken ct);
     }
 }

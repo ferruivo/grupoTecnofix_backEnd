@@ -5,10 +5,10 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
 {
     public interface IPedidoCompraService
     {
-        //Task<PagedResult<PedidoCompraListItemDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct);
-        //Task<PedidoCompraDto?> GetByIdAsync(int id, CancellationToken ct);
-        //Task<int> CreateAsync(PedidoCompraCreateUpdateDto dto, CancellationToken ct);
-        //Task UpdateAsync(int id, PedidoCompraCreateUpdateDto dto, CancellationToken ct);
-        //Task DeleteAsync(int id, CancellationToken ct);
+        Task<PagedResult<PedidoCompraListItemDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct);
+        Task<PedidoCompraDto?> GetByIdAsync(int id, CancellationToken ct);
+        Task<int> CreateAsync(PedidoCompraCreateUpdateDto dto, CancellationToken ct);
+        Task UpdateAsync(int id, PedidoCompraCreateUpdateDto dto, CancellationToken ct);
+        Task DeleteAsync(int id, CancellationToken ct);
     }
 }
