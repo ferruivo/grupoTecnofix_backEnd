@@ -1,6 +1,5 @@
-using DocumentFormat.OpenXml.Drawing.Charts;
 using GrupoTecnofix_Api.Dtos.Empresa;
-using GrupoTecnofix_Api.Dtos.PedidoCompra;
+using GrupoTecnofix_Api.Dtos.PedidoVenda;
 using GrupoTecnofix_Api.Dtos.Usuario;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -12,24 +11,19 @@ using System.IO;
 
 namespace GrupoTecnofix_Api.BLL.Templates
 {
-    public static class PedidoCompraPdfBuilder
+    public static class PedidoVendaPdfBuilder
     {
-        public static byte[] Build(EmpresaDto empresa, UsuarioDto usuario, PedidoCompraDto model, string? logoPath = null)
+        public static byte[] Build(EmpresaDto empresa, UsuarioDto usuario, PedidoVendaDto model, string? logoPath = null)
         {
             var culture = new CultureInfo("pt-BR");
-            var items = model.Itens ?? new List<PedidoCompraItemDto>();
+            var items = model.Itens ?? new List<PedidoVendaItemDto>();
 
             var tipoFrete = (model as dynamic)?.TipoFrete as string ?? "";
             var valorFrete = model.ValorFrete;
 
-            var compradorNome = usuario.NomeCompleto;
-            var compradorEmail = usuario.Email;
-            var compradorDepto = "Depto. Compras";
-
-            var textoPadrao =
-                "\"Não recebemos materiais sem certificado de qualidade eletrônico, ou anexo a NF/Vale.\n" +
-                " Favor confirmar o recebimento do pedido e data de entrega.\n" +
-                " Email para envio de NFE : nfetecnofix@grupotecnofix.com.br.\"";
+            var vendedorNome = usuario.NomeCompleto;
+            var vendedorEmail = usuario.Email;
+            var vendedorDepto = "Vendas";
 
             var dataPedido = model.DataPedido;
             var horaImpressao = DateTime.Now;
@@ -47,9 +41,7 @@ namespace GrupoTecnofix_Api.BLL.Templates
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(t => t.FontSize(9).FontColor(Colors.Black));
 
-                    // =========================
                     // HEADER
-                    // =========================
                     page.Header().Column(h =>
                     {
                         h.Item().Row(row =>
@@ -85,14 +77,14 @@ namespace GrupoTecnofix_Api.BLL.Templates
                                     col.Item().PaddingBottom(4);
                                 }
 
-                                col.Item().Element(e => RightInfoBox(e, dataPedido, model.IdPedidoCompra, horaImpressao));
+                                col.Item().Element(e => RightInfoBox(e, dataPedido, model.IdPedidoVenda, horaImpressao));
                             });
                         });
 
-                        h.Item().PaddingTop(6).AlignCenter().Text("PEDIDO DE COMPRA").FontSize(12).SemiBold();
+                        h.Item().PaddingTop(6).AlignCenter().Text("PEDIDO DE VENDA").FontSize(12).SemiBold();
                         h.Item().PaddingTop(2).LineHorizontal(1).LineColor(Colors.Black);
 
-                        // Quadro fornecedor
+                        // Quadro cliente
                         h.Item().PaddingTop(6)
                             .Border(1).BorderColor(Colors.Black)
                             .Padding(6)
@@ -100,47 +92,45 @@ namespace GrupoTecnofix_Api.BLL.Templates
                             {
                                 col.Item().Row(r =>
                                 {
-                                    r.ConstantColumn(75).Text("Fornecedor :").SemiBold();
-                                    r.RelativeColumn().Text(model.Fornecedor.RazaoSocial);
+                                    r.ConstantColumn(75).Text("Cliente :").SemiBold();
+                                    r.RelativeColumn().Text(model.Cliente?.Nome ?? model.NomeCliente ?? "");
                                 });
 
                                 col.Item().Row(r =>
                                 {
                                     r.ConstantColumn(75).Text("Endereço :").SemiBold();
-                                    r.RelativeColumn().Text(model.Fornecedor.Endereco);
+                                    r.RelativeColumn().Text(model.Cliente?.Endereco ?? "");
                                 });
 
                                 col.Item().Row(r =>
                                 {
                                     r.ConstantColumn(75).Text("Bairro :").SemiBold();
-                                    r.RelativeColumn().Text(model.Fornecedor.Bairro);
+                                    r.RelativeColumn().Text(model.Cliente?.Bairro ?? "");
                                 });
 
                                 col.Item().Row(r =>
                                 {
-                                    r.ConstantColumn(75).Text("Fone / Fax :").SemiBold();
-                                    r.RelativeColumn().Text(model.Fornecedor.Telefone);
+                                    r.ConstantColumn(75).Text("Fone :").SemiBold();
+                                    r.RelativeColumn().Text(model.Cliente?.Contato ?? model.Cliente?.Email ?? "");
                                 });
 
                                 col.Item().Row(r =>
                                 {
                                     r.ConstantColumn(75).Text("A / C :").SemiBold();
-                                    r.RelativeColumn().Text(model.Fornecedor.Contato);
+                                    r.RelativeColumn().Text(model.Cliente?.Fantasia ?? "");
                                 });
 
                                 col.Item().PaddingTop(4).Row(r =>
                                 {
-                                    r.RelativeColumn().Text($"CEP : {model.Fornecedor.Cep}");
-                                    r.RelativeColumn().Text($"CNPJ : {model.Fornecedor.CpfCnpj}");
-                                    r.RelativeColumn().Text($"Cidade / UF : {model.Fornecedor.Municipio.Nome}/{model.Fornecedor.Municipio.UF}");
-                                    r.RelativeColumn().Text($"I.E : {model.Fornecedor.Ie}");
+                                    r.RelativeColumn().Text($"CEP : {model.Cliente?.Cep ?? ""}");
+                                    r.RelativeColumn().Text($"CNPJ/CPF : {(model.Cliente?.Cnpj ?? model.Cliente?.Cpf) ?? ""}");
+                                    r.RelativeColumn().Text($"Cidade / UF : {model.Cliente?.Municipio?.Nome}/{model.Cliente?.Municipio?.UF}");
+                                    r.RelativeColumn().Text($"I.E : {model.Cliente?.InscricaoEstadual ?? ""}");
                                 });
                             });
                     });
 
-                    // =========================
                     // CONTENT
-                    // =========================
                     page.Content().PaddingTop(10).Column(content =>
                     {
                         content.Item().Element(e => ItemsTable(e, items, culture));
@@ -178,22 +168,20 @@ namespace GrupoTecnofix_Api.BLL.Templates
                                     .PaddingVertical(3).PaddingHorizontal(4)
                                     .Text("Observações").SemiBold();
 
-                                c.Item().PaddingTop(4).Text(model.Observacao + "\n" +  textoPadrao ?? "");
+                                c.Item().PaddingTop(4).Text(model.Observacoes ?? "");
                             });
                         });
 
                         content.Item().PaddingTop(12).Column(col =>
                         {
-                            col.Item().Text("No aguardo de seu retorno,");
-                            col.Item().PaddingTop(6).Text(compradorNome).SemiBold();
-                            col.Item().Text(compradorEmail);
-                            col.Item().Text(compradorDepto);
+                            col.Item().Text("Atenciosamente,");
+                            col.Item().PaddingTop(6).Text(vendedorNome).SemiBold();
+                            col.Item().Text(vendedorEmail);
+                            col.Item().Text(vendedorDepto);
                         });
                     });
 
-                    // =========================
                     // FOOTER
-                    // =========================
                     page.Footer().AlignRight().Text(x =>
                     {
                         x.Span("Página ");
@@ -209,15 +197,7 @@ namespace GrupoTecnofix_Api.BLL.Templates
             return ms.ToArray();
         }
 
-        // =========================
-        // TABELA ITENS:
-        // - sem borda vertical
-        // - borda externa
-        // - linha horizontal no header e por item
-        // - zebra light
-        // - descrição longa quebra e mantém colunas alinhadas
-        // =========================
-        private static void ItemsTable(IContainer container, List<PedidoCompraItemDto> items, CultureInfo culture)
+        private static void ItemsTable(IContainer container, List<PedidoVendaItemDto> items, CultureInfo culture)
         {
             var zebraColor = Colors.Grey.Lighten4;
 
@@ -226,15 +206,16 @@ namespace GrupoTecnofix_Api.BLL.Templates
                 .Padding(0)
                 .Column(box =>
                 {
-                    // Header (ROW, sem borda de coluna)
                     box.Item()
                         .Background(Colors.Grey.Lighten3)
                         .PaddingVertical(4)
                         .PaddingHorizontal(6)
                         .Row(r =>
                         {
-                            HeaderText(r.RelativeColumn(6), "Produto");
-                            HeaderText(r.RelativeColumn(2), "Entrega");
+                            // >>> ajuste de largura: dá mais espaço para os prazos (tira um pouco do Produto)
+                            HeaderText(r.RelativeColumn(5), "Produto");                 // era 6
+                            HeaderText(r.RelativeColumn(2), "Nosso prazo");             // era 1.5
+                            HeaderText(r.RelativeColumn(2), "Prazo cliente");           // era 1.5
                             HeaderText(r.RelativeColumn(2).AlignRight(), "Quantidade");
                             HeaderText(r.RelativeColumn(2).AlignRight(), "Preço / UN");
                             HeaderText(r.RelativeColumn(2).AlignRight(), "Total");
@@ -249,10 +230,6 @@ namespace GrupoTecnofix_Api.BLL.Templates
                         var item = items[i];
                         var isZebra = i % 2 == 1;
 
-                        var entrega = (item as dynamic)?.DataEntrega is DateTime de
-                            ? de.ToString("dd/MM/yyyy")
-                            : ((item as dynamic)?.DataEntrega as string ?? "");
-
                         decimal aliquotaIpi = 0m;
                         try { aliquotaIpi = (decimal)((item as dynamic)?.AliquotaIpi ?? 0m); } catch { }
 
@@ -266,11 +243,12 @@ namespace GrupoTecnofix_Api.BLL.Templates
                             .PaddingHorizontal(6)
                             .Row(r =>
                             {
-                                // Produto: quebra (inclusive em códigos grandes) usando “soft break”
-                                BodyTextProduto(r.RelativeColumn(6), $"{item.ProdutoCodigo ?? ""} - {item.ProdutoDescricao ?? ""}");
+                                BodyTextProduto(r.RelativeColumn(5), $"{item.Produto?.Codigo ?? ""} - {item.Produto?.Descricao ?? ""}");
 
-                                // Outras colunas: normalmente não quebram; mantemos alinhamento e fontes fixas
-                                BodyText(r.RelativeColumn(2), entrega);
+                                // >>> força 1 linha (sem quebrar) e se faltar pouquinho, ajusta com ScaleToFit
+                                BodyTextNoWrapFit(r.RelativeColumn(2), item.NossoPrazo ?? "");
+                                BodyTextNoWrapFit(r.RelativeColumn(2), item.PrazoCliente ?? "");
+
                                 BodyText(r.RelativeColumn(2).AlignRight(), item.Quantidade.ToString("N0", culture));
                                 BodyText(r.RelativeColumn(2).AlignRight(), item.PrecoUnitario.ToString("N5", culture));
                                 BodyText(r.RelativeColumn(2).AlignRight(), totalItem.ToString("N2", culture));
@@ -283,9 +261,6 @@ namespace GrupoTecnofix_Api.BLL.Templates
                 });
         }
 
-        // =========================
-        // TOTALS BOX
-        // =========================
         private static void TotalsBox(IContainer container, string totalSemImpostos, string totalIpi, string totalFrete, string totalGeral)
         {
             container.Border(1).BorderColor(Colors.Black).Padding(0).Column(col =>
@@ -325,9 +300,6 @@ namespace GrupoTecnofix_Api.BLL.Templates
             });
         }
 
-        // =========================
-        // Right Info Box
-        // =========================
         private static void RightInfoBox(IContainer container, DateTime dataPedido, int idPedido, DateTime horaImpressao)
         {
             container.Border(1).BorderColor(Colors.Black).Padding(6).Table(t =>
@@ -339,7 +311,7 @@ namespace GrupoTecnofix_Api.BLL.Templates
                 });
 
                 InfoRow(t, "DATA :", dataPedido.ToString("dd/MM/yyyy"));
-                InfoRow(t, "PEDIDO Nº :", idPedido.ToString());
+                InfoRow(t, "PEDIDO N° :", idPedido.ToString());
                 InfoRow(t, "HORA :", horaImpressao.ToString("HH:mm"));
             });
         }
@@ -350,9 +322,6 @@ namespace GrupoTecnofix_Api.BLL.Templates
             t.Cell().AlignRight().Text(value);
         }
 
-        // =========================
-        // HELPERS
-        // =========================
         private static void HeaderText(IContainer container, string text)
         {
             container.Text(text).SemiBold().FontSize(9);
@@ -363,27 +332,31 @@ namespace GrupoTecnofix_Api.BLL.Templates
             container.Text(text ?? "").FontSize(9);
         }
 
-        // Produto: forçar quebra "segura" em códigos longos sem espaço
-        // (insere zero-width space após '.', '-', '/', '_' para permitir wrap sem estourar layout)
         private static void BodyTextProduto(IContainer container, string text)
         {
-            container.Text(t =>
-            {
-                t.Span(InsertSoftBreaks(text ?? ""));
-            });
+            container.Text(t => { t.Span(InsertSoftBreaks(text ?? "")); });
         }
 
         private static string InsertSoftBreaks(string s)
         {
-            // Zero-width space: permite quebra sem aparecer caractere visível
             const string ZWSP = "\u200B";
-
-            // após separadores comuns de código
             return s
                 .Replace(".", "." + ZWSP)
                 .Replace("-", "-" + ZWSP)
                 .Replace("/", "/" + ZWSP)
                 .Replace("_", "_" + ZWSP);
+        }
+
+        // >>> 1 linha garantida (sem quebra) e se faltar pouco espaço, encolhe um pouco para caber
+        private static void BodyTextNoWrapFit(IContainer container, string text)
+        {
+            container
+                .AlignMiddle()
+                .ScaleToFit()
+                .Text(t =>
+                {
+                    t.Span(text ?? "").FontSize(9);
+                });
         }
     }
 }

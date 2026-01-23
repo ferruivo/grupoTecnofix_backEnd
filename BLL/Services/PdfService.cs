@@ -11,6 +11,7 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using GrupoTecnofix_Api.Dtos.Empresa;
 using GrupoTecnofix_Api.Dtos.Usuario;
+using GrupoTecnofix_Api.Dtos.PedidoVenda;
 
 namespace GrupoTecnofix_Api.BLL.Services
 {
@@ -65,6 +66,15 @@ namespace GrupoTecnofix_Api.BLL.Services
         {
             // Generate programmatic PDF using QuestPDF builder
             var bytes = PedidoCompraPdfBuilder.Build(empresa, usuario, model, File.Exists(LogoPath) ? LogoPath : null);
+            var base64 = Convert.ToBase64String(bytes);
+
+            await Task.CompletedTask;
+            return base64;
+        }
+
+        public async Task<string> GenerateSalesOrderPdfBase64Async(EmpresaDto empresa, UsuarioDto usuario, PedidoVendaDto model)
+        {
+            var bytes = PedidoVendaPdfBuilder.Build(empresa, usuario, model, File.Exists(LogoPath) ? LogoPath : null);
             var base64 = Convert.ToBase64String(bytes);
 
             await Task.CompletedTask;

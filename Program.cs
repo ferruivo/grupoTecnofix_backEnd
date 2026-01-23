@@ -125,6 +125,8 @@ builder.Services.AddScoped<IPedidoCompraService, PedidoCompraService>();
 // register pedido venda
 builder.Services.AddScoped<IPedidoVendaRepository, PedidoVendaRepository>();
 builder.Services.AddScoped<IPedidoVendaService, PedidoVendaService>();
+// register PDF service
+builder.Services.AddScoped<IPdfService, PdfService>();
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
 {
