@@ -60,6 +60,7 @@ namespace GrupoTecnofix_Api.Controllers
         }
 
         #region Preço venda
+
         [Authorize(Policy = "precovenda.read")]
         [HttpGet("precoVenda")]
         public async Task<IActionResult> GetListPrecoVenda([FromQuery] int idCliente, CancellationToken ct = default)
