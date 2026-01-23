@@ -28,7 +28,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
             var total = await query.CountAsync(ct);
 
             var items = await query
-                .OrderByDescending(p => p.DataEmissao)
+                .OrderByDescending(p => p.IdPedidoCompra)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(p => new PedidoCompraListItemDto

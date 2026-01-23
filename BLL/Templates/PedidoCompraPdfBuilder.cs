@@ -19,7 +19,7 @@ namespace GrupoTecnofix_Api.BLL.Templates
             var culture = new CultureInfo("pt-BR");
             var items = model.Itens ?? new List<PedidoCompraItemDto>();
 
-            var tipoFrete = (model as dynamic)?.TipoFrete as string ?? ""; // ajuste se tiver no DTO
+            var tipoFrete = (model as dynamic)?.TipoFrete as string ?? "";
             var valorFrete = model.ValorFrete;
 
             var compradorNome = usuario.NomeCompleto;
@@ -73,7 +73,7 @@ namespace GrupoTecnofix_Api.BLL.Templates
 
                                 col.Item().Row(r =>
                                 {
-                                    r.RelativeColumn().Text($"Site : www.grupotecnofix.com.br");
+                                    r.RelativeColumn().Text("Site : www.grupotecnofix.com.br");
                                 });
                             });
 
@@ -92,7 +92,7 @@ namespace GrupoTecnofix_Api.BLL.Templates
                         h.Item().PaddingTop(6).AlignCenter().Text("PEDIDO DE COMPRA").FontSize(12).SemiBold();
                         h.Item().PaddingTop(2).LineHorizontal(1).LineColor(Colors.Black);
 
-                        // Quadro fornecedor (borda + padding)
+                        // Quadro fornecedor
                         h.Item().PaddingTop(6)
                             .Border(1).BorderColor(Colors.Black)
                             .Padding(6)
@@ -143,10 +143,8 @@ namespace GrupoTecnofix_Api.BLL.Templates
                     // =========================
                     page.Content().PaddingTop(10).Column(content =>
                     {
-                        // ======= TABELA ITENS (linhas com borda horizontal, SEM fechar colunas) =======
                         content.Item().Element(e => ItemsTable(e, items, culture));
 
-                        // ======= BLOCO FINAL: esquerda (pagamento/frete/obs) + direita (totais destacados) =======
                         content.Item().PaddingTop(10).Row(row =>
                         {
                             row.RelativeColumn().Column(left =>
@@ -171,7 +169,6 @@ namespace GrupoTecnofix_Api.BLL.Templates
                             });
                         });
 
-                        // Observações EM CAIXA (não solta)
                         content.Item().PaddingTop(8).Element(box =>
                         {
                             box.Border(1).BorderColor(Colors.Black).Padding(6).Column(c =>
@@ -185,7 +182,6 @@ namespace GrupoTecnofix_Api.BLL.Templates
                             });
                         });
 
-                        // ======= ASSINATURA =======
                         content.Item().PaddingTop(12).Column(col =>
                         {
                             col.Item().Text("No aguardo de seu retorno,");
@@ -214,72 +210,81 @@ namespace GrupoTecnofix_Api.BLL.Templates
         }
 
         // =========================
-        // TABLE: header com borda, corpo com linha horizontal única (não fecha colunas)
+        // TABELA ITENS:
+        // - sem borda vertical
+        // - borda externa
+        // - linha horizontal no header e por item
+        // - zebra light
+        // - descrição longa quebra e mantém colunas alinhadas
         // =========================
         private static void ItemsTable(IContainer container, List<PedidoCompraItemDto> items, CultureInfo culture)
         {
-            container.Border(1).BorderColor(Colors.Black).Padding(0).Column(box =>
-            {
-                // Header em tabela (com borda por célula) + linha inferior
-                box.Item().Table(table =>
+            var zebraColor = Colors.Grey.Lighten4;
+
+            container
+                .Border(1).BorderColor(Colors.Black)
+                .Padding(0)
+                .Column(box =>
                 {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.RelativeColumn(6);  // Produto
-                        columns.RelativeColumn(2);  // Entrega
-                        columns.RelativeColumn(2);  // Quantidade
-                        columns.RelativeColumn(2);  // Preço/UN
-                        columns.RelativeColumn(2);  // Total
-                        columns.RelativeColumn(1);  // IPI
-                        columns.RelativeColumn(2);  // Total + IPI
-                    });
+                    // Header (ROW, sem borda de coluna)
+                    box.Item()
+                        .Background(Colors.Grey.Lighten3)
+                        .PaddingVertical(4)
+                        .PaddingHorizontal(6)
+                        .Row(r =>
+                        {
+                            HeaderText(r.RelativeColumn(6), "Produto");
+                            HeaderText(r.RelativeColumn(2), "Entrega");
+                            HeaderText(r.RelativeColumn(2).AlignRight(), "Quantidade");
+                            HeaderText(r.RelativeColumn(2).AlignRight(), "Preço / UN");
+                            HeaderText(r.RelativeColumn(2).AlignRight(), "Total");
+                            HeaderText(r.RelativeColumn(1).AlignRight(), "IPI");
+                            HeaderText(r.RelativeColumn(2).AlignRight(), "Total + IPI");
+                        });
 
-                    table.Header(header =>
-                    {
-                        HeaderCellFull(header.Cell(), "Produto");
-                        HeaderCellFull(header.Cell(), "Entrega");
-                        HeaderCellFull(header.Cell().AlignRight(), "Quantidade");
-                        HeaderCellFull(header.Cell().AlignRight(), "Preço / UN");
-                        HeaderCellFull(header.Cell().AlignRight(), "Total");
-                        HeaderCellFull(header.Cell().AlignRight(), "IPI");
-                        HeaderCellFull(header.Cell().AlignRight(), "Total + IPI");
-                    });
-                });
-
-                // Corpo como “linhas”: texto alinhado em colunas, e uma borda horizontal por linha
-                foreach (var item in items)
-                {
-                    var entrega = (item as dynamic)?.DataEntrega is DateTime de
-                        ? de.ToString("dd/MM/yyyy")
-                        : ((item as dynamic)?.DataEntrega as string ?? "");
-
-                    decimal aliquotaIpi = 0m;
-                    try { aliquotaIpi = (decimal)((item as dynamic)?.AliquotaIpi ?? 0m); } catch { /* ignore */ }
-
-                    var totalItem = item.TotalItem;
-                    var valorIpiItem = aliquotaIpi > 0 ? Math.Round(totalItem * (aliquotaIpi / 100m), 2) : 0m;
-                    var totalComIpi = totalItem + valorIpiItem;
-
-                    box.Item().PaddingHorizontal(4).PaddingVertical(3).Row(r =>
-                    {
-                        r.RelativeColumn(6).Text($"{item.ProdutoCodigo ?? ""} - {item.ProdutoDescricao ?? ""}");
-                        r.RelativeColumn(2).Text(entrega);
-
-                        r.RelativeColumn(2).AlignRight().Text(item.Quantidade.ToString("N0", culture));
-                        r.RelativeColumn(2).AlignRight().Text(item.PrecoUnitario.ToString("N5", culture));
-                        r.RelativeColumn(2).AlignRight().Text(totalItem.ToString("N2", culture));
-                        r.RelativeColumn(1).AlignRight().Text(aliquotaIpi > 0 ? aliquotaIpi.ToString("N1", culture) : "");
-                        r.RelativeColumn(2).AlignRight().Text(totalComIpi.ToString("N2", culture));
-                    });
-
-                    // linha horizontal contínua (uma só)
                     box.Item().LineHorizontal(1).LineColor(Colors.Black);
-                }
-            });
+
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        var item = items[i];
+                        var isZebra = i % 2 == 1;
+
+                        var entrega = (item as dynamic)?.DataEntrega is DateTime de
+                            ? de.ToString("dd/MM/yyyy")
+                            : ((item as dynamic)?.DataEntrega as string ?? "");
+
+                        decimal aliquotaIpi = 0m;
+                        try { aliquotaIpi = (decimal)((item as dynamic)?.AliquotaIpi ?? 0m); } catch { }
+
+                        var totalItem = item.TotalItem;
+                        var valorIpiItem = aliquotaIpi > 0 ? Math.Round(totalItem * (aliquotaIpi / 100m), 2) : 0m;
+                        var totalComIpi = totalItem + valorIpiItem;
+
+                        box.Item()
+                            .Background(isZebra ? zebraColor : Colors.White)
+                            .PaddingVertical(3)
+                            .PaddingHorizontal(6)
+                            .Row(r =>
+                            {
+                                // Produto: quebra (inclusive em códigos grandes) usando “soft break”
+                                BodyTextProduto(r.RelativeColumn(6), $"{item.ProdutoCodigo ?? ""} - {item.ProdutoDescricao ?? ""}");
+
+                                // Outras colunas: normalmente não quebram; mantemos alinhamento e fontes fixas
+                                BodyText(r.RelativeColumn(2), entrega);
+                                BodyText(r.RelativeColumn(2).AlignRight(), item.Quantidade.ToString("N0", culture));
+                                BodyText(r.RelativeColumn(2).AlignRight(), item.PrecoUnitario.ToString("N5", culture));
+                                BodyText(r.RelativeColumn(2).AlignRight(), totalItem.ToString("N2", culture));
+                                BodyText(r.RelativeColumn(1).AlignRight(), aliquotaIpi > 0 ? aliquotaIpi.ToString("N1", culture) : "");
+                                BodyText(r.RelativeColumn(2).AlignRight(), totalComIpi.ToString("N2", culture));
+                            });
+
+                        box.Item().LineHorizontal(1).LineColor(Colors.Black);
+                    }
+                });
         }
 
         // =========================
-        // TOTALS BOX (destaque)
+        // TOTALS BOX
         // =========================
         private static void TotalsBox(IContainer container, string totalSemImpostos, string totalIpi, string totalFrete, string totalGeral)
         {
@@ -346,15 +351,39 @@ namespace GrupoTecnofix_Api.BLL.Templates
         }
 
         // =========================
-        // Header cell (mantém grade do cabeçalho)
+        // HELPERS
         // =========================
-        private static void HeaderCellFull(IContainer cell, string text)
+        private static void HeaderText(IContainer container, string text)
         {
-            cell
-                .Border(1).BorderColor(Colors.Black)
-                .Background(Colors.Grey.Lighten3)
-                .PaddingVertical(4).PaddingHorizontal(4)
-                .Text(text).SemiBold().FontSize(9);
+            container.Text(text).SemiBold().FontSize(9);
+        }
+
+        private static void BodyText(IContainer container, string text)
+        {
+            container.Text(text ?? "").FontSize(9);
+        }
+
+        // Produto: forçar quebra "segura" em códigos longos sem espaço
+        // (insere zero-width space após '.', '-', '/', '_' para permitir wrap sem estourar layout)
+        private static void BodyTextProduto(IContainer container, string text)
+        {
+            container.Text(t =>
+            {
+                t.Span(InsertSoftBreaks(text ?? ""));
+            });
+        }
+
+        private static string InsertSoftBreaks(string s)
+        {
+            // Zero-width space: permite quebra sem aparecer caractere visível
+            const string ZWSP = "\u200B";
+
+            // após separadores comuns de código
+            return s
+                .Replace(".", "." + ZWSP)
+                .Replace("-", "-" + ZWSP)
+                .Replace("/", "/" + ZWSP)
+                .Replace("_", "_" + ZWSP);
         }
     }
 }
