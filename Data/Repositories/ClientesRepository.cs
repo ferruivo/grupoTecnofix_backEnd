@@ -337,5 +337,39 @@ namespace GrupoTecnofix_Api.Data.Repositories
             await _db.SaveChangesAsync(ct);
         }
 
+        public async Task<List<ClienteListDto>> GetListAsync(string? search, CancellationToken ct)
+        {
+            var query = _db.Clientes.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                query = query.Where(c =>
+                    (c.Fantasia ?? "").Contains(s) ||
+                    (c.Nome ?? "").Contains(s) ||
+                    (c.Contato ?? "").Contains(s) ||
+                    (c.Cpf ?? "").Contains(s) ||
+                    (c.Cnpj ?? "").Contains(s)
+                );
+            }
+
+            var items = await query
+                .OrderBy(c => c.Fantasia)
+                .Select(c => new ClienteListDto
+                {
+                    IdCliente = c.IdCliente,
+                    Fantasia = c.Fantasia,
+                    Nome = c.Nome,
+                    Contato = c.Contato,
+                    Cnpj = c.Cnpj,
+                    Cpf = c.Cpf,
+                    Municipio = _db.Municipios.Where(m => m.IdMunicipio == c.IdMunicipio)
+                        .Select(m => new GrupoTecnofix_Api.Dtos.Municipios.MunicipioDto { Nome = m.Nome, UF = m.Uf })
+                        .FirstOrDefault()
+                })
+                .ToListAsync(ct);
+
+            return items;
+        }
     }
 }

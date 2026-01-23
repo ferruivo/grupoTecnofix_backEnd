@@ -47,8 +47,13 @@ namespace GrupoTecnofix_Api.Controllers
         }
 
         [Authorize(Policy = "clientes.read")]
+        [HttpGet("lookup")]
+        public async Task<IActionResult> GetLookup([FromQuery] string? search = null, CancellationToken ct = default)
+       => Ok(await _service.GetListAsync(search, ct));
+
+        [Authorize(Policy = "clientes.read")]
         [HttpGet("origemCadastro")]
-        public async Task<IActionResult> Get([FromQuery] string? search = null, CancellationToken ct = default)
+        public async Task<IActionResult> GetOrigemCadastro([FromQuery] string? search = null, CancellationToken ct = default)
        => Ok(await _service.GetListOrigemAsync(search, ct));
 
         [Authorize(Policy = "tipodocumento.read")]

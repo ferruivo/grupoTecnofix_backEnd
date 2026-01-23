@@ -113,5 +113,10 @@ namespace GrupoTecnofix_Api.BLL.Services
             await _repo.DeleteRestricaoFornecedorAsync(cf, ct);
 
         }
+
+        public async Task<List<ClienteListDto>> GetListAsync(string? search, CancellationToken ct)
+        {
+            return await _repo.GetListAsync(search, ct);
+        }
     }
 }

@@ -17,6 +17,9 @@ namespace GrupoTecnofix_Api.Data.Interface
         Task<List<OrigemCadastroDto>> GetListOrigemAsync(string? search, CancellationToken ct);
         Task<List<TipoDocumentoDto>> GetListTipoDocumentoAsync(string? search, CancellationToken ct);
 
+        // lookup for UI
+        Task<List<ClienteListDto>> GetListAsync(string? search, CancellationToken ct);
+
         Task<List<ClienteFornecedor>> GetListRestricaoFornecedorAsync(int idCliente, CancellationToken ct);
         Task AddAsync(ClienteFornecedor entity, CancellationToken ct);
         Task DeleteRestricaoFornecedorAsync(ClienteFornecedor cf, CancellationToken ct);

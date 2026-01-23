@@ -5,7 +5,6 @@ using GrupoTecnofix_Api.BLL.Services;
 using GrupoTecnofix_Api.Data;
 using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Data.Repositories;
-using GrupoTecnofix_Api.Mapper;
 using GrupoTecnofix_Api.Mappings;
 using GrupoTecnofix_Api.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -123,8 +122,9 @@ builder.Services.AddScoped<IPrateleirasService, PrateleirasService>();
 builder.Services.AddScoped<IPrateleirasRepository, PrateleirasRepository>();
 builder.Services.AddScoped<IPedidoCompraRepository, PedidoCompraRepository>();
 builder.Services.AddScoped<IPedidoCompraService, PedidoCompraService>();
-builder.Services.AddScoped<IPdfService, PdfService>();
-
+// register pedido venda
+builder.Services.AddScoped<IPedidoVendaRepository, PedidoVendaRepository>();
+builder.Services.AddScoped<IPedidoVendaService, PedidoVendaService>();
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
 {
@@ -143,6 +143,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<PrecoCompraProfile>();
     cfg.AddProfile<ProdutoKitItenProfile>();
     cfg.AddProfile<PedidoCompraProfile>();
+    cfg.AddProfile<PedidoVendaProfile>();
 
 });
 

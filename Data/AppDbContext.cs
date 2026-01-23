@@ -35,6 +35,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<ProdutoKitIten> ProdutoKitItens { get; set; }
     public virtual DbSet<PedidosCompra> PedidosCompras { get; set; }
     public virtual DbSet<PedidosCompraIten> PedidosCompraItens { get; set; }
+    public virtual DbSet<PedidosVendum> PedidosVenda { get; set; }
+    public virtual DbSet<PedidosVendaIten> PedidosVendaItens { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -997,6 +999,119 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.DataEntrega)
                 .HasColumnType("datetime")
                 .HasColumnName("DATA_ENTREGA");
+        });
+
+        modelBuilder.Entity<PedidosVendum>(entity =>
+        {
+            entity.HasKey(e => e.IdPedidoVenda);
+
+            entity.ToTable("PEDIDOS_VENDA");
+
+            entity.HasIndex(e => e.DataPedido, "IX_PV_DATA").IsDescending();
+
+            entity.Property(e => e.IdPedidoVenda).HasColumnName("ID_PEDIDO_VENDA");
+            entity.Property(e => e.DataAlteracao)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_ALTERACAO");
+            entity.Property(e => e.DataCadastro)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_CADASTRO");
+            entity.Property(e => e.DataPedido)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_PEDIDO");
+            entity.Property(e => e.IdCliente).HasColumnName("ID_CLIENTE");
+            entity.Property(e => e.IdCondicaoPagamento).HasColumnName("ID_CONDICAO_PAGAMENTO");
+            entity.Property(e => e.IdTransportadora).HasColumnName("ID_TRANSPORTADORA");
+            entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
+            entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
+            entity.Property(e => e.IdVendedor).HasColumnName("ID_VENDEDOR");
+            entity.Property(e => e.Observacoes)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("OBSERVACOES");
+            entity.Property(e => e.TipoFrete)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasDefaultValue("CIF")
+                .HasColumnName("TIPO_FRETE");
+            entity.Property(e => e.TotalIcms)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_ICMS");
+            entity.Property(e => e.TotalIpi)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_IPI");
+            entity.Property(e => e.TotalPedido)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_PEDIDO");
+            entity.Property(e => e.TotalProdutos)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_PRODUTOS");
+            entity.Property(e => e.ValorFrete)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("VALOR_FRETE");
+        });
+
+        modelBuilder.Entity<PedidosVendaIten>(entity =>
+        {
+            entity.HasKey(e => e.IdPedidoVendaItem);
+
+            entity.ToTable("PEDIDOS_VENDA_ITENS");
+
+            entity.HasIndex(e => e.IdPedidoVenda, "IX_PVI_PEDIDO");
+
+            entity.Property(e => e.IdPedidoVendaItem).HasColumnName("ID_PEDIDO_VENDA_ITEM");
+            entity.Property(e => e.AliquotaIcms)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("ALIQUOTA_ICMS");
+            entity.Property(e => e.AliquotaIpi)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("ALIQUOTA_IPI");
+            entity.Property(e => e.DataAlteracao)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_ALTERACAO");
+            entity.Property(e => e.DataCadastro)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_CADASTRO");
+            entity.Property(e => e.DataEntrega)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_ENTREGA");
+            entity.Property(e => e.IdPedidoVenda).HasColumnName("ID_PEDIDO_VENDA");
+            entity.Property(e => e.IdProduto).HasColumnName("ID_PRODUTO");
+            entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
+            entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
+            entity.Property(e => e.NossoPrazo)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("NOSSO_PRAZO");
+            entity.Property(e => e.PesoItem)
+                .HasColumnType("decimal(18, 4)")
+                .HasColumnName("PESO_ITEM");
+            entity.Property(e => e.PrazoCliente)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("PRAZO_CLIENTE");
+            entity.Property(e => e.PrecoUnitario)
+                .HasColumnType("decimal(18, 4)")
+                .HasColumnName("PRECO_UNITARIO");
+            entity.Property(e => e.ProdutoCliente)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("PRODUTO_CLIENTE");
+            entity.Property(e => e.Quantidade)
+                .HasColumnType("decimal(18, 4)")
+                .HasColumnName("QUANTIDADE");
+            entity.Property(e => e.TotalIcms)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_ICMS");
+            entity.Property(e => e.TotalIpi)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_IPI");
+            entity.Property(e => e.TotalItem)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("TOTAL_ITEM");
+            entity.Property(e => e.ValorKg)
+                .HasColumnType("decimal(18, 4)")
+                .HasColumnName("VALOR_KG");
         });
 
         OnModelCreatingPartial(modelBuilder);

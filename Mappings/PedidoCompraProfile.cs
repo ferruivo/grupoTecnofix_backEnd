@@ -2,7 +2,7 @@ using AutoMapper;
 using GrupoTecnofix_Api.Dtos.PedidoCompra;
 using GrupoTecnofix_Api.Models;
 
-namespace GrupoTecnofix_Api.Mapper
+namespace GrupoTecnofix_Api.Mappings
 {
     public class PedidoCompraProfile : Profile
     {
