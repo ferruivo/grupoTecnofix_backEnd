@@ -72,4 +72,5 @@ public partial class Cliente
     public int IdOrigem { get; set; }
 
     public bool IpiBc { get; set; }
+    public int? IdPagamento { get; set; }
 }

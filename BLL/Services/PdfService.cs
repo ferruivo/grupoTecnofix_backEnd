@@ -17,7 +17,7 @@ namespace GrupoTecnofix_Api.BLL.Services
 {
     public class PdfService : IPdfService
     {
-        private const string LogoPath = "Utils/logo.png"; // ajustar se necessário
+        // removed hardcoded relative path; resolve at runtime to support publish environments
 
         public async Task<string> GeneratePdfBase64Async<T>(T model)
         {
@@ -64,8 +64,8 @@ namespace GrupoTecnofix_Api.BLL.Services
 
         public async Task<string> GeneratePurchaseOrderPdfBase64Async(EmpresaDto empresa, UsuarioDto usuario, PedidoCompraDto model)
         {
-            // Generate programmatic PDF using QuestPDF builder
-            var bytes = PedidoCompraPdfBuilder.Build(empresa, usuario, model, File.Exists(LogoPath) ? LogoPath : null);
+            var logo = ResolveLogoPath();
+            var bytes = PedidoCompraPdfBuilder.Build(empresa, usuario, model, logo);
             var base64 = Convert.ToBase64String(bytes);
 
             await Task.CompletedTask;
@@ -74,11 +74,42 @@ namespace GrupoTecnofix_Api.BLL.Services
 
         public async Task<string> GenerateSalesOrderPdfBase64Async(EmpresaDto empresa, UsuarioDto usuario, PedidoVendaDto model)
         {
-            var bytes = PedidoVendaPdfBuilder.Build(empresa, usuario, model, File.Exists(LogoPath) ? LogoPath : null);
+            var logo = ResolveLogoPath();
+            var bytes = PedidoVendaPdfBuilder.Build(empresa, usuario, model, logo);
             var base64 = Convert.ToBase64String(bytes);
 
             await Task.CompletedTask;
             return base64;
+        }
+
+        private static string? ResolveLogoPath()
+        {
+            // try several likely locations (preserve casing variations) relative to app base and current dir
+            var baseDir = AppContext.BaseDirectory ?? Directory.GetCurrentDirectory();
+            var current = Directory.GetCurrentDirectory();
+
+            var candidates = new[]
+            {
+                Path.Combine(baseDir, "Utils", "Logo.png"),
+                Path.Combine(baseDir, "Utils", "logo.png"),
+                Path.Combine(baseDir, "wwwroot", "images", "logo.png"),
+                Path.Combine(baseDir, "wwwroot", "logo.png"),
+                Path.Combine(current, "Utils", "Logo.png"),
+                Path.Combine(current, "Utils", "logo.png"),
+                Path.Combine(current, "wwwroot", "images", "logo.png"),
+                Path.Combine(current, "wwwroot", "logo.png")
+            };
+
+            foreach (var c in candidates)
+            {
+                try
+                {
+                    if (File.Exists(c)) return c;
+                }
+                catch { }
+            }
+
+            return null;
         }
 
         private static string Truncate(string value, int maxLength)

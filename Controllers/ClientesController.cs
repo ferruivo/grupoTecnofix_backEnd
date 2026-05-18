@@ -30,6 +30,11 @@ namespace GrupoTecnofix_Api.Controllers
          public async Task<IActionResult> GetById(int id, CancellationToken ct)
         => Ok(await _service.GetByIdAsync(id, ct));
 
+        [Authorize(Policy = "clientes.read")]
+        [HttpGet("{id:int}/defaults")]
+        public async Task<IActionResult> GetDefaultsById(int id, CancellationToken ct)
+        => Ok(await _service.GetDefaultsByIdAsync(id, ct));
+
         [Authorize(Policy = "clientes.create")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ClienteCreateUpdate dto, CancellationToken ct)

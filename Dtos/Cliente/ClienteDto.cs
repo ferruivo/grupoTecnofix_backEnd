@@ -48,5 +48,6 @@ namespace GrupoTecnofix_Api.Dtos.Cliente
         public VendedorDto? VendedorExterno { get; set; }
         public TipoDocumentoDto TipoDocumento { get; set; }
         public OrigemCadastroDto? OrigemCadastro { get; set; }
+        public int? IdPagamento { get; set; }
     }
 }

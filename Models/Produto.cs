@@ -20,6 +20,13 @@ public partial class Produto
     public string CstIcms { get; set; } = null!;
 
     public int? Minimo { get; set; }
+
+    public decimal? Pesoitem { get; set; }
+
+    public decimal? Valorkg { get; set; }
+
+    public string? Tipo { get; set; }
+
     public bool? IS_KIT { get; set; }
 
     public string? Obs { get; set; }

@@ -38,4 +38,5 @@ public partial class PedidosVendum
     public int? IdUsuarioAlteracao { get; set; }
 
     public DateTime? DataAlteracao { get; set; }
+   
 }

@@ -16,5 +16,7 @@ namespace GrupoTecnofix_Api.Dtos.PedidoVenda
         public decimal TotalIpi { get; set; }
         public decimal TotalIcms { get; set; }
         public DateTime? DataEntrega { get; set; }
+        public string? NumeroPedidoCliente { get; set; }
+        public string? ItemPedidoCliente { get; set; }
     }
 }

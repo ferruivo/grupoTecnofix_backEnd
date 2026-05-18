@@ -16,34 +16,59 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         public PedidoVendaRepository(AppDbContext db) => _db = db;
 
-        public async Task<PagedResult<PedidoVendaListItemDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct)
+        public async Task<PagedResult<PedidoVendaListItemDto>> GetPagedAsync(
+    int page,
+    int pageSize,
+    string? search,
+    CancellationToken ct)
         {
-            var query = _db.PedidosVenda.AsNoTracking();
+            var baseQuery =
+                from p in _db.PedidosVenda.AsNoTracking()
+                join c in _db.Clientes.AsNoTracking()
+                    on p.IdCliente equals c.IdCliente into cj
+                from c in cj.DefaultIfEmpty()
+                join v in _db.Vendedores.AsNoTracking()
+                    on p.IdVendedor equals v.IdVendedor into vj
+                from v in vj.DefaultIfEmpty()
+                join u in _db.Usuarios.AsNoTracking()
+                    on v.IdUsuario equals u.IdUsuario into uj
+                from u in uj.DefaultIfEmpty()
+                select new
+                {
+                    p,
+                    ClienteNome = c != null ? c.Fantasia : null,
+                    VendedorNome = u != null ? u.NomeCompleto : null
+                };
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var s = search.Trim();
-                query = query.Where(p => p.Observacoes != null && p.Observacoes.Contains(s));
+
+                baseQuery = baseQuery.Where(x =>
+                    // número do pedido
+                    x.p.IdPedidoVenda.ToString().Contains(s) ||
+                    // cliente
+                    (x.ClienteNome != null && x.ClienteNome.Contains(s)) ||
+                    // vendedor
+                    (x.VendedorNome != null && x.VendedorNome.Contains(s)) ||
+                    // (opcional) observações
+                    (x.p.Observacoes != null && x.p.Observacoes.Contains(s))
+                );
             }
 
-            var total = await query.CountAsync(ct);
+            var total = await baseQuery.CountAsync(ct);
 
-            var items = await query
-                .OrderByDescending(p => p.IdPedidoVenda)
+            var items = await baseQuery
+                .OrderByDescending(x => x.p.IdPedidoVenda)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(p => new PedidoVendaListItemDto
+                .Select(x => new PedidoVendaListItemDto
                 {
-                    IdPedidoVenda = p.IdPedidoVenda,
-                    DataPedido = p.DataPedido,
-                    NomeCliente = _db.Clientes.Where(c => c.IdCliente == p.IdCliente).Select(c => c.Fantasia).FirstOrDefault() ?? string.Empty,
-                    NomeVendedor = (
-                        from v in _db.Vendedores
-                        join u in _db.Usuarios on v.IdUsuario equals u.IdUsuario
-                        where v.IdVendedor == p.IdVendedor
-                        select u.NomeCompleto
-                    ).FirstOrDefault() ?? string.Empty,
-                    TotalPedido = p.TotalPedido
+                    IdPedidoVenda = x.p.IdPedidoVenda,
+                    DataPedido = x.p.DataPedido,
+                    NomeCliente = x.ClienteNome ?? string.Empty,
+                    NomeVendedor = x.VendedorNome ?? string.Empty,
+                    TotalPedido = x.p.TotalPedido
                 })
                 .ToListAsync(ct);
 
@@ -55,6 +80,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 Items = items
             };
         }
+
 
         public async Task<PedidoVendaDto?> GetByIdAsync(int id, CancellationToken ct)
         {
@@ -166,7 +192,9 @@ namespace GrupoTecnofix_Api.Data.Repositories
                             TotalItem = i.TotalItem,
                             TotalIpi = i.TotalIpi,
                             TotalIcms = i.TotalIcms,
-                            DataEntrega = i.DataEntrega
+                            DataEntrega = i.DataEntrega,
+                            NumeroPedidoCliente = i.NumeroPedidoCliente,
+                            ItemPedidoCliente = i.ItemPedidoCliente
                         }).ToList()
                 })
                 .FirstOrDefaultAsync(ct);

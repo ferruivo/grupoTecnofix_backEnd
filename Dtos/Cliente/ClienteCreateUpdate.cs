@@ -33,5 +33,6 @@
         public string? Observacao { get; set; }
         public string? ObservacaoOrdemExpedicao { get; set; }
         public string? ObservacaoNotaFiscal { get; set; }
+        public int? IdPagamento { get; set; }
     }
 }

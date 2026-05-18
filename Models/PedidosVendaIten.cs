@@ -44,4 +44,6 @@ public partial class PedidosVendaIten
     public int? IdUsuarioAlteracao { get; set; }
 
     public DateTime? DataAlteracao { get; set; }
+    public string? NumeroPedidoCliente { get; set; }
+    public string? ItemPedidoCliente { get; set; }
 }

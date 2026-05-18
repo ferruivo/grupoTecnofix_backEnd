@@ -10,6 +10,7 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
     {
         Task<PagedResult<ClienteListDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct);
         Task<ClienteDto?> GetByIdAsync(int id, CancellationToken ct);
+        Task<ClienteDefaultsDto> GetDefaultsByIdAsync(int id, CancellationToken ct);
         Task<int> CreateAsync(ClienteCreateUpdate dto, CancellationToken ct);
         Task UpdateAsync(int id, ClienteCreateUpdate dto, CancellationToken ct);
 

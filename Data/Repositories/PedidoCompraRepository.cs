@@ -15,29 +15,38 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         public PedidoCompraRepository(AppDbContext db) => _db = db;
 
-        public async Task<PagedResult<PedidoCompraListItemDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct)
+        public async Task<PagedResult<PedidoCompraListItemDto>> GetPagedAsync(int page,int pageSize,string? search,CancellationToken ct)
         {
-            var query = _db.PedidosCompras.AsNoTracking();
+            var query =
+                from p in _db.PedidosCompras.AsNoTracking()
+                join f in _db.Fornecedores.AsNoTracking()
+                    on p.IdFornecedor equals f.IdFornecedor
+                join c in _db.Condicoespagamentos.AsNoTracking()
+                    on p.IdCondPagamento equals c.IdCondicoespagamento
+                select new { p, f, c };
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var s = search.Trim();
-                query = query.Where(p => p.Observacao.Contains(s));
+
+                query = query.Where(x =>
+                    x.p.IdPedidoCompra.ToString().Contains(s) ||
+                    x.f.Fantasia.Contains(s));
             }
 
             var total = await query.CountAsync(ct);
 
             var items = await query
-                .OrderByDescending(p => p.IdPedidoCompra)
+                .OrderByDescending(x => x.p.IdPedidoCompra)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Select(p => new PedidoCompraListItemDto
+                .Select(x => new PedidoCompraListItemDto
                 {
-                    IdPedidoCompra = p.IdPedidoCompra,
-                    DataPedido = p.DataEmissao.ToDateTime(new TimeOnly(0)),
-                    FornecedorNome = _db.Fornecedores.Where(f => f.IdFornecedor == p.IdFornecedor).Select(f => f.Fantasia).FirstOrDefault() ?? string.Empty,
-                    CondicaoPagamentoDescricao = _db.Condicoespagamentos.Where(c => c.IdCondicoespagamento == p.IdCondPagamento).Select(c => c.Descricao).FirstOrDefault() ?? string.Empty,
-                    TotalPedido = p.TotalPedido
+                    IdPedidoCompra = x.p.IdPedidoCompra,
+                    DataPedido = x.p.DataEmissao.ToDateTime(new TimeOnly(0)),
+                    FornecedorNome = x.f.Fantasia ?? string.Empty,
+                    CondicaoPagamentoDescricao = x.c.Descricao ?? string.Empty,
+                    TotalPedido = x.p.TotalPedido
                 })
                 .ToListAsync(ct);
 

@@ -13,6 +13,9 @@ namespace GrupoTecnofix_Api.Dtos.Produto
         public string CstIpi { get; set; } = null!;
         public string CstIcms { get; set; } = null!;
         public int? Minimo { get; set; }
+        public decimal PesoItem { get; set; }
+        public decimal ValorKg { get; set; }
+        public string Tipo { get; set; } = null!;
         public string? Obs { get; set; }
         public string? ObsNf { get; set; }
         public string? ObsEntrada { get; set; }

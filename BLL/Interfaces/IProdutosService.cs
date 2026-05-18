@@ -10,7 +10,7 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
     public interface IProdutosService
     {
         Task<PagedResult<ProdutoListDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct);
-        Task<List<ProdutoListDto>> GetListAsync(string? search, CancellationToken ct);
+        Task<List<ProdutoListDto>> GetListAsync(string? search, bool? somentePrecoCadastrado, int? idFornecedor, CancellationToken ct);
         Task<ProdutoDto?> GetByIdAsync(int id, CancellationToken ct);
         Task<int> CreateAsync(ProdutoCreateUpdate dto, CancellationToken ct);
         Task UpdateAsync(int id, ProdutoCreateUpdate dto, CancellationToken ct);

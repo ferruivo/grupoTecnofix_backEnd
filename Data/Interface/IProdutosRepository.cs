@@ -8,7 +8,7 @@ namespace GrupoTecnofix_Api.Data.Interface
     public interface IProdutosRepository
     {
         Task<PagedResult<ProdutoListDto>> GetListPagedAsync(int page, int pageSize, string? search, CancellationToken ct);
-        Task<List<ProdutoListDto>> GetListAsync(string? search, CancellationToken ct);
+        Task<List<ProdutoListDto>> GetListAsync(string? search, bool? somentePrecoCadastrado, int? idFornecedor, CancellationToken ct);
         Task<Produto?> GetByIdAsync(int id, CancellationToken ct);
         Task AddAsync(Produto entity, CancellationToken ct);
         Task SaveAsync(CancellationToken ct);

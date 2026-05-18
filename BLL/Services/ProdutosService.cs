@@ -31,9 +31,9 @@ namespace GrupoTecnofix_Api.BLL.Services
             return await _repo.GetListPagedAsync(page, pageSize, search, ct);
         }
 
-        public async Task<List<ProdutoListDto>> GetListAsync(string? search, CancellationToken ct)
+        public async Task<List<ProdutoListDto>> GetListAsync(string? search, bool? somentePrecoCadastrado, int? idFornecedor, CancellationToken ct)
         {
-            return await _repo.GetListAsync(search, ct);
+            return await _repo.GetListAsync(search, somentePrecoCadastrado, idFornecedor, ct);
         }
 
         public async Task<ProdutoDto> GetByIdAsync(int id, CancellationToken ct)

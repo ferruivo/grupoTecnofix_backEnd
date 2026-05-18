@@ -10,6 +10,9 @@
         public string CstIpi { get; set; } = null!;
         public string CstIcms { get; set; } = null!;
         public int? Minimo { get; set; }
+        public string PesoItem { get; set; } = null!;
+        public string ValorKg { get; set; } = null!;
+        public string Tipo { get; set; } = null!;
         public string? Obs { get; set; }
         public string? ObsNf { get; set; }
         public string? ObsEntrada { get; set; }

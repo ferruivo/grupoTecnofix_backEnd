@@ -118,5 +118,10 @@ namespace GrupoTecnofix_Api.BLL.Services
         {
             return await _repo.GetListAsync(search, ct);
         }
+
+        public async Task<ClienteDefaultsDto> GetDefaultsByIdAsync(int id, CancellationToken ct)
+        {
+            return await _repo.GetDefaultsByIdAsync(id, ct);
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace GrupoTecnofix_Api.Data.Interface
         Task<List<ClienteExcelDto>> GetListExcelAsync(string? search, CancellationToken ct);
         Task<ClienteDto?> GetClienteDtoByIdAsync(int id, CancellationToken ct);
         Task<Cliente?> GetByIdAsync(int id, CancellationToken ct);
+        Task<ClienteDefaultsDto?> GetDefaultsByIdAsync(int id, CancellationToken ct);
         Task AddAsync(Cliente entity, CancellationToken ct);
         Task SaveAsync(CancellationToken ct);
 

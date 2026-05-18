@@ -164,6 +164,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 Observacao = c.Observacao,
                 ObservacaoNotaFiscal = c.ObservacaoNotaFiscal,
                 ObservacaoOrdemExpedicao = c.ObservacaoOrdemExpedicao,
+                IdPagamento = c.IdPagamento,
 
                 // =========================
                 // Subquery: Municipio
@@ -370,6 +371,26 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 .ToListAsync(ct);
 
             return items;
+        }
+
+        public async Task<ClienteDefaultsDto?> GetDefaultsByIdAsync(int id, CancellationToken ct)
+        {
+            try
+            {
+                var cliente = await _db.Clientes.FirstOrDefaultAsync(x => x.IdCliente == id, CancellationToken.None);
+                if (cliente == null) return null;
+
+                return new ClienteDefaultsDto
+                {
+                    IdVendedorInterno = cliente.IdVendedorexterno,
+                    IdTransportadora = cliente.IdTransportadora,
+                    IdCondicaoPagamento = cliente.IdPagamento
+                };
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }

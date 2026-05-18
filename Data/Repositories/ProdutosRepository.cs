@@ -60,7 +60,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
             };
         }
 
-        public async Task<List<ProdutoListDto>> GetListAsync(string? search, CancellationToken ct)
+        public async Task<List<ProdutoListDto>> GetListAsync(string? search, bool? somentePrecoCadastrado, int? idFornecedor, CancellationToken ct)
         {
             var query = _db.Produtos.AsNoTracking();
 
@@ -70,6 +70,11 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 query = query.Where(f =>
                     (f.Descricao ?? "").Contains(s) ||
                     (f.Codigo ?? "").Contains(s));
+            }
+
+            if (somentePrecoCadastrado.HasValue && somentePrecoCadastrado.Value)
+            {
+                query = query.Where(p => _db.Precocompras.Any(pc => pc.IdProduto == p.IdProduto && (!idFornecedor.HasValue || pc.IdFornecedor == idFornecedor.Value)));
             }
 
             var items = await query

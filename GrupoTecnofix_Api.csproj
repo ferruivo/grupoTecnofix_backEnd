@@ -27,4 +27,10 @@
     <PackageReference Include="PdfSharpCore" Version="1.3.36" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Utils\Logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -27,8 +27,8 @@ namespace GrupoTecnofix_Api.Controllers
 
         [Authorize(Policy = "produtos.read")]
         [HttpGet("lookup")]
-        public async Task<IActionResult> Get([FromQuery] string? search = null, CancellationToken ct = default)
-        => Ok(await _service.GetListAsync(search, ct));
+        public async Task<IActionResult> Get([FromQuery] string? search = null, [FromQuery] bool? somentePrecoCadastrado = null, [FromQuery] int? idFornecedor = null, CancellationToken ct = default)
+        => Ok(await _service.GetListAsync(search, somentePrecoCadastrado, idFornecedor, ct));
 
         [Authorize(Policy = "produtos.read")]
         [HttpGet("{id:int}")]

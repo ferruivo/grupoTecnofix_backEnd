@@ -152,6 +152,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("SUFRAMA");
+            entity.Property(e => e.IdPagamento).HasColumnName("ID_PAGAMENTO");
 
         });
 
@@ -555,6 +556,13 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("DESCRICAO");
             entity.Property(e => e.FatorEmbalagem).HasColumnName("FATOR_EMBALAGEM");
+            entity.Property(e => e.Pesoitem)
+                 .HasColumnType("decimal(16, 4)")
+                 .HasColumnName("PESOITEM");
+            entity.Property(e => e.Tipo)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("TIPO");
             entity.Property(e => e.IdUsuarioAlteracao).HasColumnName("ID_USUARIO_ALTERACAO");
             entity.Property(e => e.IdUsuarioCadastro).HasColumnName("ID_USUARIO_CADASTRO");
             entity.Property(e => e.Minimo).HasColumnName("MINIMO");
@@ -578,6 +586,9 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(2)
                 .IsUnicode(false)
                 .HasColumnName("UNIDADE");
+            entity.Property(e => e.Valorkg)
+                .HasColumnType("decimal(16, 4)")
+                .HasColumnName("VALORKG");
         });
 
         modelBuilder.Entity<Tipodocumento>(entity =>
@@ -1112,6 +1123,14 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ValorKg)
                 .HasColumnType("decimal(18, 4)")
                 .HasColumnName("VALOR_KG");
+            entity.Property(e => e.NumeroPedidoCliente)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("NUMEROPEDIDOCLIENTE");
+            entity.Property(e => e.ItemPedidoCliente)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("ITEMPEDIDOCLIENTE");
         });
 
         OnModelCreatingPartial(modelBuilder);
