@@ -38,6 +38,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<PedidosVendum> PedidosVenda { get; set; }
     public virtual DbSet<PedidosVendaIten> PedidosVendaItens { get; set; }
     public virtual DbSet<Lote> Lotes { get; set; }
+    public virtual DbSet<Especificacao> Especificacoes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -154,6 +155,54 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("SUFRAMA");
             entity.Property(e => e.IdPagamento).HasColumnName("ID_PAGAMENTO");
 
+        });
+
+        modelBuilder.Entity<LoteInspecao>(entity =>
+        {
+            entity.HasKey(e => e.IdLoteInspecao).HasName("PK_LOTES_INSPECOES");
+
+            entity.ToTable("LOTES_INSPECOES");
+
+            entity.HasIndex(e => new { e.IdLote, e.IdEspecificacao }, "UQ_LOTES_INSPECOES_LOTE_ESPECIFICACAO").IsUnique();
+
+            entity.Property(e => e.IdLoteInspecao).HasColumnName("ID_LOTE_INSPECAO");
+            entity.Property(e => e.IdLote).HasColumnName("ID_LOTE");
+            entity.Property(e => e.IdEspecificacao).HasColumnName("ID_ESPECIFICACAO");
+
+            entity.Property(e => e.Minimo)
+                .HasMaxLength(45)
+                .IsUnicode(false)
+                .HasColumnName("MINIMO");
+
+            entity.Property(e => e.Maximo)
+                .HasMaxLength(45)
+                .IsUnicode(false)
+                .HasColumnName("MAXIMO");
+
+            entity.Property(e => e.Aproximado)
+                .HasMaxLength(45)
+                .IsUnicode(false)
+                .HasColumnName("APROXIMADO");
+
+            entity.Property(e => e.Observacao)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("OBSERVACAO");
+
+            entity.Property(e => e.DataCadastro)
+                .HasPrecision(0)
+                .HasDefaultValueSql("(sysutcdatetime())")
+                .HasColumnName("DATA_CADASTRO");
+
+            entity.HasOne<Lote>()
+                .WithMany()
+                .HasForeignKey(e => e.IdLote)
+                .HasConstraintName("FK_LOTES_INSPECOES_LOTES");
+
+            entity.HasOne<Especificacao>()
+                .WithMany()
+                .HasForeignKey(e => e.IdEspecificacao)
+                .HasConstraintName("FK_LOTES_INSPECOES_ESPECIFICACOES");
         });
 
         modelBuilder.Entity<Condicoespagamento>(entity =>
@@ -1174,6 +1223,41 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(1)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Especificacao>(entity =>
+        {
+            entity.HasKey(e => e.IdEspecificacao);
+
+            entity.ToTable("ESPECIFICACOES");
+
+            entity.HasIndex(e => e.Descricao, "UQ_especificacao_descricao").IsUnique();
+
+            entity.Property(e => e.IdEspecificacao).HasColumnName("ID_ESPECIFICACAO");
+            entity.Property(e => e.Descricao)
+                .HasMaxLength(45)
+                .IsUnicode(false)
+                .HasColumnName("DESCRICAO");
+        });
+
+        modelBuilder.Entity<ProdutoEspecificacao>(entity =>
+        {
+            entity.HasKey(e => new { e.IdProduto, e.IdEspecificacao }).HasName("PK_PRODUTOS_ESPECIFICACOES");
+
+            entity.ToTable("PRODUTOS_ESPECIFICACOES");
+
+            entity.Property(e => e.IdProduto).HasColumnName("ID_PRODUTO");
+            entity.Property(e => e.IdEspecificacao).HasColumnName("ID_ESPECIFICACAO");
+
+            entity.HasOne<Produto>()
+                .WithMany()
+                .HasForeignKey(e => e.IdProduto)
+                .HasConstraintName("FK_PRODUTOS_ESPECIFICACOES_PRODUTOS");
+
+            entity.HasOne<Especificacao>()
+                .WithMany()
+                .HasForeignKey(e => e.IdEspecificacao)
+                .HasConstraintName("FK_PRODUTOS_ESPECIFICACOES_ESPECIFICACOES");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -10,6 +10,7 @@
 
         public int? Item { get; set; }
 
+        public long? IdProduto { get; set; }
         public string? ProdutoCodigo { get; set; }
         public string? ProdutoDescricao { get; set; }
 

@@ -118,6 +118,8 @@ builder.Services.AddScoped<IFornecedoresRepository, FornecedoresRepository>();
 builder.Services.AddScoped<IFornecedoresService, FornecedoresService>();
 builder.Services.AddScoped<IProdutosRepository, ProdutosRepository>();
 builder.Services.AddScoped<IProdutosService, ProdutosService>();
+builder.Services.AddScoped<IProdutosEspecificacoesRepository, ProdutosEspecificacoesRepository>();
+builder.Services.AddScoped<IProdutosEspecificacoesService, ProdutosEspecificacoesService>();
 builder.Services.AddScoped<IPrateleirasService, PrateleirasService>();
 builder.Services.AddScoped<IPrateleirasRepository, PrateleirasRepository>();
 builder.Services.AddScoped<IPedidoCompraRepository, PedidoCompraRepository>();
@@ -127,6 +129,12 @@ builder.Services.AddScoped<IPedidoVendaService, PedidoVendaService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IRecebimentoService, RecebimentoService>();
 builder.Services.AddScoped<IRecebimentoRepository, RecebimentoRepository>();
+builder.Services.AddScoped<IEspecificacoesRepository, EspecificacoesRepository>();
+builder.Services.AddScoped<IEspecificacoesService, EspecificacoesService>();
+builder.Services.AddScoped<IProdutosEspecificacoesRepository, ProdutosEspecificacoesRepository>();
+builder.Services.AddScoped<IProdutosEspecificacoesService, ProdutosEspecificacoesService>();
+builder.Services.AddScoped<ILotesInspecoesRepository, LotesInspecoesRepository>();
+builder.Services.AddScoped<ILotesInspecoesService, LotesInspecoesService>();
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
 {
@@ -146,6 +154,8 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<ProdutoKitItenProfile>();
     cfg.AddProfile<PedidoCompraProfile>();
     cfg.AddProfile<PedidoVendaProfile>();
+    cfg.AddProfile<EspecificacoesProfile>();
+    cfg.AddProfile<LotesInspecoesProfile>();
 
 });
 
