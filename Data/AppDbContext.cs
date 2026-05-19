@@ -37,7 +37,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<PedidosCompraIten> PedidosCompraItens { get; set; }
     public virtual DbSet<PedidosVendum> PedidosVenda { get; set; }
     public virtual DbSet<PedidosVendaIten> PedidosVendaItens { get; set; }
-
+    public virtual DbSet<Lote> Lotes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1131,6 +1131,49 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("ITEMPEDIDOCLIENTE");
+        });
+
+        modelBuilder.Entity<Lote>(entity =>
+        {
+            entity.HasKey(e => e.IdLote).HasName("PK_Lote");
+
+            entity.ToTable("LOTES");
+
+            entity.HasIndex(e => e.IdProduto, "IX_Lote_IdProduto");
+
+            entity.Property(e => e.Aspecto)
+                .HasMaxLength(1)
+                .IsUnicode(false);
+            entity.Property(e => e.Certificado)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.Embalagem)
+                .HasMaxLength(1)
+                .IsUnicode(false);
+            entity.Property(e => e.Obs)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.ObsAspecto)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ObsEmbalagem)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ObsQpecas)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("ObsQPecas");
+            entity.Property(e => e.Qpecas)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("QPecas");
+            entity.Property(e => e.QtdUtilizada)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(16, 3)");
+            entity.Property(e => e.Quantidade).HasColumnType("decimal(16, 3)");
+            entity.Property(e => e.Status)
+                .HasMaxLength(1)
+                .IsUnicode(false);
         });
 
         OnModelCreatingPartial(modelBuilder);

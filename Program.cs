@@ -122,11 +122,11 @@ builder.Services.AddScoped<IPrateleirasService, PrateleirasService>();
 builder.Services.AddScoped<IPrateleirasRepository, PrateleirasRepository>();
 builder.Services.AddScoped<IPedidoCompraRepository, PedidoCompraRepository>();
 builder.Services.AddScoped<IPedidoCompraService, PedidoCompraService>();
-// register pedido venda
 builder.Services.AddScoped<IPedidoVendaRepository, PedidoVendaRepository>();
 builder.Services.AddScoped<IPedidoVendaService, PedidoVendaService>();
-// register PDF service
 builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<IRecebimentoService, RecebimentoService>();
+builder.Services.AddScoped<IRecebimentoRepository, RecebimentoRepository>();
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
 {
