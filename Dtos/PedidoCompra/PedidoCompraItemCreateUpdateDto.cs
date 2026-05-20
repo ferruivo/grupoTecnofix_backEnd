@@ -3,6 +3,7 @@
     public class PedidoCompraItemCreateUpdateDto
     {
         public int IdProduto { get; set; }
+        public int Item { get; set; }
         public decimal Quantidade { get; set; }
         public decimal PrecoUnitario { get; set; }
         public decimal AliquotaIpi { get; set; }

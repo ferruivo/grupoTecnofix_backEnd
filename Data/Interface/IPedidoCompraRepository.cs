@@ -1,4 +1,5 @@
 using GrupoTecnofix_Api.Dtos;
+using GrupoTecnofix_Api.Dtos.ParametroVenda;
 using GrupoTecnofix_Api.Dtos.PedidoCompra;
 using GrupoTecnofix_Api.Models;
 
@@ -12,5 +13,6 @@ namespace GrupoTecnofix_Api.Data.Interface
         Task<int> AddAsync(PedidosCompra entity, List<PedidosCompraIten> itens, CancellationToken ct);
         Task UpdateAsync(PedidosCompra entity, List<PedidosCompraIten> itens, CancellationToken ct);
         Task DeleteAsync(int id, CancellationToken ct);
+        Task<List<PedidoCompraDisponivelDto>> GetDisponiveisAsync(long? idProduto, CancellationToken ct);
     }
 }

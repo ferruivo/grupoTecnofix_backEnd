@@ -39,6 +39,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<PedidosVendaIten> PedidosVendaItens { get; set; }
     public virtual DbSet<Lote> Lotes { get; set; }
     public virtual DbSet<Especificacao> Especificacoes { get; set; }
+    public virtual DbSet<Consumolote> Consumolotes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1249,6 +1250,26 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IdProduto).HasColumnName("ID_PRODUTO");
             entity.Property(e => e.IdEspecificacao).HasColumnName("ID_ESPECIFICACAO");
 
+            entity.Property(e => e.Minimo)
+                .HasMaxLength(45)
+                .IsUnicode(false)
+                .HasColumnName("MINIMO");
+
+            entity.Property(e => e.Maximo)
+                .HasMaxLength(45)
+                .IsUnicode(false)
+                .HasColumnName("MAXIMO");
+
+            entity.Property(e => e.Aproximado)
+                .HasMaxLength(45)
+                .IsUnicode(false)
+                .HasColumnName("APROXIMADO");
+
+            entity.Property(e => e.Observacao)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("OBSERVACAO");
+
             entity.HasOne<Produto>()
                 .WithMany()
                 .HasForeignKey(e => e.IdProduto)
@@ -1258,6 +1279,32 @@ public partial class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.IdEspecificacao)
                 .HasConstraintName("FK_PRODUTOS_ESPECIFICACOES_ESPECIFICACOES");
+        });
+
+        modelBuilder.Entity<Consumolote>(entity =>
+        {
+            entity.HasKey(e => e.IdConsumolote);
+
+            entity.ToTable("CONSUMOLOTE");
+
+            entity.HasIndex(e => e.Idlote, "IX_CONSUMOLOTE_IDLOTE");
+
+            entity.Property(e => e.IdConsumolote).HasColumnName("ID_CONSUMOLOTE");
+            entity.Property(e => e.Data).HasColumnName("DATA");
+            entity.Property(e => e.Idlote).HasColumnName("IDLOTE");
+            entity.Property(e => e.Idpedidovenda).HasColumnName("IDPEDIDOVENDA");
+            entity.Property(e => e.Idproduto).HasColumnName("IDPRODUTO");
+            entity.Property(e => e.Item).HasColumnName("ITEM");
+            entity.Property(e => e.Notafiscal)
+                .HasDefaultValue(0L)
+                .HasColumnName("NOTAFISCAL");
+            entity.Property(e => e.Quantidade)
+                .HasColumnType("decimal(16, 3)")
+                .HasColumnName("QUANTIDADE");
+            entity.Property(e => e.Usuario)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("USUARIO");
         });
 
         OnModelCreatingPartial(modelBuilder);

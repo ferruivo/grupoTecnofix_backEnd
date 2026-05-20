@@ -14,19 +14,44 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         public async Task<List<EspecificacaoListDto>> GetByProdutoAsync(int idProduto, CancellationToken ct)
         {
-            var items = await _db.Especificacoes
-                .AsNoTracking()
-                .Where(e => _db.Set<ProdutoEspecificacao>().Any(pe => pe.IdProduto == idProduto && pe.IdEspecificacao == e.IdEspecificacao))
-                .OrderBy(e => e.Descricao)
-                .Select(e => new EspecificacaoListDto { IdEspecificacao = e.IdEspecificacao, Descricao = e.Descricao })
-                .ToListAsync(ct);
+            var items = await (
+                from pe in _db.Set<ProdutoEspecificacao>().AsNoTracking()
+                join e in _db.Especificacoes.AsNoTracking()
+                    on pe.IdEspecificacao equals e.IdEspecificacao
+                where pe.IdProduto == idProduto
+                orderby e.Descricao
+                select new EspecificacaoListDto
+                {
+                    IdEspecificacao = e.IdEspecificacao,
+                    Descricao = e.Descricao,
+
+                    Minimo = pe.Minimo,
+                    Maximo = pe.Maximo,
+                    Aproximado = pe.Aproximado,
+                    Observacao = pe.Observacao
+                }
+            ).ToListAsync(ct);
 
             return items;
         }
 
+        public async Task<ProdutoEspecificacao> GetByProdutoEspecificacaoAsync(int idProduto, int idEspecificacao, CancellationToken ct)
+        {
+            var item = await (from pe in _db.Set<ProdutoEspecificacao>().AsNoTracking()
+                              where pe.IdProduto == idProduto && pe.IdEspecificacao == idEspecificacao
+                              select pe).FirstOrDefaultAsync(ct);
+
+            return item;
+        }
         public async Task AddAsync(ProdutoEspecificacao entity, CancellationToken ct)
         {
-            await _db.Set<ProdutoEspecificacao>().AddAsync(entity, ct);
+            await _db.Set<ProdutoEspecificacao>().AddAsync(entity, ct); // No changes made
+        }
+
+        public Task UpdateAsync(ProdutoEspecificacao entity, CancellationToken ct)
+        {
+            _db.Set<ProdutoEspecificacao>().Update(entity);
+            return Task.CompletedTask;
         }
 
         public async Task DeleteAsync(int idProduto, int idEspecificacao, CancellationToken ct)

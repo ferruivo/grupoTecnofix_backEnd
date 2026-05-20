@@ -20,10 +20,22 @@ namespace GrupoTecnofix_Api.Controllers
             => Ok(await _service.GetByProdutoAsync(idProduto, ct));
 
         [Authorize(Policy = "especificacoes.update")]
-        [HttpPost("{idEspecificacao:int}")]
-        public async Task<IActionResult> Add([FromRoute] int idProduto, [FromRoute] int idEspecificacao, CancellationToken ct = default)
+        [HttpPost]
+        public async Task<IActionResult> Add([FromRoute] int idProduto, [FromBody] ProdutoEspecificacaoCreateUpdateDto dto, CancellationToken ct = default)
         {
-            await _service.AddAsync(idProduto, idEspecificacao, ct);
+            if (dto == null) return BadRequest();
+
+            await _service.AddAsync(idProduto, dto, ct);
+            return NoContent();
+        }
+
+        [Authorize(Policy = "especificacoes.update")]
+        [HttpPut("{idEspecificacao:int}")]
+        public async Task<IActionResult> Update([FromRoute] int idProduto, [FromRoute] int idEspecificacao, [FromBody] ProdutoEspecificacaoCreateUpdateDto dto, CancellationToken ct = default)
+        {
+            if (dto == null) return BadRequest();
+
+            await _service.UpdateAsync(idProduto, idEspecificacao, dto, ct);
             return NoContent();
         }
 

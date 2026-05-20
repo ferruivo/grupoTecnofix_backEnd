@@ -24,14 +24,36 @@ namespace GrupoTecnofix_Api.BLL.Services
             return await _repo.GetByProdutoAsync(idProduto, ct);
         }
 
-        public async Task AddAsync(int idProduto, int idEspecificacao, CancellationToken ct)
+        public async Task AddAsync(int idProduto, ProdutoEspecificacaoCreateUpdateDto dto, CancellationToken ct)
         {
-            // validate especificacao exists
-            var esp = await _espRepo.GetByIdAsync(idEspecificacao, ct);
+            var esp = await _espRepo.GetByIdAsync(dto.IdEspecificacao, ct);
             if (esp is null) throw new KeyNotFoundException("Especificação não encontrada.");
 
-            var pe = new ProdutoEspecificacao { IdProduto = idProduto, IdEspecificacao = idEspecificacao };
+            var pe = new ProdutoEspecificacao
+            {
+                IdProduto = idProduto,
+                IdEspecificacao = dto.IdEspecificacao,
+                Minimo = dto.Minimo,
+                Maximo = dto.Maximo,
+                Aproximado = dto.Aproximado,
+                Observacao = dto.Observacao
+            };
+
             await _repo.AddAsync(pe, ct);
+            await _repo.SaveAsync(ct);
+        }
+
+        public async Task UpdateAsync(int idProduto, int idEspecificacao, ProdutoEspecificacaoCreateUpdateDto dto, CancellationToken ct)
+        {
+            var existing = await _repo.GetByProdutoEspecificacaoAsync(idProduto, idEspecificacao, ct);
+            if (existing is null) throw new KeyNotFoundException("Associação não encontrada.");
+
+            existing.Minimo = dto.Minimo;
+            existing.Maximo = dto.Maximo;
+            existing.Aproximado = dto.Aproximado;
+            existing.Observacao = dto.Observacao;
+
+            await _repo.UpdateAsync(existing, ct);
             await _repo.SaveAsync(ct);
         }
 

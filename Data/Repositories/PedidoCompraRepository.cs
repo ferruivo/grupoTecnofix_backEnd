@@ -1,11 +1,12 @@
 using GrupoTecnofix_Api.Data.Interface;
-using GrupoTecnofix_Api.Dtos.PedidoCompra;
-using GrupoTecnofix_Api.Models;
 using GrupoTecnofix_Api.Dtos;
-using Microsoft.EntityFrameworkCore;
+using GrupoTecnofix_Api.Dtos.Condições_Pagamento;
 using GrupoTecnofix_Api.Dtos.Fornecedor;
 using GrupoTecnofix_Api.Dtos.Municipios;
-using GrupoTecnofix_Api.Dtos.Condições_Pagamento;
+using GrupoTecnofix_Api.Dtos.ParametroVenda;
+using GrupoTecnofix_Api.Dtos.PedidoCompra;
+using GrupoTecnofix_Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace GrupoTecnofix_Api.Data.Repositories
 {
@@ -15,7 +16,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         public PedidoCompraRepository(AppDbContext db) => _db = db;
 
-        public async Task<PagedResult<PedidoCompraListItemDto>> GetPagedAsync(int page,int pageSize,string? search,CancellationToken ct)
+        public async Task<PagedResult<PedidoCompraListItemDto>> GetPagedAsync(int page, int pageSize, string? search, CancellationToken ct)
         {
             var query =
                 from p in _db.PedidosCompras.AsNoTracking()
@@ -57,6 +58,38 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 TotalItems = total,
                 Items = items
             };
+        }
+
+        public async Task<List<PedidoCompraDisponivelDto>> GetDisponiveisAsync(long? idProduto, CancellationToken ct)
+        {
+            var query =
+                from pc in _db.PedidosCompras.AsNoTracking()
+                join pci in _db.PedidosCompraItens.AsNoTracking()
+                on pc.IdPedidoCompra equals pci.IdPedidoCompra
+                join f in _db.Fornecedores.AsNoTracking()
+                on pc.IdFornecedor equals f.IdFornecedor
+                where pci.IdProduto == idProduto
+
+            let recebido = _db.Lotes
+                .Where(l =>
+                    l.PedidoCompra == pci.IdPedidoCompra &&
+                    l.ItemPedidoCompra == pci.Item)
+                .Sum(l => (decimal?)l.Quantidade) ?? 0
+
+            let diferenca = pci.Quantidade - recebido
+
+            select new PedidoCompraDisponivelDto
+            {
+                Data = pc.DataCadastro.ToString("dd/MM/yyyy HH:mm"),
+                Fornecedor = f.Fantasia,
+                Pedido = pci.IdPedidoCompra,
+                Item = pci.IdPedidoCompraItem,
+                Quantidade = pci.Quantidade,
+                Recebido = recebido,
+                Diferenca = diferenca
+            };
+
+            return await query.ToListAsync(ct);
         }
 
         public async Task<PedidoCompraDto?> GetByIdAsync(int id, CancellationToken ct)
@@ -104,7 +137,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                         {
                             IdCondicoespagamento = c.IdCondicoespagamento,
                             Descricao = c.Descricao,
-           
+
                         })
                         .FirstOrDefault(),
                     IdTransportadora = p.IdTransportadora,

@@ -3,6 +3,7 @@ namespace GrupoTecnofix_Api.Dtos.PedidoVenda
     public class PedidoVendaItemCreateUpdateDto
     {
         public int IdProduto { get; set; }
+        public int Item { get; set; }
         public string? ProdutoCliente { get; set; }
         public decimal Quantidade { get; set; }
         public decimal PrecoUnitario { get; set; }

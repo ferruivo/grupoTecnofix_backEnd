@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Collections.Generic;
 
 namespace GrupoTecnofix_Api.Models;
@@ -8,6 +9,7 @@ public partial class PedidosCompraIten
     public int IdPedidoCompraItem { get; set; }
 
     public int IdPedidoCompra { get; set; }
+    public int Item { get; set; }
 
     public int IdProduto { get; set; }
 

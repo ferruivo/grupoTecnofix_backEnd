@@ -8,6 +8,7 @@ public partial class PedidosVendaIten
     public int IdPedidoVendaItem { get; set; }
 
     public int IdPedidoVenda { get; set; }
+    public int Item { get; set; }
 
     public int IdProduto { get; set; }
 

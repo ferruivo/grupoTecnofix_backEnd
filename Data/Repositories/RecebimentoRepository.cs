@@ -1,5 +1,6 @@
 ﻿using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos.Estoque;
+using GrupoTecnofix_Api.Dtos.ParametroVenda;
 using GrupoTecnofix_Api.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,9 +12,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
         public RecebimentoRepository(AppDbContext db) => _db = db;
 
-        public async Task<RecebimentoPedidoDto?> GetPedidoByNumeroAsync(
-    int numero,
-    CancellationToken ct)
+        public async Task<RecebimentoPedidoDto?> GetPedidoByNumeroAsync(int numero, CancellationToken ct)
         {
             var pedido = await _db.PedidosCompras
                 .AsNoTracking()
@@ -52,7 +51,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                         .Select(i => new RecebimentoPedidoItemDto
                         {
                             Id = i.IdPedidoCompraItem,
-                            IdPedidoCompraItem = i.IdPedidoCompraItem,
+                            IdPedidoCompraItem = i.Item,
                             IdPedidoCompra = i.IdPedidoCompra,
 
                             IdProduto = i.IdProduto,
@@ -74,7 +73,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                             QuantidadeRecebida = _db.Lotes
                                 .Where(l =>
                                     l.PedidoCompra == i.IdPedidoCompra &&
-                                    l.ItemPedidoCompra == i.IdPedidoCompraItem)
+                                    l.ItemPedidoCompra == i.Item)
                                 .Sum(l => (decimal?)l.Quantidade) ?? 0,
 
                             QuantidadeDisponivel =
@@ -83,7 +82,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                                     _db.Lotes
                                         .Where(l =>
                                             l.PedidoCompra == i.IdPedidoCompra &&
-                                            l.ItemPedidoCompra == i.IdPedidoCompraItem)
+                                            l.ItemPedidoCompra == i.Item)
                                         .Sum(l => (decimal?)l.Quantidade) ?? 0
                                 ),
 
@@ -98,7 +97,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                                     _db.Lotes
                                         .Where(l =>
                                             l.PedidoCompra == i.IdPedidoCompra &&
-                                            l.ItemPedidoCompra == i.IdPedidoCompraItem)
+                                            l.ItemPedidoCompra == i.Item)
                                         .Sum(l => (decimal?)l.Quantidade) ?? 0
                                 ) >= i.Quantidade
                         })
@@ -113,11 +112,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
             return pedido;
         }
-
-        public async Task<RecebimentoLoteDto> CriarLoteAsync(
-    RecebimentoLoteCreateDto dto,
-    int idUsuario,
-    CancellationToken ct)
+        public async Task<RecebimentoLoteDto> CriarLoteAsync(RecebimentoLoteCreateDto dto, int idUsuario, CancellationToken ct)
         {
             if (dto.IdPedidoCompra <= 0)
                 throw new InvalidOperationException("Pedido de compra inválido.");
@@ -132,7 +127,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(i =>
                     i.IdPedidoCompra == dto.IdPedidoCompra &&
-                    i.IdPedidoCompraItem == dto.IdPedidoCompraItem,
+                    i.Item == dto.IdPedidoCompraItem,
                     ct);
 
             if (item is null)
@@ -208,9 +203,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
             };
         }
 
-        public async Task<List<RecebimentoLoteDto>> GetLotesByPedidoAsync(
-    int idPedidoCompra,
-    CancellationToken ct)
+        public async Task<List<RecebimentoLoteDto>> GetLotesByPedidoAsync(int idPedidoCompra, CancellationToken ct)
         {
             return await _db.Lotes
                 .AsNoTracking()
@@ -246,6 +239,95 @@ namespace GrupoTecnofix_Api.Data.Repositories
                     Observacao = l.Obs
                 })
                 .ToListAsync(ct);
+        }
+
+        public async Task<List<LoteDisponivelDto>> GetLotesDisponiveisAsync(int idProduto, CancellationToken ct)
+        {
+            var items = await (
+                from l in _db.Lotes.AsNoTracking()
+                where l.IdProduto == idProduto
+                orderby l.IdLote descending
+                select new LoteDisponivelDto
+                {
+                    IdLote = l.IdLote,
+                    NumeroLote = l.IdLote.ToString(),
+
+                    IdFornecedor = 0,
+                    FornecedorCodigo = string.Empty,
+                    FornecedorNome = string.Empty,
+
+                    Status = l.Status,
+
+                    Saldo = l.Quantidade - (l.QtdUtilizada ?? 0),
+
+                    Reservado = 0,
+
+                    Disponivel = (l.Quantidade - (l.QtdUtilizada ?? 0)),
+
+                    DataEntrada = l.DataEntrada,
+                    DataValidade = null
+                })
+                .Where(x => x.Disponivel > 0)
+                .ToListAsync(ct);
+
+            return items;
+        }
+
+        public async Task<List<LoteParametroVendaDto>> GetLotesByIdProdutoAsync(long idProduto, CancellationToken ct)
+        {
+            try
+            {
+                var dados = await
+            (
+                from l in _db.Lotes.AsNoTracking()
+
+                join pci in _db.PedidosCompraItens.AsNoTracking()
+                    on new
+                    {
+                        IdPedidoCompra = l.PedidoCompra,
+                        Item = l.ItemPedidoCompra
+                    }
+                    equals new
+                    {
+                        IdPedidoCompra = pci.IdPedidoCompra,
+                        Item = pci.Item
+                    }
+
+                join pc in _db.PedidosCompras.AsNoTracking()
+                    on pci.IdPedidoCompra equals pc.IdPedidoCompra
+
+                join f in _db.Fornecedores.AsNoTracking()
+                    on pc.IdFornecedor equals f.IdFornecedor
+
+                where l.Quantidade > l.QtdUtilizada
+                      && l.IdProduto == idProduto
+
+                select new
+                {
+                    l.IdLote,
+                    l.DataEntrada,
+                    f.Fantasia,
+                    pci.PrecoUnitario,
+                    Disponivel = l.Quantidade - l.QtdUtilizada,
+                    l.Status
+                }
+            ).ToListAsync(ct);
+
+                return dados.Select(x => new LoteParametroVendaDto
+                {
+                    Lote = x.IdLote,
+                    Entrada = x.DataEntrada.ToString(),
+                    Fornecedor = x.Fantasia,
+                    Preco = x.PrecoUnitario,
+                    Disponivel = x.Disponivel,
+                    Status = x.Status
+                }).ToList();
+            }
+            catch(Exception ex)
+            {
+                var x = ex.Message;
+                return null;
+            }
         }
     }
 }
