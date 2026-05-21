@@ -10,5 +10,7 @@ namespace GrupoTecnofix_Api.Data.Interface
         Task<List<RecebimentoLoteDto>> GetLotesByPedidoAsync(int idPedidoCompra,CancellationToken ct);
         Task<List<LoteDisponivelDto>> GetLotesDisponiveisAsync(int idProduto,CancellationToken ct);
         Task<List<LoteParametroVendaDto>> GetLotesByIdProdutoAsync(long idProduto, CancellationToken ct);
+        Task<EtiquetaProdutoDto> GetLoteEtiquetaByIdAsync(long idLote, CancellationToken ct);
+        Task<decimal> CountByLoteAsync(long idLote, CancellationToken ct);
     }
 }

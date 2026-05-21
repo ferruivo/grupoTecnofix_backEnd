@@ -19,9 +19,7 @@ namespace GrupoTecnofix_Api.Controllers
 
         [HttpGet("pedido/{numero:int}")]
         [Authorize(Policy = "recebimentos.read")]
-        public async Task<IActionResult> GetPedidoByNumero(
-            int numero,
-            CancellationToken ct)
+        public async Task<IActionResult> GetPedidoByNumero(int numero,CancellationToken ct)
         {
             var pedido = await _service.GetPedidoByNumeroAsync(numero, ct);
 
@@ -33,9 +31,7 @@ namespace GrupoTecnofix_Api.Controllers
 
         [HttpPost("lote")]
         [Authorize(Policy = "recebimentos.create")]
-        public async Task<IActionResult> CriarLote(
-    [FromBody] RecebimentoLoteCreateDto dto,
-    CancellationToken ct)
+        public async Task<IActionResult> CriarLote([FromBody] RecebimentoLoteCreateDto dto,CancellationToken ct)
         {
             try
             {
@@ -54,12 +50,23 @@ namespace GrupoTecnofix_Api.Controllers
 
         [HttpGet("pedido/{idPedidoCompra:int}/lotes")]
         [Authorize(Policy = "recebimentos.read")]
-        public async Task<IActionResult> GetLotesByPedido(
-    int idPedidoCompra,
-    CancellationToken ct)
+        public async Task<IActionResult> GetLotesByPedido(int idPedidoCompra,CancellationToken ct)
         {
             var lotes = await _service.GetLotesByPedidoAsync(idPedidoCompra, ct);
             return Ok(lotes);
+        }
+
+        [HttpPost("etiquetas/pdf")]
+        [Authorize(Policy = "recebimentos.read")]
+        public async Task<IActionResult> GerarEtiquetasPdf([FromQuery] long idLote, CancellationToken ct)
+        {
+            var pdf = await _service.GetEtiquetasByLoteAsync((int)idLote, ct);
+
+            return File(
+                pdf,
+                "application/pdf",
+                $"etiquetas_{DateTime.Now:yyyyMMddHHmmss}.pdf"
+            );
         }
     }
 }

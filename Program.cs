@@ -137,6 +137,8 @@ builder.Services.AddScoped<ILotesInspecoesRepository, LotesInspecoesRepository>(
 builder.Services.AddScoped<ILotesInspecoesService, LotesInspecoesService>();
 builder.Services.AddScoped<ILiberacaoPedidoService, LiberacaoPedidoService>();
 builder.Services.AddScoped<IParametroVendaService, ParametroVendaService>();
+builder.Services.AddScoped<IAlocacaoMaterialsService, AlocacaoMaterialsService>();
+builder.Services.AddScoped<IAlocacaoMaterialsRepository, AlocacaoMaterialsRepository>();
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
 {

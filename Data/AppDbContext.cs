@@ -40,7 +40,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Lote> Lotes { get; set; }
     public virtual DbSet<Especificacao> Especificacoes { get; set; }
     public virtual DbSet<Consumolote> Consumolotes { get; set; }
-
+    public virtual DbSet<AlocacaoMaterial> AlocacaoMaterials { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Cliente>(entity =>
@@ -1305,6 +1305,26 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("USUARIO");
+        });
+
+        modelBuilder.Entity<AlocacaoMaterial>(entity =>
+        {
+            entity.HasKey(e => e.IdAlocacaoMaterial).HasName("PK_alocacao_material");
+
+            entity.ToTable("ALOCACAO_MATERIAL");
+
+            entity.Property(e => e.IdAlocacaoMaterial).HasColumnName("ID_ALOCACAO_MATERIAL");
+            entity.Property(e => e.DataAlocacao)
+                .HasColumnType("datetime")
+                .HasColumnName("DATA_ALOCACAO");
+            entity.Property(e => e.Etq).HasColumnName("ETQ");
+            entity.Property(e => e.IdLote).HasColumnName("ID_LOTE");
+            entity.Property(e => e.IdPrateleira)
+                .HasMaxLength(45)
+                .IsUnicode(false)
+                .HasColumnName("ID_PRATELEIRA");
+            entity.Property(e => e.Qtd).HasColumnName("QTD");
+            entity.Property(e => e.Reservado).HasColumnName("RESERVADO");
         });
 
         OnModelCreatingPartial(modelBuilder);

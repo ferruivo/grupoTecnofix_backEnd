@@ -1,4 +1,5 @@
-﻿using GrupoTecnofix_Api.Data.Interface;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using GrupoTecnofix_Api.Data.Interface;
 using GrupoTecnofix_Api.Dtos.Estoque;
 using GrupoTecnofix_Api.Dtos.ParametroVenda;
 using GrupoTecnofix_Api.Models;
@@ -112,6 +113,7 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
             return pedido;
         }
+
         public async Task<RecebimentoLoteDto> CriarLoteAsync(RecebimentoLoteCreateDto dto, int idUsuario, CancellationToken ct)
         {
             if (dto.IdPedidoCompra <= 0)
@@ -323,10 +325,52 @@ namespace GrupoTecnofix_Api.Data.Repositories
                     Status = x.Status
                 }).ToList();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var x = ex.Message;
                 return null;
+            }
+        }
+
+        public async Task<EtiquetaProdutoDto> GetLoteEtiquetaByIdAsync(long idLote, CancellationToken ct)
+        {
+            try
+            {
+                return await (
+                    from l in _db.Lotes.AsNoTracking()
+                    join p in _db.Produtos.AsNoTracking()
+                    on l.IdProduto equals p.IdProduto
+                    where l.IdLote == idLote
+
+
+                    select new EtiquetaProdutoDto
+                    {
+                        ProdutoCodigo = p.Codigo,
+                        ProdutoDescricao = p.Descricao,
+                        QuantidadeTotal = l.Quantidade,
+                        Fator = p.FatorEmbalagem,
+                        Lote = l.IdLote.ToString()
+                    }
+                ).FirstOrDefaultAsync(ct);
+
+
+            }
+            catch (Exception ex)
+            {
+                var x = ex.Message;
+                return null;
+            }
+        }
+
+        public async Task<decimal> CountByLoteAsync(long idLote, CancellationToken ct)
+        {
+            try
+            {
+                return await _db.Lotes.Where(x => x.IdLote == idLote).Select(x => x.Quantidade).FirstOrDefaultAsync(CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }
