@@ -632,7 +632,12 @@ namespace GrupoTecnofix_Api.Data.Repositories
                     c.Quantidade,
                     c.Idlote,
                     pvi.PrecoUnitario,
-                    Total = c.Quantidade * pvi.PrecoUnitario
+                    Total = c.Quantidade * pvi.PrecoUnitario,
+
+                    IdProduto = p.IdProduto,
+                     IdConsumo = c.IdConsumolote,
+                    pvi.AliquotaIcms,
+                    pvi.AliquotaIpi
                 })
                 .ToListAsync(ct);
 
@@ -653,12 +658,16 @@ namespace GrupoTecnofix_Api.Data.Repositories
 
                 Itens = dados.Select(x => new ExpedicaoConsumoLoteItemDto
                 {
+                    IdProduto = x.IdProduto,
+                    IdConsumo = x.IdConsumo,
                     ProdutoCodigo = x.ProdutoCodigo,
                     ProdutoDescricao = x.ProdutoDescricao,
                     ProdutoCliente = x.ProdutoCliente,
                     Quantidade = x.Quantidade,
                     IdLote = x.Idlote,
                     PrecoUnitario = x.PrecoUnitario,
+                    PercentualIcms = x.AliquotaIcms,
+                    PercentualIpi = x.AliquotaIpi,
                     Total = x.Total
                 }).ToList()
             };

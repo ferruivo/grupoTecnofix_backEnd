@@ -63,6 +63,8 @@
         public decimal Quantidade { get; set; }
 
         public decimal PrecoUnitario { get; set; }
+        public decimal PercentualIpi { get; set; }
+        public decimal PercentualIcms { get; set; }
 
         public decimal ValorProduto { get; set; }
 

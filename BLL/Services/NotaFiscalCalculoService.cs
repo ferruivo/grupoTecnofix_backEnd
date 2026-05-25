@@ -12,6 +12,10 @@ namespace GrupoTecnofix_Api.BLL.Services
             foreach (var item in nota.NotaFiscalItems)
             {
                 CalcularItem(item);
+
+                // Ensure tributos exist (if caller didn't send them) with sensible defaults
+                EnsureTributos(item);
+
                 CalcularTributosItem(item);
                 SomarTotaisNota(nota, item);
             }
@@ -69,6 +73,8 @@ namespace GrupoTecnofix_Api.BLL.Services
 
         private static void CalcularTributosItem(NotaFiscalItem item)
         {
+            if (item.NotaFiscalItemTributos == null) return;
+
             foreach (var tributo in item.NotaFiscalItemTributos)
             {
                 tributo.BaseCalculo = Round2(tributo.BaseCalculo);
@@ -76,6 +82,48 @@ namespace GrupoTecnofix_Api.BLL.Services
                 tributo.Valor = Round2(
                     tributo.BaseCalculo * tributo.Aliquota / 100
                 );
+            }
+        }
+
+        private static void EnsureTributos(NotaFiscalItem item)
+        {
+            if (item.NotaFiscalItemTributos == null)
+                item.NotaFiscalItemTributos = new System.Collections.Generic.List<NotaFiscalItemTributo>();
+
+            // If there are no tributos, add default PIS/COFINS/IPI/ICMS based on simple percentages
+            if (item.NotaFiscalItemTributos.Count == 0)
+            {
+                var baseCalc = item.ValorProduto;
+
+                item.NotaFiscalItemTributos.Add(new NotaFiscalItemTributo
+                {
+                    TipoTributo = "PIS",
+                    BaseCalculo = baseCalc,
+                    Aliquota = 0.65m
+                });
+
+                item.NotaFiscalItemTributos.Add(new NotaFiscalItemTributo
+                {
+                    TipoTributo = "COFINS",
+                    BaseCalculo = baseCalc,
+                    Aliquota = 3.00m
+                });
+
+                // add IPI if any percentual (simple heuristic: skip if zero)
+                item.NotaFiscalItemTributos.Add(new NotaFiscalItemTributo
+                {
+                    TipoTributo = "IPI",
+                    BaseCalculo = baseCalc,
+                    Aliquota = item.PercentualIpi
+                });
+
+                // ICMS placeholder
+                item.NotaFiscalItemTributos.Add(new NotaFiscalItemTributo
+                {
+                    TipoTributo = "ICMS",
+                    BaseCalculo = baseCalc,
+                    Aliquota = item.PercentualIcms
+                });
             }
         }
 

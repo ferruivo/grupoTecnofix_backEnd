@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GrupoTecnofix_Api.Models;
 
@@ -46,6 +47,10 @@ public partial class NotaFiscalItem
     public string? ItemPedidoCliente { get; set; }
 
     public int? IdConsumo { get; set; }
+    [NotMapped]
+    public decimal PercentualIpi { get; set; }
+    [NotMapped]
+    public decimal PercentualIcms { get; set; }
 
     public virtual NotaFiscal IdNotaFiscalNavigation { get; set; } = null!;
 

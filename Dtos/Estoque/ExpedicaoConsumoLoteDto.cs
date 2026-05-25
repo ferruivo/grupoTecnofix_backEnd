@@ -15,6 +15,8 @@
 
     public class ExpedicaoConsumoLoteItemDto
     {
+        public long IdProduto { get; set; }
+        public long IdConsumo { get; set; }
         public string ProdutoCodigo { get; set; } = string.Empty;
         public string ProdutoDescricao { get; set; } = string.Empty;
         public string? ProdutoCliente { get; set; }
@@ -22,6 +24,8 @@
         public decimal Quantidade { get; set; }
         public int IdLote { get; set; }
         public decimal PrecoUnitario { get; set; }
+        public decimal PercentualIpi { get; set; }
+        public decimal PercentualIcms { get; set; }
         public decimal Total { get; set; }
     }
 }

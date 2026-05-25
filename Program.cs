@@ -168,6 +168,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<PedidoVendaProfile>();
     cfg.AddProfile<EspecificacoesProfile>();
     cfg.AddProfile<LotesInspecoesProfile>();
+    cfg.AddProfile<NotaFiscalProfile>();
 
 });
 

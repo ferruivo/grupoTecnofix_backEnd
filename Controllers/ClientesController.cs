@@ -17,8 +17,18 @@ namespace GrupoTecnofix_Api.Controllers
     public class ClientesController : ControllerBase
     {
         private readonly IClientesService _service;
+        private readonly ITransportadorasService _transportService;
+        private readonly ICondicoesPagamentoService _condService;
 
-        public ClientesController(IClientesService service) => _service = service;
+        public ClientesController(
+            IClientesService service,
+            ITransportadorasService transportService,
+            ICondicoesPagamentoService condService)
+        {
+            _service = service;
+            _transportService = transportService;
+            _condService = condService;
+        }
 
         [Authorize(Policy = "clientes.read")]
         [HttpGet]
@@ -34,6 +44,29 @@ namespace GrupoTecnofix_Api.Controllers
         [HttpGet("{id:int}/defaults")]
         public async Task<IActionResult> GetDefaultsById(int id, CancellationToken ct)
         => Ok(await _service.GetDefaultsByIdAsync(id, ct));
+
+        [Authorize(Policy = "clientes.read")]
+        [HttpGet("{id:int}/associacoes")]
+        public async Task<IActionResult> GetAssociacoesById(int id, CancellationToken ct)
+        {
+            var defaults = await _service.GetDefaultsByIdAsync(id, ct);
+            if (defaults == null) return NoContent();
+
+            var transportadora = defaults.IdTransportadora.HasValue
+                ? await _transportService.GetByIdAsync(defaults.IdTransportadora.Value, ct)
+                : null;
+
+            var condicaoPagamento = defaults.IdCondicaoPagamento.HasValue
+                ? await _condService.GetByIdAsync(defaults.IdCondicaoPagamento.Value, ct)
+                : null;
+
+            return Ok(new
+            {
+                Transportadora = transportadora,
+                CondicaoPagamento = condicaoPagamento,
+                Defaults = defaults
+            });
+        }
 
         [Authorize(Policy = "clientes.create")]
         [HttpPost]
