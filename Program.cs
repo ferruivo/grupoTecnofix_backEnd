@@ -139,6 +139,14 @@ builder.Services.AddScoped<ILiberacaoPedidoService, LiberacaoPedidoService>();
 builder.Services.AddScoped<IParametroVendaService, ParametroVendaService>();
 builder.Services.AddScoped<IAlocacaoMaterialsService, AlocacaoMaterialsService>();
 builder.Services.AddScoped<IAlocacaoMaterialsRepository, AlocacaoMaterialsRepository>();
+builder.Services.AddScoped<INotaFiscalRepository, NotaFiscalRepository>();
+builder.Services.AddScoped<INotaFiscalService, NotaFiscalService>();
+builder.Services.AddScoped<INotaFiscalCalculoService, NotaFiscalCalculoService>();
+builder.Services.AddScoped<INotaFiscalPreviewService, NotaFiscalPreviewService>();
+builder.Services.AddScoped<INotaFiscalPreviewRepository, NotaFiscalPreviewRepository>();
+builder.Services.AddScoped<INotaFiscalPreviewService, NotaFiscalPreviewService>();
+builder.Services.AddScoped<ICfopRepository, CfopRepository>();
+builder.Services.AddScoped<ICfopService, CfopService>();
 // ===================== AutoMapper =====================
 builder.Services.AddAutoMapper(cfg =>
 {

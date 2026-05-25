@@ -41,6 +41,11 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Especificacao> Especificacoes { get; set; }
     public virtual DbSet<Consumolote> Consumolotes { get; set; }
     public virtual DbSet<AlocacaoMaterial> AlocacaoMaterials { get; set; }
+    public virtual DbSet<NotaFiscal> NotaFiscals { get; set; }
+    public virtual DbSet<NotaFiscalEvento> NotaFiscalEventos { get; set; }
+    public virtual DbSet<NotaFiscalItem> NotaFiscalItems { get; set; }
+    public virtual DbSet<NotaFiscalItemTributo> NotaFiscalItemTributos { get; set; }
+    public virtual DbSet<Cfop> Cfops { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Cliente>(entity =>
@@ -1325,6 +1330,257 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("ID_PRATELEIRA");
             entity.Property(e => e.Qtd).HasColumnName("QTD");
             entity.Property(e => e.Reservado).HasColumnName("RESERVADO");
+        });
+
+        modelBuilder.Entity<NotaFiscal>(entity =>
+        {
+            entity.HasKey(e => e.IdNotaFiscal);
+
+            entity.ToTable("NotaFiscal");
+
+            entity.HasIndex(e => new { e.NumeroNota, e.Serie, e.Modelo }, "UQ_NotaFiscal_NumeroSerieModelo").IsUnique();
+
+            entity.Property(e => e.Antt)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.BaseCbs).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.BaseIbsMunicipio).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.BaseIbsUf).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.BaseIcms).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.BaseIcmsSt).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ChaveAcesso)
+                .HasMaxLength(44)
+                .IsUnicode(false);
+            entity.Property(e => e.DataCadastro).HasDefaultValueSql("(sysdatetime())");
+            entity.Property(e => e.Especie)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.Finalidade).HasDefaultValue(1);
+            entity.Property(e => e.IdNfe)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Modelo)
+                .HasMaxLength(2)
+                .IsUnicode(false)
+                .HasDefaultValue("55");
+            entity.Property(e => e.MotivoCancelamento)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.Observacao)
+                .HasMaxLength(1000)
+                .IsUnicode(false);
+            entity.Property(e => e.ObservacaoAdicional)
+                .HasMaxLength(1000)
+                .IsUnicode(false);
+            entity.Property(e => e.PesoBruto).HasColumnType("decimal(16, 3)");
+            entity.Property(e => e.PesoLiquido).HasColumnType("decimal(16, 3)");
+            entity.Property(e => e.Placa)
+                .HasMaxLength(8)
+                .IsUnicode(false);
+            entity.Property(e => e.ProtocoloAutorizacao)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.QtdEspecie)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.Serie).HasDefaultValue(1);
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("DIGITADA");
+            entity.Property(e => e.TipoDestinatario)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.TipoFrete)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.TipoMovimento)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.TipoOperacao)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.UfPlaca)
+                .HasMaxLength(2)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.UsuarioCancelamento)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.UsuarioEmissao)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.ValorCbs).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorCofins).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorDesconto).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorDespesasAcessorias).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorFrete).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorIbsMunicipio).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorIbsUf).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorIcms).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorIcmsSt).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorImportacao).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorIpi).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorIs).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorNota).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorPis).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorProdutos).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorSeguro).HasColumnType("decimal(16, 2)");
+        });
+
+        modelBuilder.Entity<NotaFiscalEvento>(entity =>
+        {
+            entity.HasKey(e => e.IdNotaFiscalEvento);
+
+            entity.ToTable("NotaFiscalEvento");
+
+            entity.Property(e => e.DataEvento).HasDefaultValueSql("(sysdatetime())");
+            entity.Property(e => e.Justificativa)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.Protocolo)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.TipoEvento)
+                .HasMaxLength(30)
+                .IsUnicode(false);
+            entity.Property(e => e.Usuario)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.XmlRetorno).HasColumnType("xml");
+
+            entity.HasOne(d => d.IdNotaFiscalNavigation).WithMany(p => p.NotaFiscalEventos)
+                .HasForeignKey(d => d.IdNotaFiscal)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_NotaFiscalEvento_NotaFiscal");
+        });
+
+        modelBuilder.Entity<NotaFiscalItem>(entity =>
+        {
+            entity.HasKey(e => e.IdNotaFiscalItem);
+
+            entity.ToTable("NotaFiscalItem");
+
+            entity.HasIndex(e => new { e.IdNotaFiscal, e.Item }, "UQ_NotaFiscalItem_Item").IsUnique();
+
+            entity.Property(e => e.Cest)
+                .HasMaxLength(7)
+                .IsUnicode(false);
+            entity.Property(e => e.Cfop)
+                .HasMaxLength(4)
+                .IsUnicode(false);
+            entity.Property(e => e.CodigoProduto)
+                .HasMaxLength(60)
+                .IsUnicode(false);
+            entity.Property(e => e.DescricaoProduto)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.ItemPedidoCliente)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.Ncm)
+                .HasMaxLength(8)
+                .IsUnicode(false);
+            entity.Property(e => e.PedidoCliente)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.PrecoUnitario).HasColumnType("decimal(16, 5)");
+            entity.Property(e => e.Quantidade).HasColumnType("decimal(16, 3)");
+            entity.Property(e => e.Unidade)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.ValorDesconto).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorFrete).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorOutrasDespesas).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorProduto).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorSeguro).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorTotal).HasColumnType("decimal(16, 2)");
+
+            entity.HasOne(d => d.IdNotaFiscalNavigation).WithMany(p => p.NotaFiscalItems)
+                .HasForeignKey(d => d.IdNotaFiscal)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_NotaFiscalItem_NotaFiscal");
+        });
+
+        modelBuilder.Entity<NotaFiscalItemTributo>(entity =>
+        {
+            entity.HasKey(e => e.IdNotaFiscalItemTributo);
+
+            entity.ToTable("NotaFiscalItemTributo");
+
+            entity.Property(e => e.Aliquota).HasColumnType("decimal(9, 4)");
+            entity.Property(e => e.BaseCalculo).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.CclassTrib)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("CClassTrib");
+            entity.Property(e => e.CodigoBeneficioFiscal)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.Csosn)
+                .HasMaxLength(5)
+                .IsUnicode(false);
+            entity.Property(e => e.Cst)
+                .HasMaxLength(5)
+                .IsUnicode(false);
+            entity.Property(e => e.Observacao)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.PercentualReducao).HasColumnType("decimal(9, 4)");
+            entity.Property(e => e.TipoTributo)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.Valor).HasColumnType("decimal(16, 2)");
+            entity.Property(e => e.ValorCreditoPresumido).HasColumnType("decimal(16, 2)");
+
+            entity.HasOne(d => d.IdNotaFiscalItemNavigation).WithMany(p => p.NotaFiscalItemTributos)
+                .HasForeignKey(d => d.IdNotaFiscalItem)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_NotaFiscalItemTributo_Item");
+        });
+
+        modelBuilder.Entity<Cfop>(entity =>
+        {
+            entity.HasKey(e => e.IdCfop);
+
+            entity.ToTable("Cfop");
+
+            entity.HasIndex(e => e.Cfop1, "UQ_Cfop").IsUnique();
+
+            entity.Property(e => e.Cfop1)
+                .HasMaxLength(4)
+                .IsUnicode(false)
+                .HasColumnName("Cfop");
+            entity.Property(e => e.DataCadastro).HasDefaultValueSql("(sysdatetime())");
+            entity.Property(e => e.Descricao)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Devolucao)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.Icms)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.Interestadual)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.Obs)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.TipoOperacao)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.Venda)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
         });
 
         OnModelCreatingPartial(modelBuilder);

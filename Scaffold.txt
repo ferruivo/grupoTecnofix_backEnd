@@ -1,7 +1,10 @@
 ﻿Scaffold-DbContext "Server=177.93.111.112,6433;Database=GrupoTecnofix;User Id=fixadores;Password=Tecno2@@3;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Context AppDbContext -ContextDir Data -OutputDir Models -DataAnnotations -NoOnConfiguring -Force
 
 --Unitario
-Scaffold-DbContext "Server=177.93.111.112,6433;Database=GrupoTecnofix;User Id=fixadores;Password=Tecnofix2@@3;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Context AppDbContext -ContextDir OUT\Data -OutputDir OUT\Models -NoOnConfiguring -Force -Tables ALOCACAO_MATERIAL
+Scaffold-DbContext "Server=177.93.111.112,6433;Database=GrupoTecnofix;User Id=fixadores;Password=Tecno2003;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Context AppDbContext -ContextDir OUT\Data -OutputDir OUT\Models -NoOnConfiguring -Force -Tables cfop
+ 
+ --Multiplas
+Scaffold-DbContext "Server=177.93.111.112,6433;Database=GrupoTecnofix;User Id=fixadores;Password=Tecno2003;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -Context AppDbContext -ContextDir OUT\Data -OutputDir OUT\Models -NoOnConfiguring -Force -Tables NotaFiscal,NotaFiscalItem,NotaFiscalItemTributo,NotaFiscalEvento
 
 --Deploy
 dotnet publish .\GrupoTecnofix_Api.csproj -c Release -o C:\Sites\GrupoTecnofixApi
