@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "GrupoTecnofix_Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "..\\AcbrApi_integration\\AcbrApi_integration.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

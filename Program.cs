@@ -43,6 +43,14 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 builder.Services.AddHttpContextAccessor();
 
+// Acbr integration client
+builder.Services.AddHttpClient("AcbrApi", client =>
+{
+    var acbr = builder.Configuration.GetSection("AcbrApi");
+    client.BaseAddress = new Uri(acbr["BaseUrl"] ?? "http://localhost:5001");
+    client.DefaultRequestHeaders.Add("X-Api-Key", acbr["ApiKey"] ?? string.Empty);
+});
+
 // ===================== JWT =====================
 var jwt = builder.Configuration.GetSection("Jwt");
 var key = jwt["Key"]!;

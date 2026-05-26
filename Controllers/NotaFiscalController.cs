@@ -7,7 +7,7 @@ namespace GrupoTecnofix_Api.Controllers
 {
     [ApiController]
     [Route("api/notas-fiscais")]
-    [Authorize]
+    //[Authorize]
     public class NotaFiscalController : ControllerBase
     {
         private readonly INotaFiscalService _service;
@@ -111,6 +111,16 @@ namespace GrupoTecnofix_Api.Controllers
             });
         }
 
+        [HttpGet("{idNotaFiscal:long}/eventos")]
+        [Authorize(Policy = "notafiscal.read")]
+        public async Task<IActionResult> GetEventos(
+            long idNotaFiscal,
+            CancellationToken ct)
+        {
+            var eventos = await _service.GetEventosAsync(idNotaFiscal, ct);
+            return Ok(eventos);
+        }
+
         [HttpPost("{idNotaFiscal:long}/emitir")]
         [Authorize(Policy = "notafiscal.create")]
         public async Task<IActionResult> Emitir(
@@ -119,10 +129,19 @@ namespace GrupoTecnofix_Api.Controllers
         {
             await _service.EmitirAsync(idNotaFiscal, ct);
 
-            return Ok(new
+            var nota = await _service.GetByIdAsync(idNotaFiscal, ct);
+
+            var status = nota?.Status ?? string.Empty;
+
+            string message = status.ToUpperInvariant() switch
             {
-                message = "Nota fiscal enviada para emissão."
-            });
+                "AUTORIZADA" => "Nota fiscal Autorizada",
+                "REJEITADA" => "Nota fiscal rejeitada",
+                "CANCELADA" => "Nota fiscal Cancelada",
+                _ => "Nota fiscal enviada para emissão."
+            };
+
+            return Ok(new { message, status });
         }
 
         [HttpPost("importar-itens-preview")]
