@@ -42,5 +42,10 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
         Task<NotaFiscalImportacaoPreviewDto> ImportarItensPreviewAsync(
             IFormFile arquivo,
             CancellationToken ct);
+
+        Task<NotaFiscalEventoResponseDto> CancelarAsync(
+            long idNotaFiscal,
+            object request,
+            CancellationToken ct);
     }
 }

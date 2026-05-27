@@ -108,6 +108,21 @@ public class Imposto
     public ICMS ICMS { get; set; } = new();
     public PIS PIS { get; set; } = new();
     public COFINS COFINS { get; set; } = new();
+    public IPI IPI { get; set; } = new();
+}
+
+public class IPI
+{
+    public string cEnq { get; set; } = "07";
+    public IPITrib IPITrib { get; set; }
+}
+
+public class IPITrib
+{
+    public string CST { get; set; } = "50";
+    public decimal vBC { get; set; }
+    public decimal pIPI { get; set; } 
+    public decimal vIPI { get; set; }
 }
 
 public class ICMS
@@ -184,4 +199,5 @@ public class DetPag
     public int indPag { get; set; }
     public string tPag { get; set; } = string.Empty;
     public decimal vPag { get; set; }
+    public string? xPag { get; set; } // descrição do pagamento (obrigatório para tPag=99)
 }

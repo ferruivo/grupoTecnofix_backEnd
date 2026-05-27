@@ -7,16 +7,20 @@ namespace GrupoTecnofix_Api.Controllers
 {
     [ApiController]
     [Route("api/notas-fiscais")]
-    //[Authorize]
+    [Authorize]
     public class NotaFiscalController : ControllerBase
     {
         private readonly INotaFiscalService _service;
         private readonly INotaFiscalPreviewService _previewService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
-        public NotaFiscalController(INotaFiscalService service, INotaFiscalPreviewService previewService)
+        public NotaFiscalController(INotaFiscalService service, INotaFiscalPreviewService previewService, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _service = service;
             _previewService = previewService;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -42,9 +46,7 @@ namespace GrupoTecnofix_Api.Controllers
         }
 
         [HttpPost("preview")]
-        public async Task<IActionResult> GerarPreview(
-    [FromBody] NotaFiscalPreviewRequestDto dto,
-    CancellationToken ct)
+        public async Task<IActionResult> GerarPreview([FromBody] NotaFiscalPreviewRequestDto dto,CancellationToken ct)
         {
             var result = await _previewService.GerarPreviewAsync(dto, ct);
             return Ok(result);
@@ -52,9 +54,7 @@ namespace GrupoTecnofix_Api.Controllers
 
         [HttpPost]
         [Authorize(Policy = "notafiscal.create")]
-        public async Task<IActionResult> Create(
-            [FromBody] NotaFiscalCreateDto dto,
-            CancellationToken ct)
+        public async Task<IActionResult> Create([FromBody] NotaFiscalCreateDto dto,CancellationToken ct)
         {
             var id = await _service.CreateAsync(dto, ct);
 
@@ -67,10 +67,7 @@ namespace GrupoTecnofix_Api.Controllers
 
         [HttpPut("{idNotaFiscal:long}")]
         [Authorize(Policy = "notafiscal.update")]
-        public async Task<IActionResult> Update(
-            long idNotaFiscal,
-            [FromBody] NotaFiscalUpdateDto dto,
-            CancellationToken ct)
+        public async Task<IActionResult> Update(long idNotaFiscal,[FromBody] NotaFiscalUpdateDto dto,CancellationToken ct)
         {
             await _service.UpdateAsync(idNotaFiscal, dto, ct);
 
@@ -82,9 +79,7 @@ namespace GrupoTecnofix_Api.Controllers
 
         [HttpDelete("{idNotaFiscal:long}")]
         [Authorize(Policy = "notafiscal.delete")]
-        public async Task<IActionResult> Delete(
-            long idNotaFiscal,
-            CancellationToken ct)
+        public async Task<IActionResult> Delete(long idNotaFiscal,CancellationToken ct)
         {
             await _service.DeleteAsync(idNotaFiscal, ct);
 
@@ -96,10 +91,7 @@ namespace GrupoTecnofix_Api.Controllers
 
         [HttpPost("{idNotaFiscal:long}/eventos")]
         [Authorize(Policy = "notafiscal.create")]
-        public async Task<IActionResult> AddEvento(
-            long idNotaFiscal,
-            [FromBody] NotaFiscalEventoCreateDto dto,
-            CancellationToken ct)
+        public async Task<IActionResult> AddEvento(long idNotaFiscal,[FromBody] NotaFiscalEventoCreateDto dto,CancellationToken ct)
         {
             dto.IdNotaFiscal = idNotaFiscal;
 
@@ -113,9 +105,7 @@ namespace GrupoTecnofix_Api.Controllers
 
         [HttpGet("{idNotaFiscal:long}/eventos")]
         [Authorize(Policy = "notafiscal.read")]
-        public async Task<IActionResult> GetEventos(
-            long idNotaFiscal,
-            CancellationToken ct)
+        public async Task<IActionResult> GetEventos(long idNotaFiscal,CancellationToken ct)
         {
             var eventos = await _service.GetEventosAsync(idNotaFiscal, ct);
             return Ok(eventos);
@@ -123,9 +113,7 @@ namespace GrupoTecnofix_Api.Controllers
 
         [HttpPost("{idNotaFiscal:long}/emitir")]
         [Authorize(Policy = "notafiscal.create")]
-        public async Task<IActionResult> Emitir(
-            long idNotaFiscal,
-            CancellationToken ct)
+        public async Task<IActionResult> Emitir(long idNotaFiscal,CancellationToken ct)
         {
             await _service.EmitirAsync(idNotaFiscal, ct);
 
@@ -147,12 +135,63 @@ namespace GrupoTecnofix_Api.Controllers
         [HttpPost("importar-itens-preview")]
         [Authorize(Policy = "notafiscal.create")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> ImportarItensPreview(
-    [FromForm] NotaFiscalImportarItensFormDto form,
-    CancellationToken ct)
+        public async Task<IActionResult> ImportarItensPreview([FromForm] NotaFiscalImportarItensFormDto form,CancellationToken ct)
         {
             var result = await _service.ImportarItensPreviewAsync(form.Arquivo, ct);
             return Ok(result);
+        }
+        
+        [HttpGet("{idNotaFiscal:long}/xml")]
+        [Authorize(Policy = "notafiscal.read")]
+        public async Task<IActionResult> ObterXml(long idNotaFiscal, CancellationToken ct)
+        {
+            var nota = await _service.GetByIdAsync(idNotaFiscal, ct);
+            if (nota == null || string.IsNullOrEmpty(nota.IdNfe))
+                return NotFound("Nota fiscal não encontrada ou sem IdNfe.");
+
+            var empresaKey = _configuration.GetSection("AcbrApi")["EmpresaKey"] ?? string.Empty;
+
+            var client = _httpClientFactory.CreateClient("AcbrApi");
+            var xml = await client.GetStringAsync($"api/nfe/{empresaKey}/{nota.IdNfe}/xml", ct);
+            return Content(xml, "application/xml");
+        }
+
+        [HttpGet("{idNotaFiscal:long}/danfe")]
+        [Authorize(Policy = "notafiscal.read")]
+        public async Task<IActionResult> ObterDanfe(long idNotaFiscal, CancellationToken ct)
+        {
+            var nota = await _service.GetByIdAsync(idNotaFiscal, ct);
+            if (nota == null || string.IsNullOrEmpty(nota.IdNfe))
+                return NotFound("Nota fiscal não encontrada ou sem IdNfe.");
+
+            var empresaKey = _configuration.GetSection("AcbrApi")["EmpresaKey"] ?? string.Empty;
+
+            var client = _httpClientFactory.CreateClient("AcbrApi");
+            var pdfBytes = await client.GetByteArrayAsync($"api/nfe/{empresaKey}/{nota.IdNfe}/pdf", ct);
+            return File(pdfBytes, "application/pdf", $"{nota.IdNfe}.pdf");
+        }
+
+        [HttpGet("{idNotaFiscal:long}/danfeCancelado")]
+        [Authorize(Policy = "notafiscal.read")]
+        public async Task<IActionResult> ObterDanfeCancelado(long idNotaFiscal, CancellationToken ct)
+        {
+            var nota = await _service.GetByIdAsync(idNotaFiscal, ct);
+            if (nota == null || string.IsNullOrEmpty(nota.IdNfe))
+                return NotFound("Nota fiscal não encontrada ou sem IdNfe.");
+
+            var empresaKey = _configuration.GetSection("AcbrApi")["EmpresaKey"] ?? string.Empty;
+
+            var client = _httpClientFactory.CreateClient("AcbrApi");
+            var pdfBytes = await client.GetByteArrayAsync($"api/nfe/{empresaKey}/{nota.IdNfe}/cancelamento/pdf", ct);
+            return File(pdfBytes, "application/pdf", $"{nota.IdNfe}.pdf");
+        }
+
+        [HttpPost("{idNotaFiscal:long}/cancelar")]
+        [Authorize(Policy = "notafiscal.update")]
+        public async Task<IActionResult> Cancelar(long idNotaFiscal, [FromBody] object request, CancellationToken ct)
+        {
+            var evento = await _service.CancelarAsync(idNotaFiscal, request, ct);
+            return Ok(evento);
         }
     }
 }

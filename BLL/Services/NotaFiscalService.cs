@@ -74,6 +74,7 @@ namespace GrupoTecnofix_Api.BLL.Services
                     XmlRetorno = ev.XmlRetorno
                 };
 
+
                 // try parse XmlRetorno as JSON returned by ACBr integration
                 if (!string.IsNullOrWhiteSpace(ev.XmlRetorno))
                 {
@@ -114,26 +115,35 @@ namespace GrupoTecnofix_Api.BLL.Services
                             if (root.TryGetProperty("raw", out var raw) && raw.ValueKind == JsonValueKind.String)
                                 details["raw"] = raw.GetString();
                         }
-                        else
+
+                        // Extrair motivo_status de autorizacao, mesmo sem error no topo
+                        if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("autorizacao", out var autorizacao) && autorizacao.ValueKind == JsonValueKind.Object)
                         {
-                            // not an error: try to extract authorization fields
-                            if (root.ValueKind == JsonValueKind.Object)
+                            if (autorizacao.TryGetProperty("motivo_status", out var motivoStatus) && motivoStatus.ValueKind == JsonValueKind.String)
                             {
-                                if (root.TryGetProperty("chave", out var ch) && ch.ValueKind == JsonValueKind.String)
-                                    details["chave"] = ch.GetString();
-
-                                if (root.TryGetProperty("numero", out var num) && (num.ValueKind == JsonValueKind.Number || num.ValueKind == JsonValueKind.String))
-                                    details["numero"] = num.GetRawText().Trim('"');
-
-                                if (root.TryGetProperty("serie", out var ser) && (ser.ValueKind == JsonValueKind.Number || ser.ValueKind == JsonValueKind.String))
-                                    details["serie"] = ser.GetRawText().Trim('"');
-
-                                if (root.TryGetProperty("valor_total", out var vt) && (vt.ValueKind == JsonValueKind.Number || vt.ValueKind == JsonValueKind.String))
-                                    details["valor_total"] = vt.GetRawText().Trim('"');
-
-                                if (root.TryGetProperty("http_status", out var hs2) && hs2.ValueKind == JsonValueKind.Number)
-                                    details["http_status"] = hs2.GetRawText();
+                                var motivo = motivoStatus.GetString();
+                                if (!string.IsNullOrWhiteSpace(motivo))
+                                    errors.Add(motivo);
                             }
+                        }
+
+                        // Extrair campos principais
+                        if (root.ValueKind == JsonValueKind.Object)
+                        {
+                            if (root.TryGetProperty("chave", out var ch) && ch.ValueKind == JsonValueKind.String)
+                                details["chave"] = ch.GetString();
+
+                            if (root.TryGetProperty("numero", out var num) && (num.ValueKind == JsonValueKind.Number || num.ValueKind == JsonValueKind.String))
+                                details["numero"] = num.GetRawText().Trim('"');
+
+                            if (root.TryGetProperty("serie", out var ser) && (ser.ValueKind == JsonValueKind.Number || ser.ValueKind == JsonValueKind.String))
+                                details["serie"] = ser.GetRawText().Trim('"');
+
+                            if (root.TryGetProperty("valor_total", out var vt) && (vt.ValueKind == JsonValueKind.Number || vt.ValueKind == JsonValueKind.String))
+                                details["valor_total"] = vt.GetRawText().Trim('"');
+
+                            if (root.TryGetProperty("http_status", out var hs2) && hs2.ValueKind == JsonValueKind.Number)
+                                details["http_status"] = hs2.GetRawText();
                         }
 
                         dto.Details = details.Count > 0 ? details : null;
@@ -335,6 +345,7 @@ namespace GrupoTecnofix_Api.BLL.Services
             string chave = null;
             string protocolo = null;
             DateTime? dataAutorizacao = null;
+            string motivoRejeicao = null;
 
             try
             {
@@ -356,6 +367,16 @@ namespace GrupoTecnofix_Api.BLL.Services
                     if (root.TryGetProperty("error", out var _))
                         isError = true;
 
+                    // Check for status: "rejeitado" at root
+                    if (root.TryGetProperty("status", out var statusProp) && statusProp.ValueKind == JsonValueKind.String)
+                    {
+                        var statusVal = statusProp.GetString();
+                        if (!string.IsNullOrWhiteSpace(statusVal) && statusVal.Equals("rejeitado", StringComparison.OrdinalIgnoreCase))
+                        {
+                            isError = true;
+                        }
+                    }
+
                     if (root.TryGetProperty("id", out var idProp) && idProp.ValueKind == JsonValueKind.String)
                         id = idProp.GetString();
 
@@ -364,6 +385,19 @@ namespace GrupoTecnofix_Api.BLL.Services
 
                     if (root.TryGetProperty("autorizacao", out var auth) && auth.ValueKind == JsonValueKind.Object)
                     {
+                        // Check for status: "rejeitado" in autorizacao
+                        if (auth.TryGetProperty("status", out var authStatus) && authStatus.ValueKind == JsonValueKind.String)
+                        {
+                            var authStatusVal = authStatus.GetString();
+                            if (!string.IsNullOrWhiteSpace(authStatusVal) && authStatusVal.Equals("rejeitado", StringComparison.OrdinalIgnoreCase))
+                            {
+                                isError = true;
+                            }
+                        }
+                        if (auth.TryGetProperty("motivo_status", out var motivoStatus) && motivoStatus.ValueKind == JsonValueKind.String)
+                        {
+                            motivoRejeicao = motivoStatus.GetString();
+                        }
                         if (auth.TryGetProperty("numero_protocolo", out var np) && np.ValueKind == JsonValueKind.String)
                             protocolo = np.GetString();
 
@@ -413,6 +447,12 @@ namespace GrupoTecnofix_Api.BLL.Services
                 XmlRetorno = responseBody,
                 Usuario = usuario
             };
+            // Se rejeitado, incluir motivo no evento (se disponível)
+            if (isError && !string.IsNullOrWhiteSpace(motivoRejeicao))
+            {
+                // Se houver campo Justificativa ou similar, pode ser salvo aqui
+                // evento.Justificativa = motivoRejeicao; // descomente se existir o campo
+            }
 
             await _repo.AddEventoAsync(evento, ct);
             await _repo.SaveAsync(ct);
@@ -482,7 +522,7 @@ namespace GrupoTecnofix_Api.BLL.Services
             req.InfNFe.Ide.tpEmis = 1;
             req.InfNFe.Ide.tpAmb = req.Ambiente.Equals("producao", StringComparison.OrdinalIgnoreCase) ? 1 : 2;
             req.InfNFe.Ide.finNFe = (int)(nota.Finalidade == 0 ? 1 : nota.Finalidade);
-            req.InfNFe.Ide.indFinal = 0;
+            
             req.InfNFe.Ide.indPres = 0;
             req.InfNFe.Ide.procEmi = 0;
 
@@ -491,7 +531,13 @@ namespace GrupoTecnofix_Api.BLL.Services
             req.InfNFe.Total.ICMSTot.vFrete = nota.ValorFrete;
             req.InfNFe.Total.ICMSTot.vSeg = nota.ValorSeguro;
             req.InfNFe.Total.ICMSTot.vDesc = nota.ValorDesconto;
-            req.InfNFe.Total.ICMSTot.vNF = nota.ValorNota;
+            req.InfNFe.Total.ICMSTot.vIPI = nota.ValorIpi;
+            req.InfNFe.Total.ICMSTot.vOutro = nota.ValorDespesasAcessorias;
+            // Calcular vNF conforme regra SEFAZ: vNF = vProd + vFrete + vSeg + vOutro - vDesc
+            req.InfNFe.Total.ICMSTot.vNF = Math.Round(
+                (nota.ValorProdutos + nota.ValorIpi + nota.ValorFrete + nota.ValorSeguro + nota.ValorDespesasAcessorias) - nota.ValorDesconto,
+                2
+            );
 
             // Pagamentos (obter da condição de pagamento ligada à nota)
             try
@@ -501,10 +547,9 @@ namespace GrupoTecnofix_Api.BLL.Services
                     var cond = await _condicoesPagamentoService.GetByIdAsync(nota.IdPagamento.Value, ct);
                     if (cond != null)
                     {
-                        // build simple pag entries: use Venc01..Venc06 as indicators
                         var valores = new List<DetPag>();
-                        // assume single payment with total value for now; tPag 99 = other
-                        valores.Add(new DetPag { indPag = 0, tPag = "99", vPag = nota.ValorNota });
+                        // Se tPag for 99, preencher xPag obrigatoriamente
+                        valores.Add(new DetPag { indPag = 0, tPag = "99", vPag = nota.ValorNota, xPag = "OUTROS" });
                         req.InfNFe.Pag.detPag = valores;
                     }
                 }
@@ -527,10 +572,12 @@ namespace GrupoTecnofix_Api.BLL.Services
                         if (cliente.IdTipodocumento == 1) // CPF
                         {
                             req.InfNFe.Dest.CPF = cliente.Cpf;
+                            req.InfNFe.Ide.indFinal = 1;
                         }
                         else
                         {
                             req.InfNFe.Dest.CNPJ = cliente.Cnpj;
+                            req.InfNFe.Ide.indFinal = 0;
                         }
 
                         req.InfNFe.Dest.indIEDest = cliente.IdTipodocumento == 2 && cliente.InscricaoEstadual.ToUpper() != "ISENTO" ? 1 : cliente.IdTipodocumento == 2 && cliente.InscricaoEstadual.ToUpper() == "ISENTO" ? 2 : 9; // assume contribuinte com IE por padrão
@@ -554,6 +601,7 @@ namespace GrupoTecnofix_Api.BLL.Services
                     var forn = _fornecedoresService.GetByIdAsync(nota.IdDestinatario.Value, CancellationToken.None).GetAwaiter().GetResult();
                     if (forn != null)
                     {
+                        req.InfNFe.Ide.indFinal = 0;
                         req.InfNFe.Dest.xNome = forn.Fantasia ?? forn.RazaoSocial ?? string.Empty;
                         req.InfNFe.Dest.CNPJ = forn.CpfCnpj;
                         req.InfNFe.Dest.indIEDest = forn.Ie.ToUpper() != "ISENTO" ? 1 : 2; // assume contribuinte com IE por padrão
@@ -574,6 +622,15 @@ namespace GrupoTecnofix_Api.BLL.Services
             {
                 var prodDto = _produtosService.GetByIdAsync(it.IdProduto, CancellationToken.None).GetAwaiter().GetResult();
 
+                // Definir unidade tributável igual à unidade comercial, a menos que haja diferença
+                var unidade = prodDto?.Unidade ?? it.Unidade ?? string.Empty;
+                var qCom = it.Quantidade;
+                var vUnCom = it.PrecoUnitario;
+                var qTrib = qCom;
+                var vUnTrib = vUnCom;
+                // vProd deve ser qTrib * vUnTrib, arredondado para 2 casas decimais
+                var vProd = Math.Round(qTrib * vUnTrib, 2);
+
                 var det = new Det
                 {
                     nItem = it.Item,
@@ -583,11 +640,13 @@ namespace GrupoTecnofix_Api.BLL.Services
                         xProd = prodDto?.Descricao ?? it.DescricaoProduto ?? string.Empty,
                         NCM = prodDto?.Ncm ?? it.Ncm ?? string.Empty,
                         CFOP = it.Cfop ?? string.Empty,
-                        uCom = prodDto?.Unidade ?? it.Unidade ?? string.Empty,
-                        qCom = it.Quantidade,
-                        vUnCom = it.PrecoUnitario,
-                        vProd = it.ValorProduto,
-                        uTrib = prodDto?.Unidade ?? it.Unidade ?? string.Empty
+                        uCom = unidade,
+                        qCom = qCom,
+                        vUnCom = vUnCom,
+                        vProd = vProd,
+                        uTrib = unidade,
+                        qTrib = qTrib,
+                        vUnTrib = vUnTrib
                     },
                     imposto = new Imposto()
                 };
@@ -610,15 +669,112 @@ namespace GrupoTecnofix_Api.BLL.Services
                         {
                             det.imposto.ICMS.ICMSSN102 = new ICMSSN102 { orig = 0, CSOSN = "102" };
                         }
+                        else if (tipo == "IPI")
+                        {
+                            det.imposto.IPI = new IPI
+                            {
+                                cEnq = "999",
+                                IPITrib = new IPITrib
+                                {
+                                    CST = "50",
+                                    vBC = tr.BaseCalculo,
+                                    pIPI = tr.Aliquota,
+                                    vIPI = tr.Valor
+                                }
+                            };
+                        }
                     }
                 }
 
                 req.InfNFe.Det.Add(det);
             }
-
+            Console.WriteLine(JsonSerializer.Serialize(req));
             return req;
         }
 
-        
+        public async Task<NotaFiscalEventoResponseDto> CancelarAsync(long idNotaFiscal, object request, CancellationToken ct)
+        {
+            var nota = await _repo.GetByIdForUpdateAsync(idNotaFiscal, ct);
+            if (nota is null || string.IsNullOrEmpty(nota.IdNfe))
+                throw new KeyNotFoundException("Nota fiscal não encontrada ou sem IdNfe.");
+
+            var empresaKey = _configuration.GetSection("AcbrApi")["EmpresaKey"] ?? string.Empty;
+            var client = _httpFactory.CreateClient("AcbrApi");
+            var response = await client.PostAsJsonAsync($"api/nfe/{empresaKey}/{nota.IdNfe}/cancelamento", request, ct);
+            var responseBody = await response.Content.ReadAsStringAsync(ct);
+
+            bool isSuccess = false;
+            string tipoEvento = "4"; // 3 = CANCELADA, 4 = CANCELAMENTO REJEITADO
+            string? usuario = null;
+            string? motivo = null;
+            try { usuario = _currentUser.GetUsuarioLogadoId().ToString(); } catch { }
+
+            try
+            {
+                using var doc = JsonDocument.Parse(responseBody);
+                var root = doc.RootElement;
+                if (root.ValueKind == JsonValueKind.Object)
+                {
+                    if (root.TryGetProperty("status", out var st) && st.ValueKind == JsonValueKind.String &&
+                        st.GetString()?.Equals("registrado", StringComparison.OrdinalIgnoreCase) == true &&
+                        root.TryGetProperty("tipo_evento", out var te) && te.ValueKind == JsonValueKind.String &&
+                        te.GetString() == "110111")
+                    {
+                        isSuccess = true;
+                        tipoEvento = "3"; // CANCELADA
+                        motivo = root.TryGetProperty("motivo_status", out var ms) && ms.ValueKind == JsonValueKind.String ? ms.GetString() : null;
+                    }
+                    if (root.TryGetProperty("error", out var err))
+                    {
+                        motivo = err.TryGetProperty("message", out var m) && m.ValueKind == JsonValueKind.String ? m.GetString() : null;
+                        tipoEvento = "4"; // CANCELAMENTO REJEITADO
+                    }
+                }
+            }
+            catch { }
+
+            // Só altera status se sucesso
+            if (isSuccess)
+            {
+                nota.Status = "CANCELADA";
+                nota.DataCancelamento = DateTime.Now;
+                nota.UsuarioCancelamento = usuario;
+                nota.MotivoCancelamento = motivo;
+                nota.DataAlteracao = DateTime.Now;
+                nota.EnsureUpdateAudit(_currentUser);
+            }
+            else
+            {
+                nota.DataAlteracao = DateTime.Now;
+                nota.EnsureUpdateAudit(_currentUser);
+            }
+
+            var evento = new NotaFiscalEvento
+            {
+                IdNotaFiscal = nota.IdNotaFiscal,
+                DataEvento = DateTime.Now,
+                TipoEvento = tipoEvento,
+                XmlRetorno = responseBody,
+                Usuario = usuario
+            };
+            await _repo.AddEventoAsync(evento, ct);
+            await _repo.SaveAsync(ct);
+
+            var dto = new NotaFiscalEventoResponseDto
+            {
+                IdNotaFiscalEvento = evento.IdNotaFiscalEvento,
+                DataEvento = evento.DataEvento,
+                TipoEvento = MapTipoEvento(tipoEvento),
+                Usuario = usuario,
+                XmlRetorno = responseBody
+            };
+            if (!string.IsNullOrWhiteSpace(motivo))
+            {
+                dto.Summary = motivo;
+                dto.Errors = new List<string> { motivo };
+            }
+            return dto;
+        }
+
     }
 }
