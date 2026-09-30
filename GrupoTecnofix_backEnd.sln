@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36811.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrupoTecnofix_Api", "GrupoTecnofix_Api.csproj", "{7333C4B5-1AD8-EEAD-6C9F-C131F534CA7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcbrApi_integration", "..\AcbrApi_integration\AcbrApi_integration.csproj", "{1069C3BB-FFB5-44CB-BD66-D51A00BE90BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AcbrApi_integration", "AcbrApi_integration\AcbrApi_integration.csproj", "{1069C3BB-FFB5-44CB-BD66-D51A00BE90BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
