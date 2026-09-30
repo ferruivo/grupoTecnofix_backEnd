@@ -28,6 +28,7 @@ namespace GrupoTecnofix_Api.Auth
         {
             var u = await _db.Usuarios.FirstOrDefaultAsync(x => x.Login == login && x.Ativo);
             if (u is null) throw new UnauthorizedAccessException("Login inválido");
+            //var hash = BCrypt.Net.BCrypt.HashPassword("Admin@123", workFactor: 11);
 
             if (!BCrypt.Net.BCrypt.Verify(senha, u.SenhaHash))
                 throw new UnauthorizedAccessException("Login inválido");

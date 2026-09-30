@@ -16,21 +16,25 @@ namespace GrupoTecnofix_Api.Data.Repositories
             _db = db;
         }
 
-        public async Task<PagedResult<NotaFiscalListDto>> GetListPagedAsync(int page, int pageSize, string? search, CancellationToken ct = default)
+        public async Task<PagedResult<NotaFiscalListDto>> GetListPagedAsync(NotasFiscaisQueryDto queryDto, CancellationToken ct = default)
         {
+            var page = queryDto.Page;
+            var pageSize = queryDto.PageSize;
+            var search = queryDto.Search;
+            var status = queryDto.Status;
+            var dataInicio = queryDto.DataInicio;
+            var dataFim = queryDto.DataFim;
+
             if (page <= 0)
                 page = 1;
-
             if (pageSize <= 0)
                 pageSize = 10;
 
-            var query = _db.Set<NotaFiscal>()
-                .AsNoTracking();
+            var query = _db.Set<NotaFiscal>().AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var s = search.Trim();
-
                 query = query.Where(n =>
                     n.NumeroNota.ToString().Contains(s) ||
                     n.Serie.ToString().Contains(s) ||
@@ -40,6 +44,23 @@ namespace GrupoTecnofix_Api.Data.Repositories
                     n.TipoOperacao.Contains(s) ||
                     n.Status.Contains(s) ||
                     (n.IdNfe != null && n.IdNfe.Contains(s)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                var st = status.Trim().ToUpper();
+                query = query.Where(n => n.Status.ToUpper() == st);
+            }
+
+            if (dataInicio.HasValue)
+            {
+                var dataIni = DateOnly.FromDateTime(dataInicio.Value.Date);
+                query = query.Where(n => n.DataEmissao >= dataIni);
+            }
+            if (dataFim.HasValue)
+            {
+                var dataFimOnly = DateOnly.FromDateTime(dataFim.Value.Date);
+                query = query.Where(n => n.DataEmissao <= dataFimOnly);
             }
 
             var total = await query.CountAsync(ct);

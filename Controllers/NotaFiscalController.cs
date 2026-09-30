@@ -26,20 +26,16 @@ namespace GrupoTecnofix_Api.Controllers
         [HttpGet]
         [Authorize(Policy = "notafiscal.read")]
         public async Task<IActionResult> GetPaged(
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 20,
-            [FromQuery] string? search = null,
+            [FromQuery] Dtos.NotaFiscal.NotasFiscaisQueryDto query,
             CancellationToken ct = default)
         {
-            var result = await _service.GetPagedAsync(page, pageSize, search, ct);
+            var result = await _service.GetPagedAsync(query, ct);
             return Ok(result);
         }
 
         [HttpGet("{idNotaFiscal:long}")]
         [Authorize(Policy = "notafiscal.read")]
-        public async Task<IActionResult> GetById(
-            long idNotaFiscal,
-            CancellationToken ct)
+        public async Task<IActionResult> GetById(long idNotaFiscal,CancellationToken ct)
         {
             var result = await _service.GetByIdAsync(idNotaFiscal, ct);
             return Ok(result);
@@ -192,6 +188,22 @@ namespace GrupoTecnofix_Api.Controllers
         {
             var evento = await _service.CancelarAsync(idNotaFiscal, request, ct);
             return Ok(evento);
+        }
+
+        [HttpPost("{idNotaFiscal:long}/carta-correcao")]
+        [Authorize(Policy = "notafiscal.update")]
+        public async Task<IActionResult> CartaCorrecao(long idNotaFiscal, [FromBody] object request, CancellationToken ct)
+        {
+            var evento = await _service.CartaCorrecaoAsync(idNotaFiscal, request, ct);
+            return Ok(evento);
+        }
+
+        [HttpGet("{idNotaFiscal:long}/carta-correcao/pdf")]
+        [Authorize(Policy = "notafiscal.read")]
+        public async Task<IActionResult> ObterCartaCorrecaoPdf(long idNotaFiscal, CancellationToken ct)
+        {
+            var pdfBytes = await _service.ObterCartaCorrecaoPdfAsync(idNotaFiscal, ct);
+            return File(pdfBytes, "application/pdf", $"{idNotaFiscal}-carta-correcao.pdf");
         }
     }
 }

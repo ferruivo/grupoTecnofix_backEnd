@@ -7,9 +7,7 @@ namespace GrupoTecnofix_Api.Data.Interface
     public interface INotaFiscalRepository
     {
         Task<PagedResult<NotaFiscalListDto>> GetListPagedAsync(
-            int page,
-            int pageSize,
-            string? search,
+            NotasFiscaisQueryDto query,
             CancellationToken ct = default);
 
         Task<NotaFiscal?> GetByIdAsync(

@@ -205,16 +205,14 @@ namespace GrupoTecnofix_Api.BLL.Services
         }
 
         public async Task<PagedResult<NotaFiscalListDto>> GetPagedAsync(
-            int page,
-            int pageSize,
-            string? search,
+            NotasFiscaisQueryDto query,
             CancellationToken ct)
         {
-            if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 20;
-            if (pageSize > 200) pageSize = 200;
+            if (query.Page < 1) query.Page = 1;
+            if (query.PageSize < 1) query.PageSize = 20;
+            if (query.PageSize > 200) query.PageSize = 200;
 
-            return await _repo.GetListPagedAsync(page, pageSize, search, ct);
+            return await _repo.GetListPagedAsync(query, ct);
         }
 
         public async Task<NotaFiscal?> GetByIdAsync(
@@ -776,5 +774,93 @@ namespace GrupoTecnofix_Api.BLL.Services
             return dto;
         }
 
+        public async Task<NotaFiscalEventoResponseDto> CartaCorrecaoAsync(long idNotaFiscal, object request, CancellationToken ct)
+        {
+            var nota = await _repo.GetByIdForUpdateAsync(idNotaFiscal, ct);
+            if (nota is null || string.IsNullOrEmpty(nota.IdNfe))
+                throw new KeyNotFoundException("Nota fiscal não encontrada ou sem IdNfe.");
+
+            var empresaKey = _configuration.GetSection("AcbrApi")["EmpresaKey"] ?? string.Empty;
+            var client = _httpFactory.CreateClient("AcbrApi");
+            var response = await client.PostAsJsonAsync($"api/nfe/{empresaKey}/{nota.IdNfe}/carta-correcao", request, ct);
+            var responseBody = await response.Content.ReadAsStringAsync(ct);
+
+
+            bool isSuccess = false;
+            string tipoEvento = "5"; // 5 = CARTA CORRECAO
+            string? usuario = null;
+            string? motivo = null;
+            try { usuario = _currentUser.GetUsuarioLogadoId().ToString(); } catch { }
+
+            try
+            {
+                using var doc = JsonDocument.Parse(responseBody);
+                var root = doc.RootElement;
+                if (root.ValueKind == JsonValueKind.Object)
+                {
+                    // Sucesso: status registrado e tipo_evento 110110
+                    if (root.TryGetProperty("status", out var st) && st.ValueKind == JsonValueKind.String &&
+                        st.GetString()?.Equals("registrado", StringComparison.OrdinalIgnoreCase) == true &&
+                        root.TryGetProperty("tipo_evento", out var te) && te.ValueKind == JsonValueKind.String &&
+                        te.GetString() == "110110")
+                    {
+                        isSuccess = true;
+                        tipoEvento = "5"; // CARTA CORRECAO
+                        motivo = root.TryGetProperty("motivo_status", out var ms) && ms.ValueKind == JsonValueKind.String ? ms.GetString() : null;
+                    }
+                    // Se não for sucesso, verifica erro
+                    else if (root.TryGetProperty("error", out var err))
+                    {
+                        motivo = err.TryGetProperty("message", out var m) && m.ValueKind == JsonValueKind.String ? m.GetString() : null;
+                        // tipoEvento permanece "5" para carta de correção rejeitada
+                    }
+                }
+            }
+            catch { }
+
+            nota.DataAlteracao = DateTime.Now;
+            nota.EnsureUpdateAudit(_currentUser);
+
+            var evento = new NotaFiscalEvento
+            {
+                IdNotaFiscal = nota.IdNotaFiscal,
+                DataEvento = DateTime.Now,
+                TipoEvento = tipoEvento,
+                XmlRetorno = responseBody,
+                Usuario = usuario
+            };
+            await _repo.AddEventoAsync(evento, ct);
+            await _repo.SaveAsync(ct);
+
+            var dto = new NotaFiscalEventoResponseDto
+            {
+                IdNotaFiscalEvento = evento.IdNotaFiscalEvento,
+                DataEvento = evento.DataEvento,
+                TipoEvento = MapTipoEvento(tipoEvento),
+                Usuario = usuario,
+                XmlRetorno = responseBody
+            };
+            if (!string.IsNullOrWhiteSpace(motivo))
+            {
+                dto.Summary = motivo;
+                if (!isSuccess)
+                {
+                    dto.Errors = new List<string> { motivo };
+                }
+            }
+            return dto;
+        }
+
+        public async Task<byte[]> ObterCartaCorrecaoPdfAsync(long idNotaFiscal, CancellationToken ct)
+        {
+            var nota = await _repo.GetByIdAsync(idNotaFiscal, ct);
+            if (nota is null || string.IsNullOrEmpty(nota.IdNfe))
+                throw new KeyNotFoundException("Nota fiscal não encontrada ou sem IdNfe.");
+
+            var empresaKey = _configuration.GetSection("AcbrApi")["EmpresaKey"] ?? string.Empty;
+            var client = _httpFactory.CreateClient("AcbrApi");
+            var pdfBytes = await client.GetByteArrayAsync($"api/nfe/{empresaKey}/{nota.IdNfe}/carta-correcao/pdf", ct);
+            return pdfBytes;
+        }
     }
 }

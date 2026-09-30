@@ -7,9 +7,7 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
     public interface INotaFiscalService
     {
         Task<PagedResult<NotaFiscalListDto>> GetPagedAsync(
-            int page,
-            int pageSize,
-            string? search,
+            NotasFiscaisQueryDto query,
             CancellationToken ct);
 
         Task<NotaFiscal?> GetByIdAsync(
@@ -46,6 +44,15 @@ namespace GrupoTecnofix_Api.BLL.Interfaces
         Task<NotaFiscalEventoResponseDto> CancelarAsync(
             long idNotaFiscal,
             object request,
+            CancellationToken ct);
+
+        Task<NotaFiscalEventoResponseDto> CartaCorrecaoAsync(
+            long idNotaFiscal,
+            object request,
+            CancellationToken ct);
+
+        Task<byte[]> ObterCartaCorrecaoPdfAsync(
+            long idNotaFiscal,
             CancellationToken ct);
     }
 }
